@@ -1,0 +1,38 @@
+version: "3.5"
+
+services:
+    cockroachdb:
+        container_name: cryptellation-tests-cockroachdb
+        image: cockroachdb/cockroach
+        ports:
+            - 26257:26257
+            - 26256:8080
+        networks:
+            - cryptellation-tests-network
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
+        command: start-single-node --insecure
+        restart: unless-stopped
+    tests:
+        container_name: cryptellation-tests
+        build:
+            context: ..
+            dockerfile: build/dev/Dockerfile
+        depends_on:
+            - cockroachdb
+        image: cryptellation-testing
+        environment:
+            COCKROACHDB_USER: "root"
+            COCKROACHDB_PASSWORD: ""
+            COCKROACHDB_HOST: cockroachdb
+            COCKROACHDB_PORT: 26257
+        volumes:
+            - ..:/code
+        command: [ "go", "test", "-coverprofile=/dev/null", "./internal/services/...", "-parallel", "8" ]
+        networks:
+            - cryptellation-tests-network
+
+networks:
+    cryptellation-tests-network:
