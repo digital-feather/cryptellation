@@ -30,7 +30,7 @@ services:
             COCKROACHDB_PORT: 26257
         volumes:
             - ..:/code
-        command: [ "go", "test", "-coverprofile=/dev/null", "./internal/services/...", "-parallel", "8" ]
+        command: [ "go", "test", "-coverprofile=/dev/null", "./..." ]
         networks:
             - cryptellation-tests-network
 

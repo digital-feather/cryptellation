@@ -2,12 +2,15 @@
 
 set -eo pipefail
 
+echo "toto '$COCKROACHDB_PASSWORD'"
+
 # Wait for cockroachdb if required
 if [ ! -z ${COCKROACHDB_HOST+x} ]; then
   export PGHOST=$COCKROACHDB_HOST
   export PGPASSWORD=$COCKROACHDB_PASSWORD
   export PGPORT=$COCKROACHDB_PORT
   export PGUSER=$COCKROACHDB_USER
+  export PGDATABASE=defaultdb
 
   until  psql -c '\q'; do
     >&2 echo "CockroachDB is unavailable - sleeping"

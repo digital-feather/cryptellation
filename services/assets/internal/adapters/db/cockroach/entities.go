@@ -1,4 +1,4 @@
-package entities
+package cockroach
 
 import "github.com/cryptellation/cryptellation/pkg/types/asset"
 

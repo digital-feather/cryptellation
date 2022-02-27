@@ -1,0 +1,36 @@
+version: '3'
+services:
+  cockroachdb:
+      image: cockroachdb/cockroach
+      ports:
+          - 26257:26257
+          - 26256:8080
+      networks:
+          - cryptellation-network
+      ulimits:
+          nofile:
+              soft: 65536
+              hard: 65536
+      command: start-single-node --insecure
+  assets-grpc:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9000:9000
+    env_file:
+      - configs/env/.example.env
+    environment:
+      - COCKROACHDB_DATABASE=assets
+      - SERVICE_PORT=9000
+    depends_on:
+      - cockroachdb
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/assets/main.go" ]
+
+networks:
+    cryptellation-network:

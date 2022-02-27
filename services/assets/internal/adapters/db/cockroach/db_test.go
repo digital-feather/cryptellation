@@ -1,14 +1,13 @@
 package cockroach
 
 import (
+	"context"
 	"os"
 	"testing"
 
-	"github.com/cryptellation/cryptellation/internal/services/assets/adapters/db/cockroach/entities"
-	"github.com/cryptellation/cryptellation/internal/utils/adapters/cockroachdb"
+	"github.com/cryptellation/cryptellation/internal/tests"
 	"github.com/cryptellation/cryptellation/pkg/types/asset"
 	"github.com/stretchr/testify/suite"
-	"gorm.io/gorm"
 )
 
 func TestCockroachDatabaseSuite(t *testing.T) {
@@ -27,21 +26,22 @@ type CockroachDatabaseSuite struct {
 func (suite *CockroachDatabaseSuite) BeforeTest(suiteName, testName string) {
 	os.Setenv("COCKROACHDB_DATABASE", "assets")
 
-	var config cockroachdb.Config
-	suite.Require().NoError(config.Load().Validate())
-
-	db, err := New(config)
+	db, err, _ := New()
 	suite.Require().NoError(err)
 	suite.db = db
+
+	suite.Require().NoError(Reset())
 }
 
 func (suite *CockroachDatabaseSuite) AfterTest(suiteName, testName string) {
-	suite.db.client.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&entities.Asset{})
+	suite.db.Close()
 }
 
 func (suite *CockroachDatabaseSuite) TestNewWithURIError() {
+	defer tests.TempEnvVar("COCKROACHDB_HOST", "")()
+
 	var err error
-	_, err = New(cockroachdb.Config{})
+	_, err, _ = New()
 	suite.Error(err)
 }
 
@@ -49,8 +49,8 @@ func (suite *CockroachDatabaseSuite) TestCreateRead() {
 	as := suite.Require()
 
 	a := asset.Asset{Symbol: "ETH"}
-	as.NoError(suite.db.Create(a))
-	rp, err := suite.db.Read(a.Symbol)
+	as.NoError(suite.db.CreateAssets(context.Background(), a))
+	rp, err := suite.db.ReadAssets(context.Background(), a.Symbol)
 	as.NoError(err)
 	as.Len(rp, 1)
 	as.Equal(a, rp[0])
@@ -60,10 +60,10 @@ func (suite *CockroachDatabaseSuite) TestCreateReadInexistant() {
 	as := suite.Require()
 
 	a := asset.Asset{Symbol: "ETH"}
-	as.NoError(suite.db.Create(a))
+	as.NoError(suite.db.CreateAssets(context.Background(), a))
 
 	a2 := asset.Asset{Symbol: "BTC"}
-	_, err := suite.db.Read(a2.Symbol)
+	_, err := suite.db.ReadAssets(context.Background(), a2.Symbol)
 	as.Error(err)
 }
 
@@ -71,13 +71,13 @@ func (suite *CockroachDatabaseSuite) TestReadAll() {
 	as := suite.Require()
 
 	a1 := asset.Asset{Symbol: "ETH"}
-	suite.NoError(suite.db.Create(a1))
+	suite.NoError(suite.db.CreateAssets(context.Background(), a1))
 	a2 := asset.Asset{Symbol: "FTM"}
-	suite.NoError(suite.db.Create(a2))
+	suite.NoError(suite.db.CreateAssets(context.Background(), a2))
 	a3 := asset.Asset{Symbol: "DAI"}
-	suite.NoError(suite.db.Create(a3))
+	suite.NoError(suite.db.CreateAssets(context.Background(), a3))
 
-	ps, err := suite.db.Read()
+	ps, err := suite.db.ReadAssets(context.Background())
 	as.NoError(err)
 	as.Len(ps, 3)
 
@@ -92,11 +92,11 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 	as := suite.Require()
 
 	a1 := asset.Asset{Symbol: "ETH"}
-	as.NoError(suite.db.Create(a1))
+	as.NoError(suite.db.CreateAssets(context.Background(), a1))
 	a2 := a1
 	// TODO: Should be changes here
-	as.NoError(suite.db.Update(a2))
-	rp, err := suite.db.Read(a2.Symbol)
+	as.NoError(suite.db.UpdateAssets(context.Background(), a2))
+	rp, err := suite.db.ReadAssets(context.Background(), a2.Symbol)
 	as.NoError(err)
 	as.Len(rp, 1)
 	as.Equal(a2, rp[0])
@@ -104,8 +104,8 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 
 func (suite *CockroachDatabaseSuite) TestDelete() {
 	a := asset.Asset{Symbol: "ETH"}
-	suite.NoError(suite.db.Create(a))
-	suite.NoError(suite.db.Delete(a))
-	_, err := suite.db.Read(a.Symbol)
+	suite.NoError(suite.db.CreateAssets(context.Background(), a))
+	suite.NoError(suite.db.DeleteAssets(context.Background(), a))
+	_, err := suite.db.ReadAssets(context.Background(), a.Symbol)
 	suite.Error(err)
 }
