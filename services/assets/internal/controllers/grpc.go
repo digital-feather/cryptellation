@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 
 	"github.com/cryptellation/cryptellation/internal/genproto/assets"
 	"github.com/cryptellation/cryptellation/pkg/types/asset"
@@ -31,6 +32,7 @@ func (g GrpcController) CreateAssets(ctx context.Context, req *assets.CreateAsse
 	}
 
 	if err := g.application.Commands.CreateAssets.Handle(ctx, cmd); err != nil {
+		log.Printf("%+v\n", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -40,6 +42,7 @@ func (g GrpcController) CreateAssets(ctx context.Context, req *assets.CreateAsse
 func (g GrpcController) ReadAssets(ctx context.Context, req *assets.ReadAssetsRequest) (*assets.ReadAssetsResponse, error) {
 	list, err := g.application.Queries.ReadAssets.Handle(ctx, req.Symbols)
 	if err != nil {
+		log.Printf("%+v\n", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

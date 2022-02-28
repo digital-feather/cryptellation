@@ -5,6 +5,8 @@ import (
 
 	"github.com/cryptellation/cryptellation/internal/adapters/cockroachdb"
 	"github.com/cryptellation/cryptellation/pkg/types/asset"
+	"github.com/cryptellation/cryptellation/services/assets/internal/adapters/db"
+	"golang.org/x/xerrors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -17,12 +19,12 @@ type DB struct {
 func New() (*DB, error, func()) {
 	var c cockroachdb.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, err, func() {}
+		return nil, xerrors.Errorf("loading cockroachdb config: %w", err), func() {}
 	}
 
 	client, err := gorm.Open(postgres.Open(c.URL()), cockroachdb.DefaultGormConfig)
 	if err != nil {
-		return nil, err, func() {}
+		return nil, xerrors.Errorf("opening cockroachdb connection: %w", err), func() {}
 	}
 
 	db := &DB{
@@ -37,22 +39,24 @@ func New() (*DB, error, func()) {
 	return db, nil, closeFunc
 }
 
-func (db *DB) CreateAssets(ctx context.Context, assets ...asset.Asset) error {
+func (cockroach *DB) CreateAssets(ctx context.Context, assets ...asset.Asset) error {
 	entities := make([]Asset, len(assets))
 	for i, model := range assets {
 		entities[i].FromModel(model)
 	}
-	return db.client.WithContext(ctx).Create(&entities).Error
-}
 
-func (db *DB) ReadAssets(ctx context.Context, symbols ...string) ([]asset.Asset, error) {
-	var ent []Asset
-	if err := db.client.WithContext(ctx).Find(&ent, symbols).Error; err != nil {
-		return nil, err
+	err := cockroach.client.WithContext(ctx).Create(&entities).Error
+	if err != nil {
+		return xerrors.Errorf("creating %+v: %w", assets, err)
 	}
 
-	if len(ent) == 0 && len(symbols) != 0 {
-		return nil, gorm.ErrRecordNotFound
+	return nil
+}
+
+func (cockroach *DB) ReadAssets(ctx context.Context, symbols ...string) ([]asset.Asset, error) {
+	var ent []Asset
+	if err := cockroach.client.WithContext(ctx).Find(&ent, symbols).Error; err != nil {
+		return nil, xerrors.Errorf("reading %+v: %w", symbols, err)
 	}
 
 	models := make([]asset.Asset, len(ent))
@@ -63,32 +67,40 @@ func (db *DB) ReadAssets(ctx context.Context, symbols ...string) ([]asset.Asset,
 	return models, nil
 }
 
-func (db *DB) UpdateAssets(ctx context.Context, assets ...asset.Asset) error {
+func (cockroach *DB) UpdateAssets(ctx context.Context, assets ...asset.Asset) error {
 	var entity Asset
 	for _, model := range assets {
 		entity.FromModel(model)
 
-		if err := db.client.WithContext(ctx).Save(&entity).Error; err != nil {
-			return err
+		if err := cockroach.client.WithContext(ctx).Save(&entity).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return xerrors.Errorf("updating %+v: %w", assets, db.ErrNotFound)
+			}
+
+			return xerrors.Errorf("updating %+v: %w", assets, err)
 		}
 	}
 	return nil
 }
 
-func (db *DB) DeleteAssets(ctx context.Context, assets ...asset.Asset) error {
+func (cockroach *DB) DeleteAssets(ctx context.Context, assets ...asset.Asset) error {
 	var entity Asset
 	for _, model := range assets {
 		entity.FromModel(model)
 
-		if err := db.client.WithContext(ctx).Delete(&entity).Error; err != nil {
-			return err
+		if err := cockroach.client.WithContext(ctx).Delete(&entity).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return xerrors.Errorf("deleting %+v: %w", assets, db.ErrNotFound)
+			}
+
+			return xerrors.Errorf("deleting %+v: %w", assets, err)
 		}
 	}
 	return nil
 }
 
-func (db *DB) Close() {
-	sqlDb, err := db.client.DB()
+func (cockroach *DB) Close() {
+	sqlDb, err := cockroach.client.DB()
 	if err != nil {
 		return
 	}
@@ -99,7 +111,7 @@ func (db *DB) Close() {
 func Reset() error {
 	db, err, closeDb := New()
 	if err != nil {
-		return err
+		return xerrors.Errorf("creating connection for reset: %w", err)
 	}
 	defer closeDb()
 
@@ -109,7 +121,7 @@ func Reset() error {
 
 	for _, entity := range entities {
 		if err := db.client.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(entity).Error; err != nil {
-			return err
+			return xerrors.Errorf("emptying %T table: %w", entity, err)
 		}
 	}
 

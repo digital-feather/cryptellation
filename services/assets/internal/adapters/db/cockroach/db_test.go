@@ -24,7 +24,7 @@ type CockroachDatabaseSuite struct {
 }
 
 func (suite *CockroachDatabaseSuite) BeforeTest(suiteName, testName string) {
-	os.Setenv("COCKROACHDB_DATABASE", "assets")
+	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "assets")()
 
 	db, err, _ := New()
 	suite.Require().NoError(err)
@@ -48,10 +48,15 @@ func (suite *CockroachDatabaseSuite) TestNewWithURIError() {
 func (suite *CockroachDatabaseSuite) TestCreateRead() {
 	as := suite.Require()
 
+	// Given an asset
 	a := asset.Asset{Symbol: "ETH"}
+
+	// When we create it and read it
 	as.NoError(suite.db.CreateAssets(context.Background(), a))
 	rp, err := suite.db.ReadAssets(context.Background(), a.Symbol)
 	as.NoError(err)
+
+	// Then it's the same
 	as.Len(rp, 1)
 	as.Equal(a, rp[0])
 }
@@ -59,28 +64,32 @@ func (suite *CockroachDatabaseSuite) TestCreateRead() {
 func (suite *CockroachDatabaseSuite) TestCreateReadInexistant() {
 	as := suite.Require()
 
-	a := asset.Asset{Symbol: "ETH"}
-	as.NoError(suite.db.CreateAssets(context.Background(), a))
+	// When we read an inexistant asset
+	a := asset.Asset{Symbol: "BTC"}
+	assets, err := suite.db.ReadAssets(context.Background(), a.Symbol)
 
-	a2 := asset.Asset{Symbol: "BTC"}
-	_, err := suite.db.ReadAssets(context.Background(), a2.Symbol)
-	as.Error(err)
+	// Then there is no error but no asset
+	as.NoError(err)
+	as.Len(assets, 0)
 }
 
 func (suite *CockroachDatabaseSuite) TestReadAll() {
 	as := suite.Require()
 
+	// Given 3 created assets
 	a1 := asset.Asset{Symbol: "ETH"}
-	suite.NoError(suite.db.CreateAssets(context.Background(), a1))
+	as.NoError(suite.db.CreateAssets(context.Background(), a1))
 	a2 := asset.Asset{Symbol: "FTM"}
-	suite.NoError(suite.db.CreateAssets(context.Background(), a2))
+	as.NoError(suite.db.CreateAssets(context.Background(), a2))
 	a3 := asset.Asset{Symbol: "DAI"}
-	suite.NoError(suite.db.CreateAssets(context.Background(), a3))
+	as.NoError(suite.db.CreateAssets(context.Background(), a3))
 
+	// When we read all of them
 	ps, err := suite.db.ReadAssets(context.Background())
 	as.NoError(err)
-	as.Len(ps, 3)
 
+	// Then we have all of them
+	as.Len(ps, 3)
 	for _, p := range ps {
 		if p.Symbol != a1.Symbol && p.Symbol != a2.Symbol && p.Symbol != a3.Symbol {
 			as.Fail("This asset should not exists", p)
@@ -91,11 +100,18 @@ func (suite *CockroachDatabaseSuite) TestReadAll() {
 func (suite *CockroachDatabaseSuite) TestUpdate() {
 	as := suite.Require()
 
+	// Given a created asset
 	a1 := asset.Asset{Symbol: "ETH"}
 	as.NoError(suite.db.CreateAssets(context.Background(), a1))
+
+	// When we make some modification to it
 	a2 := a1
 	// TODO: Should be changes here
+
+	// And we update it
 	as.NoError(suite.db.UpdateAssets(context.Background(), a2))
+
+	// Then the pair is updated
 	rp, err := suite.db.ReadAssets(context.Background(), a2.Symbol)
 	as.NoError(err)
 	as.Len(rp, 1)
@@ -103,9 +119,19 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 }
 
 func (suite *CockroachDatabaseSuite) TestDelete() {
+	as := suite.Require()
+
+	// Given a created asset
 	a := asset.Asset{Symbol: "ETH"}
-	suite.NoError(suite.db.CreateAssets(context.Background(), a))
-	suite.NoError(suite.db.DeleteAssets(context.Background(), a))
-	_, err := suite.db.ReadAssets(context.Background(), a.Symbol)
-	suite.Error(err)
+	as.NoError(suite.db.CreateAssets(context.Background(), a))
+
+	// When we delete it
+	as.NoError(suite.db.DeleteAssets(context.Background(), a))
+
+	// Then we can't read it anymore
+	assets, err := suite.db.ReadAssets(context.Background(), a.Symbol)
+
+	// Then there is an error
+	as.NoError(err)
+	as.Len(assets, 0)
 }

@@ -1,32 +1,27 @@
 package client
 
 import (
-	"errors"
 	"os"
 
 	"github.com/cryptellation/cryptellation/internal/genproto/assets"
+	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )
 
 func NewAssetsGrpcClient() (client assets.AssetsServiceClient, close func() error, err error) {
 	grpcAddr := os.Getenv("CRYPTELLATION_ASSETS_GRPC_URL")
 	if grpcAddr == "" {
-		return nil, func() error { return nil }, errors.New("CRYPTELLATION_ASSETS_GRPC_URL")
+		return nil, func() error { return nil }, xerrors.New("no grpc url provided")
 	}
 
-	opts, err := grpcDialOpts(grpcAddr)
+	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
 	if err != nil {
-		return nil, func() error { return nil }, err
-	}
-
-	conn, err := grpc.Dial(grpcAddr, opts...)
-	if err != nil {
-		return nil, func() error { return nil }, err
+		return nil, func() error { return nil }, xerrors.Errorf("dialing asset grpc server: %w", err)
 	}
 
 	return assets.NewAssetsServiceClient(conn), conn.Close, nil
 }
 
-func grpcDialOpts(grpcAddr string) ([]grpc.DialOption, error) {
-	return []grpc.DialOption{grpc.WithInsecure()}, nil
+func grpcDialOpts(grpcAddr string) []grpc.DialOption {
+	return []grpc.DialOption{grpc.WithInsecure()}
 }

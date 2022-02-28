@@ -5,6 +5,7 @@ import (
 
 	"github.com/cryptellation/cryptellation/pkg/types/asset"
 	"github.com/cryptellation/cryptellation/services/assets/internal/adapters/db"
+	"golang.org/x/xerrors"
 )
 
 type ReadAssetsHandler struct {
@@ -22,5 +23,10 @@ func NewReadAssetsHandler(repository db.Port) ReadAssetsHandler {
 }
 
 func (h ReadAssetsHandler) Handle(ctx context.Context, symbols []string) ([]asset.Asset, error) {
-	return h.repository.ReadAssets(ctx, symbols...)
+	as, err := h.repository.ReadAssets(ctx, symbols...)
+	if err != nil {
+		return as, xerrors.Errorf("handling assets reading: %w", err)
+	}
+
+	return as, nil
 }

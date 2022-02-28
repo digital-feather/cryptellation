@@ -5,6 +5,7 @@ import (
 
 	"github.com/cryptellation/cryptellation/pkg/types/asset"
 	"github.com/cryptellation/cryptellation/services/assets/internal/adapters/db"
+	"golang.org/x/xerrors"
 )
 
 type CreateAssets struct {
@@ -26,5 +27,10 @@ func NewCreateAssetHandler(repository db.Port) CreateAssetsHandler {
 }
 
 func (h CreateAssetsHandler) Handle(ctx context.Context, cmd CreateAssets) error {
-	return h.repository.CreateAssets(ctx, cmd.Assets...)
+	err := h.repository.CreateAssets(ctx, cmd.Assets...)
+	if err != nil {
+		return xerrors.Errorf("handling assets creation: %w", err)
+	}
+
+	return nil
 }

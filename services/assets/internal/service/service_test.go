@@ -33,6 +33,7 @@ type ServiceSuite struct {
 }
 
 func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
+	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "assets")()
 	defer tests.TempEnvVar("CRYPTELLATION_ASSETS_GRPC_URL", ":9000")()
 
 	a, err, closeApp := NewApplication()

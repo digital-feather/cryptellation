@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 
+	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -17,9 +18,7 @@ var (
 )
 
 var (
-	ErrNoUserInConfig = errors.New("no-cockroach-user-in-config")
-	ErrNoHostInConfig = errors.New("no-cockroach-host-in-config")
-	ErrNoPortInConfig = errors.New("no-cockroach-port-in-config")
+	ErrInvalidConfig = errors.New("invalid cockroach config")
 )
 
 type Config struct {
@@ -61,15 +60,15 @@ func (c Config) URL() string {
 
 func (c Config) Validate() error {
 	if c.User == "" {
-		return ErrNoUserInConfig
+		return xerrors.Errorf("reading user from env (%q): %w", c.User, ErrInvalidConfig)
 	}
 
 	if c.Host == "" {
-		return ErrNoHostInConfig
+		return xerrors.Errorf("reading host from env (%q): %w", c.Host, ErrInvalidConfig)
 	}
 
 	if c.Port == 0 {
-		return ErrNoPortInConfig
+		return xerrors.Errorf("reading port from env (%q): %w", c.Port, ErrInvalidConfig)
 	}
 
 	return nil
