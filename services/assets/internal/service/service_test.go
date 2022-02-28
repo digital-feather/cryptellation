@@ -36,7 +36,7 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "assets")()
 	defer tests.TempEnvVar("CRYPTELLATION_ASSETS_GRPC_URL", ":9000")()
 
-	a, err, closeApp := NewApplication()
+	a, closeApp, err := NewApplication()
 	suite.Require().NoError(err)
 	suite.app = a
 
@@ -52,7 +52,7 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	}
 
 	client, closeClient, err := client.NewAssetsGrpcClient()
-	suite.NoError(err)
+	suite.Require().NoError(err)
 	suite.client = client
 
 	suite.closeTest = func() {
@@ -76,11 +76,18 @@ func (suite *ServiceSuite) TestCreateReadAssets() {
 	})
 	suite.Require().NoError(err)
 
-	_, err = suite.client.ReadAssets(context.Background(), &assets.ReadAssetsRequest{
+	resp, err := suite.client.ReadAssets(context.Background(), &assets.ReadAssetsRequest{
 		Symbols: []string{
 			"ETH",
 			"BTC",
 		},
 	})
 	suite.Require().NoError(err)
+	suite.Require().Len(resp.Assets, 2)
+	suite.Require().Contains(resp.Assets, &assets.Asset{
+		Symbol: "ETH",
+	})
+	suite.Require().Contains(resp.Assets, &assets.Asset{
+		Symbol: "BTC",
+	})
 }

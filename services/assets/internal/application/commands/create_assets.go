@@ -8,10 +8,6 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type CreateAssets struct {
-	Assets []asset.Asset
-}
-
 type CreateAssetsHandler struct {
 	repository db.Port
 }
@@ -26,8 +22,8 @@ func NewCreateAssetHandler(repository db.Port) CreateAssetsHandler {
 	}
 }
 
-func (h CreateAssetsHandler) Handle(ctx context.Context, cmd CreateAssets) error {
-	err := h.repository.CreateAssets(ctx, cmd.Assets...)
+func (h CreateAssetsHandler) Handle(ctx context.Context, assets []asset.Asset) error {
+	err := h.repository.CreateAssets(ctx, assets...)
 	if err != nil {
 		return xerrors.Errorf("handling assets creation: %w", err)
 	}

@@ -7,10 +7,10 @@ import (
 	"github.com/cryptellation/cryptellation/services/assets/internal/application/queries"
 )
 
-func NewApplication() (app.Application, error, func()) {
-	repository, err, closeRepository := cockroach.New()
+func NewApplication() (app.Application, func(), error) {
+	repository, closeRepository, err := cockroach.New()
 	if err != nil {
-		return app.Application{}, err, func() {}
+		return app.Application{}, func() {}, err
 	}
 
 	a := app.Application{
@@ -26,5 +26,5 @@ func NewApplication() (app.Application, error, func()) {
 		closeRepository()
 	}
 
-	return a, nil, closeApplication
+	return a, closeApplication, nil
 }

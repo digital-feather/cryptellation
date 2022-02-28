@@ -13,7 +13,7 @@ import (
 )
 
 func run() int {
-	application, err, cleanup := service.NewApplication()
+	application, cleanup, err := service.NewApplication()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", xerrors.Errorf("creating application: %w", err))
 		return 255

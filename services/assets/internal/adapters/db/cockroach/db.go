@@ -16,15 +16,15 @@ type DB struct {
 	config cockroachdb.Config
 }
 
-func New() (*DB, error, func()) {
+func New() (*DB, func(), error) {
 	var c cockroachdb.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading cockroachdb config: %w", err), func() {}
+		return nil, func() {}, xerrors.Errorf("loading cockroachdb config: %w", err)
 	}
 
 	client, err := gorm.Open(postgres.Open(c.URL()), cockroachdb.DefaultGormConfig)
 	if err != nil {
-		return nil, xerrors.Errorf("opening cockroachdb connection: %w", err), func() {}
+		return nil, func() {}, xerrors.Errorf("opening cockroachdb connection: %w", err)
 	}
 
 	db := &DB{
@@ -36,7 +36,7 @@ func New() (*DB, error, func()) {
 		db.Close()
 	}
 
-	return db, nil, closeFunc
+	return db, closeFunc, nil
 }
 
 func (cockroach *DB) CreateAssets(ctx context.Context, assets ...asset.Asset) error {
@@ -109,7 +109,7 @@ func (cockroach *DB) Close() {
 }
 
 func Reset() error {
-	db, err, closeDb := New()
+	db, closeDb, err := New()
 	if err != nil {
 		return xerrors.Errorf("creating connection for reset: %w", err)
 	}
