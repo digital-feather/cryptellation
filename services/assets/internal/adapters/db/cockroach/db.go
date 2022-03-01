@@ -16,15 +16,15 @@ type DB struct {
 	config cockroachdb.Config
 }
 
-func New() (*DB, func(), error) {
+func New() (*DB, error) {
 	var c cockroachdb.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, func() {}, xerrors.Errorf("loading cockroachdb config: %w", err)
+		return nil, xerrors.Errorf("loading cockroachdb config: %w", err)
 	}
 
 	client, err := gorm.Open(postgres.Open(c.URL()), cockroachdb.DefaultGormConfig)
 	if err != nil {
-		return nil, func() {}, xerrors.Errorf("opening cockroachdb connection: %w", err)
+		return nil, xerrors.Errorf("opening cockroachdb connection: %w", err)
 	}
 
 	db := &DB{
@@ -32,11 +32,7 @@ func New() (*DB, func(), error) {
 		config: c,
 	}
 
-	closeFunc := func() {
-		db.Close()
-	}
-
-	return db, closeFunc, nil
+	return db, nil
 }
 
 func (cockroach *DB) CreateAssets(ctx context.Context, assets ...asset.Asset) error {
@@ -99,21 +95,11 @@ func (cockroach *DB) DeleteAssets(ctx context.Context, assets ...asset.Asset) er
 	return nil
 }
 
-func (cockroach *DB) Close() {
-	sqlDb, err := cockroach.client.DB()
-	if err != nil {
-		return
-	}
-
-	sqlDb.Close()
-}
-
 func Reset() error {
-	db, closeDb, err := New()
+	db, err := New()
 	if err != nil {
 		return xerrors.Errorf("creating connection for reset: %w", err)
 	}
-	defer closeDb()
 
 	entities := []interface{}{
 		&Asset{},

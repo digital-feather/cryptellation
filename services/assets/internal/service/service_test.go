@@ -36,7 +36,7 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "assets")()
 	defer tests.TempEnvVar("CRYPTELLATION_ASSETS_GRPC_URL", ":9000")()
 
-	a, closeApp, err := NewApplication()
+	a, err := NewApplication()
 	suite.Require().NoError(err)
 	suite.app = a
 
@@ -57,7 +57,6 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 
 	suite.closeTest = func() {
 		closeClient()
-		closeApp()
 	}
 
 	suite.Require().NoError(cockroach.Reset())

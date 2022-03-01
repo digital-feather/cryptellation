@@ -26,22 +26,18 @@ type CockroachDatabaseSuite struct {
 func (suite *CockroachDatabaseSuite) BeforeTest(suiteName, testName string) {
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "assets")()
 
-	db, _, err := New()
+	db, err := New()
 	suite.Require().NoError(err)
 	suite.db = db
 
 	suite.Require().NoError(Reset())
 }
 
-func (suite *CockroachDatabaseSuite) AfterTest(suiteName, testName string) {
-	suite.db.Close()
-}
-
 func (suite *CockroachDatabaseSuite) TestNewWithURIError() {
 	defer tests.TempEnvVar("COCKROACHDB_HOST", "")()
 
 	var err error
-	_, _, err = New()
+	_, err = New()
 	suite.Error(err)
 }
 
