@@ -49,26 +49,10 @@ func (cockroach *DB) CreatePairs(ctx context.Context, pairs ...pair.Pair) error 
 	return nil
 }
 
-func (cockroach *DB) ReadPairs(ctx context.Context, pairs ...pair.Pair) ([]pair.Pair, error) {
+func (cockroach *DB) ReadPairs(ctx context.Context, symbols ...string) ([]pair.Pair, error) {
 	var ent []Pair
-
-	var tx *gorm.DB
-	if len(pairs) == 0 {
-		tx = cockroach.client
-	} else {
-		keys := make([][]interface{}, len(pairs))
-		for i, p := range pairs {
-			keys[i] = []interface{}{
-				p.BaseSymbol,
-				p.QuoteSymbol,
-			}
-		}
-
-		tx = cockroach.client.Where("(base_symbol, quote_symbol) IN ?", keys)
-	}
-
-	if err := tx.Find(&ent).Error; err != nil {
-		return nil, xerrors.Errorf("reading %+v: %w", pairs, err)
+	if err := cockroach.client.WithContext(ctx).Find(&ent, symbols).Error; err != nil {
+		return nil, xerrors.Errorf("reading %+v: %w", symbols, err)
 	}
 
 	models := make([]pair.Pair, len(ent))

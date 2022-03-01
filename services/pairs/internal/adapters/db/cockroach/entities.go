@@ -3,15 +3,20 @@ package cockroach
 import "github.com/cryptellation/cryptellation/pkg/types/pair"
 
 type Pair struct {
-	BaseSymbol  string `gorm:"primaryKey;autoIncrement:false"`
-	QuoteSymbol string `gorm:"primaryKey;autoIncrement:false"`
+	Symbol           string `gorm:"primaryKey;autoIncrement:false"`
+	BaseAssetSymbol  string
+	QuoteAssetSymbol string
 }
 
 func (p *Pair) FromModel(model pair.Pair) {
-	p.BaseSymbol = model.BaseSymbol
-	p.QuoteSymbol = model.QuoteSymbol
+	p.Symbol = model.Symbol()
+	p.BaseAssetSymbol = model.BaseAssetSymbol
+	p.QuoteAssetSymbol = model.QuoteAssetSymbol
 }
 
 func (p *Pair) ToModel() pair.Pair {
-	return pair.New(p.BaseSymbol, p.QuoteSymbol)
+	return pair.Pair{
+		BaseAssetSymbol:  p.BaseAssetSymbol,
+		QuoteAssetSymbol: p.QuoteAssetSymbol,
+	}
 }

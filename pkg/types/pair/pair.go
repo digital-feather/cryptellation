@@ -5,19 +5,16 @@ import (
 )
 
 type Pair struct {
-	BaseSymbol  string `json:"base_symbol"`
-	QuoteSymbol string `json:"quote_symbol"`
+	BaseAssetSymbol  string
+	QuoteAssetSymbol string
 }
 
-func New(baseSymbol, quoteSymbol string) Pair {
-	return Pair{
-		BaseSymbol:  baseSymbol,
-		QuoteSymbol: quoteSymbol,
-	}
+func (p Pair) Symbol() string {
+	return fmt.Sprintf("%s-%s", p.BaseAssetSymbol, p.QuoteAssetSymbol)
 }
 
 func (p Pair) String() string {
-	return fmt.Sprintf("%s-%s", p.BaseSymbol, p.QuoteSymbol)
+	return p.Symbol()
 }
 
 func UniqueArray(pair1, pair2 []Pair) []Pair {

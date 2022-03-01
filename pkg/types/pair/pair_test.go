@@ -2,27 +2,28 @@ package pair
 
 import "testing"
 
-func TestNew(t *testing.T) {
-	pn := New("ETH", "USDT")
-	p := Pair{BaseSymbol: "ETH", QuoteSymbol: "USDT"}
+func TestPairSymbol(t *testing.T) {
+	p := Pair{BaseAssetSymbol: "ETH", QuoteAssetSymbol: "USDT"}
 
-	if p != pn {
-		t.Error("Should be equal")
-	}
-}
-
-func TestPairString(t *testing.T) {
-	p := Pair{BaseSymbol: "ETH", QuoteSymbol: "USDT"}
-
-	if p.String() != "ETH-USDT" {
-		t.Error("Wrong string format")
+	if p.Symbol() != "ETH-USDT" {
+		t.Error("Wrong symbol")
 	}
 }
 
 func TestUniqueArray(t *testing.T) {
-	p1 := []Pair{New("ABC", "DEF"), New("DEF", "XYZ")}
-	p2 := []Pair{New("ABC", "DEF"), New("ABC", "XYZ")}
-	p3 := []Pair{New("ABC", "DEF"), New("ABC", "XYZ"), New("DEF", "XYZ")}
+	p1 := []Pair{
+		{BaseAssetSymbol: "ABC", QuoteAssetSymbol: "DEF"},
+		{BaseAssetSymbol: "DEF", QuoteAssetSymbol: "XYZ"},
+	}
+	p2 := []Pair{
+		{BaseAssetSymbol: "ABC", QuoteAssetSymbol: "DEF"},
+		{BaseAssetSymbol: "ABC", QuoteAssetSymbol: "XYZ"},
+	}
+	p3 := []Pair{
+		{BaseAssetSymbol: "ABC", QuoteAssetSymbol: "DEF"},
+		{BaseAssetSymbol: "ABC", QuoteAssetSymbol: "XYZ"},
+		{BaseAssetSymbol: "DEF", QuoteAssetSymbol: "XYZ"},
+	}
 
 	m := UniqueArray(p2, p1)
 	if len(m) != 3 || m[0] != p3[0] || m[1] != p3[1] || m[2] != p3[2] {

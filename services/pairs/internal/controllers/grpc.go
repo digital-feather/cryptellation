@@ -29,7 +29,7 @@ func (g GrpcController) CreatePairs(ctx context.Context, req *pairs.CreatePairsR
 }
 
 func (g GrpcController) ReadPairs(ctx context.Context, req *pairs.ReadPairsRequest) (*pairs.ReadPairsResponse, error) {
-	list, err := g.application.Queries.ReadPairs.Handle(ctx, fromGrpcPairs(req.Pairs))
+	list, err := g.application.Queries.ReadPairs.Handle(ctx, req.Symbols)
 	if err != nil {
 		log.Printf("%+v\n", err)
 		return nil, status.Error(codes.Internal, err.Error())
@@ -44,8 +44,8 @@ func fromGrpcPairs(gpairs []*pairs.Pair) []pair.Pair {
 	ps := make([]pair.Pair, len(gpairs))
 	for i, p := range gpairs {
 		ps[i] = pair.Pair{
-			BaseSymbol:  p.BaseSymbol,
-			QuoteSymbol: p.QuoteSymbol,
+			BaseAssetSymbol:  p.BaseAssetSymbol,
+			QuoteAssetSymbol: p.QuoteAssetSymbol,
 		}
 	}
 	return ps
@@ -55,8 +55,9 @@ func toGrpcPairs(ps []pair.Pair) []*pairs.Pair {
 	gpairs := make([]*pairs.Pair, len(ps))
 	for i, p := range ps {
 		gpairs[i] = &pairs.Pair{
-			BaseSymbol:  p.BaseSymbol,
-			QuoteSymbol: p.QuoteSymbol,
+			Symbol:           p.Symbol(),
+			BaseAssetSymbol:  p.BaseAssetSymbol,
+			QuoteAssetSymbol: p.QuoteAssetSymbol,
 		}
 	}
 	return gpairs

@@ -23,7 +23,10 @@ func (suite *CreatePairsSuite) TestCreatePairsOk() {
 	a2 := asset.Asset{
 		Symbol: "USDC",
 	}
-	p1 := pair.New(a1.Symbol, a2.Symbol)
+	p1 := pair.Pair{
+		BaseAssetSymbol:  a1.Symbol,
+		QuoteAssetSymbol: a2.Symbol,
+	}
 
 	a3 := asset.Asset{
 		Symbol: "BTC",
@@ -31,7 +34,10 @@ func (suite *CreatePairsSuite) TestCreatePairsOk() {
 	a4 := asset.Asset{
 		Symbol: "USDT",
 	}
-	p2 := pair.New(a3.Symbol, a4.Symbol)
+	p2 := pair.Pair{
+		BaseAssetSymbol:  a3.Symbol,
+		QuoteAssetSymbol: a4.Symbol,
+	}
 
 	pairs, err := CreatePairs([]pair.Pair{p1, p2}, []asset.Asset{a1, a2, a3, a4})
 	suite.Require().NoError(err)
@@ -46,7 +52,10 @@ func (suite *CreatePairsSuite) TestCreatePairsInexistantAsset() {
 	a2 := asset.Asset{
 		Symbol: "USDC",
 	}
-	p1 := pair.New(a1.Symbol, a2.Symbol)
+	p1 := pair.Pair{
+		BaseAssetSymbol:  a1.Symbol,
+		QuoteAssetSymbol: a2.Symbol,
+	}
 
 	a3 := asset.Asset{
 		Symbol: "BTC",
@@ -54,7 +63,10 @@ func (suite *CreatePairsSuite) TestCreatePairsInexistantAsset() {
 	a4 := asset.Asset{
 		Symbol: "USDT",
 	}
-	p2 := pair.New(a3.Symbol, a4.Symbol)
+	p2 := pair.Pair{
+		BaseAssetSymbol:  a3.Symbol,
+		QuoteAssetSymbol: a4.Symbol,
+	}
 
 	_, err := CreatePairs([]pair.Pair{p1, p2}, []asset.Asset{a1, a2, a3})
 	suite.Require().Error(err)

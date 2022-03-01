@@ -45,11 +45,14 @@ func (suite *CockroachDatabaseSuite) TestCreateRead() {
 	as := suite.Require()
 
 	// Given a pair
-	p := pair.New("ETH", "USDC")
+	p := pair.Pair{
+		BaseAssetSymbol:  "ETH",
+		QuoteAssetSymbol: "USDC",
+	}
 
 	// When we create it and read it
 	as.NoError(suite.db.CreatePairs(context.Background(), p))
-	rp, err := suite.db.ReadPairs(context.Background(), p)
+	rp, err := suite.db.ReadPairs(context.Background(), p.Symbol())
 	as.NoError(err)
 
 	// Then it's the same
@@ -61,9 +64,12 @@ func (suite *CockroachDatabaseSuite) TestCreateReadInexistant() {
 	as := suite.Require()
 
 	// When we read an inexistant pair
-	p := pair.New("BTC", "USDC")
-	_, err := suite.db.ReadPairs(context.Background(), p)
-	pairs, err := suite.db.ReadPairs(context.Background(), p)
+	p := pair.Pair{
+		BaseAssetSymbol:  "BTC",
+		QuoteAssetSymbol: "USDC",
+	}
+	_, err := suite.db.ReadPairs(context.Background(), p.Symbol())
+	pairs, err := suite.db.ReadPairs(context.Background(), p.Symbol())
 
 	// Then there is no error but no pair
 	as.NoError(err)
@@ -74,11 +80,20 @@ func (suite *CockroachDatabaseSuite) TestReadAll() {
 	as := suite.Require()
 
 	// Given 3 created pairs
-	p1 := pair.New("ETH", "USDC")
+	p1 := pair.Pair{
+		BaseAssetSymbol:  "ETH",
+		QuoteAssetSymbol: "USDC",
+	}
 	as.NoError(suite.db.CreatePairs(context.Background(), p1))
-	p2 := pair.New("BTC", "USDC")
+	p2 := pair.Pair{
+		BaseAssetSymbol:  "BTC",
+		QuoteAssetSymbol: "USDC",
+	}
 	as.NoError(suite.db.CreatePairs(context.Background(), p2))
-	p3 := pair.New("FTM", "USDC")
+	p3 := pair.Pair{
+		BaseAssetSymbol:  "FTM",
+		QuoteAssetSymbol: "USDC",
+	}
 	as.NoError(suite.db.CreatePairs(context.Background(), p3))
 
 	// When we read all of them
@@ -98,7 +113,10 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 	as := suite.Require()
 
 	// Given a created pair
-	p1 := pair.New("ETH", "USDC")
+	p1 := pair.Pair{
+		BaseAssetSymbol:  "ETH",
+		QuoteAssetSymbol: "USDC",
+	}
 	as.NoError(suite.db.CreatePairs(context.Background(), p1))
 
 	// When we make some modification to it
@@ -109,7 +127,7 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 	as.NoError(suite.db.UpdatePairs(context.Background(), p2))
 
 	// Then the pair is updated
-	rp, err := suite.db.ReadPairs(context.Background(), p2)
+	rp, err := suite.db.ReadPairs(context.Background(), p2.Symbol())
 	as.NoError(err)
 	as.Len(rp, 1)
 	as.Equal(p2, rp[0])
@@ -119,14 +137,17 @@ func (suite *CockroachDatabaseSuite) TestDelete() {
 	as := suite.Require()
 
 	// Given a created pair
-	p := pair.New("ETH", "USDC")
+	p := pair.Pair{
+		BaseAssetSymbol:  "ETH",
+		QuoteAssetSymbol: "USDC",
+	}
 	as.NoError(suite.db.CreatePairs(context.Background(), p))
 
 	// When we delete it
 	as.NoError(suite.db.DeletePairs(context.Background(), p))
 
 	// Then we can't read it anymore
-	pairs, err := suite.db.ReadPairs(context.Background(), p)
+	pairs, err := suite.db.ReadPairs(context.Background(), p.Symbol())
 	as.NoError(err)
 	as.Len(pairs, 0)
 }

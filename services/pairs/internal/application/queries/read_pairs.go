@@ -22,7 +22,7 @@ func NewReadPairsHandler(repository db.Port) ReadPairsHandler {
 	}
 }
 
-func (h ReadPairsHandler) Handle(ctx context.Context, pairs []pair.Pair) ([]pair.Pair, error) {
+func (h ReadPairsHandler) Handle(ctx context.Context, pairs []string) ([]pair.Pair, error) {
 	ps, err := h.repository.ReadPairs(ctx, pairs...)
 	if err != nil {
 		return ps, xerrors.Errorf("handling pairs reading: %w", err)

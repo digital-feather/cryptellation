@@ -13,11 +13,11 @@ func CreatePairs(pairs []pair.Pair, existantAssets []asset.Asset) ([]pair.Pair, 
 	}
 
 	for _, p := range pairs {
-		if _, ok := assetsMap[p.BaseSymbol]; !ok {
+		if _, ok := assetsMap[p.BaseAssetSymbol]; !ok {
 			return nil, xerrors.Errorf("base symbol doesn't exist for pair %s", p)
 		}
 
-		if _, ok := assetsMap[p.QuoteSymbol]; !ok {
+		if _, ok := assetsMap[p.QuoteAssetSymbol]; !ok {
 			return nil, xerrors.Errorf("quote symbol doesn't exist for pair %s", p)
 		}
 	}

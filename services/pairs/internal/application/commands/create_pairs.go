@@ -52,8 +52,8 @@ func (h CreatePairsHandler) Handle(ctx context.Context, pairs []pair.Pair) error
 func getUniqueSliceOfSymbols(pairs []pair.Pair) []string {
 	symbols := make(map[string]bool)
 	for _, p := range pairs {
-		symbols[p.BaseSymbol] = true
-		symbols[p.QuoteSymbol] = true
+		symbols[p.BaseAssetSymbol] = true
+		symbols[p.QuoteAssetSymbol] = true
 	}
 
 	symbolsList := make([]string, 0, len(symbols))

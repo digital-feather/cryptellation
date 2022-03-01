@@ -68,28 +68,36 @@ func (suite *ServiceSuite) AfterTest(suiteName, testName string) {
 func (suite *ServiceSuite) TestCreateReadPairs() {
 	_, err := suite.client.CreatePairs(context.Background(), &pairs.CreatePairsRequest{
 		Pairs: []*pairs.Pair{
-			{BaseSymbol: "ETH", QuoteSymbol: "USDC"},
+			{
+				Symbol:           "ETH-USDC",
+				BaseAssetSymbol:  "ETH",
+				QuoteAssetSymbol: "USDC",
+			},
 		},
 	})
 	suite.Require().NoError(err)
 
 	resp, err := suite.client.ReadPairs(context.Background(), &pairs.ReadPairsRequest{
-		Pairs: []*pairs.Pair{
-			{BaseSymbol: "ETH", QuoteSymbol: "USDC"},
+		Symbols: []string{
+			"ETH-USDC",
 		},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Len(resp.Pairs, 1)
 	suite.Require().Contains(resp.Pairs, &pairs.Pair{
-		BaseSymbol:  "ETH",
-		QuoteSymbol: "USDC",
+		Symbol:           "ETH-USDC",
+		BaseAssetSymbol:  "ETH",
+		QuoteAssetSymbol: "USDC",
 	})
 }
 
 func (suite *ServiceSuite) TestCreatePairsMissingAsset() {
 	_, err := suite.client.CreatePairs(context.Background(), &pairs.CreatePairsRequest{
 		Pairs: []*pairs.Pair{
-			{BaseSymbol: "BTC", QuoteSymbol: "USDC"},
+			{
+				BaseAssetSymbol:  "BTC",
+				QuoteAssetSymbol: "USDC",
+			},
 		},
 	})
 	suite.Require().Error(err)

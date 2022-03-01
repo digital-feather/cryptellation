@@ -10,8 +10,9 @@ service PairsService {
 }
 
 message Pair {
-    string base_symbol = 1;
-    string quote_symbol = 2;
+    string symbol = 1;
+    string base_asset_symbol = 2;
+    string quote_asset_symbol = 3;
 }
 
 message CreatePairsRequest {
@@ -21,7 +22,7 @@ message CreatePairsRequest {
 message CreatePairsResponse {}
 
 message ReadPairsRequest {
-    repeated Pair pairs = 1;
+    repeated string symbols = 1;
 }
 
 message ReadPairsResponse {
