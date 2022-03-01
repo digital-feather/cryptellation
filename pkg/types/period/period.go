@@ -11,176 +11,120 @@ var (
 	ErrInvalidPeriod = errors.New("invalid period")
 )
 
-type Period int64
+type Symbol string
 
 const (
-	// M1 represents 1 minute in epoch time
-	M1 Period = 60
-	// M3 represents 3 minutes in epoch time
-	M3 Period = 3 * 60
-	// M5 represents 5 minutes in epoch time
-	M5 Period = 5 * 60
-	// M15 represents 15 minutes in epoch time
-	M15 Period = 15 * 60
-	// M30 represents 30 minutes in epoch time
-	M30 Period = 30 * 60
-	// H1 represents 1 hour in epoch time
-	H1 Period = 1 * 60 * 60
-	// H2 represents 2 hours in epoch time
-	H2 Period = 2 * 60 * 60
-	// H4 represents 4 hours in epoch time
-	H4 Period = 4 * 60 * 60
-	// H6 represents 6 hours in epoch time
-	H6 Period = 6 * 60 * 60
-	// H8 represents 8 hours in epoch time
-	H8 Period = 8 * 60 * 60
-	// H12 represents 12 hours in epoch time
-	H12 Period = 12 * 60 * 60
-	// D1 represents 1 day in epoch time
-	D1 Period = 1 * 24 * 60 * 60
-	// D3 represents 3 days in epoch time
-	D3 Period = 3 * 24 * 60 * 60
-	// W1 represents 1 week in epoch time
-	W1 Period = 1 * 7 * 24 * 60 * 60
+	M1  Symbol = "M1"
+	M3  Symbol = "M3"
+	M5  Symbol = "M5"
+	M15 Symbol = "M15"
+	M30 Symbol = "M30"
+	H1  Symbol = "H1"
+	H2  Symbol = "H2"
+	H4  Symbol = "H4"
+	H6  Symbol = "H6"
+	H8  Symbol = "H8"
+	H12 Symbol = "H12"
+	D1  Symbol = "D1"
+	D3  Symbol = "D3"
+	W1  Symbol = "W1"
 )
 
-func (p Period) Duration() time.Duration {
-	return time.Duration(int64(p) * int64(time.Second))
+func (s Symbol) String() string {
+	return string(s)
 }
 
-func FromSymbol(symbol string) (Period, error) {
-	switch symbol {
-	case "M1":
-		return M1, nil
-	case "M3":
-		return M3, nil
-	case "M5":
-		return M5, nil
-	case "M15":
-		return M15, nil
-	case "M30":
-		return M30, nil
-	case "H1":
-		return H1, nil
-	case "H2":
-		return H2, nil
-	case "H4":
-		return H4, nil
-	case "H6":
-		return H6, nil
-	case "H8":
-		return H8, nil
-	case "H12":
-		return H12, nil
-	case "D1":
-		return D1, nil
-	case "D3":
-		return D3, nil
-	case "W1":
-		return W1, nil
-	default:
-		return Period(0), xerrors.Errorf("parsing period from name (%s): %w", ErrInvalidPeriod)
+var (
+	periods = map[Symbol]time.Duration{
+		M1:  time.Minute,
+		M3:  3 * time.Minute,
+		M5:  5 * time.Minute,
+		M15: 15 * time.Minute,
+		M30: 30 * time.Minute,
+		H1:  time.Hour,
+		H2:  2 * time.Hour,
+		H4:  4 * time.Hour,
+		H6:  6 * time.Hour,
+		H8:  8 * time.Hour,
+		H12: 12 * time.Hour,
+		D1:  24 * time.Hour,
+		D3:  3 * 24 * time.Hour,
+		W1:  7 * 24 * time.Hour,
 	}
+)
+
+func (s Symbol) Duration() time.Duration {
+	return periods[s]
 }
 
-func (p Period) Name() (string, error) {
-	name := p.String()
-	if name == ErrInvalidPeriod.Error() {
-		return "", ErrInvalidPeriod
+func FromString(symbol string) (Symbol, error) {
+	s := Symbol(symbol)
+	return s, s.Validate()
+}
+
+func (s Symbol) Validate() error {
+	_, ok := periods[s]
+	if !ok {
+		return xerrors.Errorf("parsing period from name (%s): %w", ErrInvalidPeriod)
 	}
-	return name, nil
+
+	return nil
 }
 
-func (p Period) String() string {
-	switch p {
-	case M1:
-		return "M1"
-	case M3:
-		return "M3"
-	case M5:
-		return "M5"
-	case M15:
-		return "M15"
-	case M30:
-		return "M30"
-	case H1:
-		return "H1"
-	case H2:
-		return "H2"
-	case H4:
-		return "H4"
-	case H6:
-		return "H6"
-	case H8:
-		return "H8"
-	case H12:
-		return "H12"
-	case D1:
-		return "D1"
-	case D3:
-		return "D3"
-	case W1:
-		return "W1"
-	default:
-		return ErrInvalidPeriod.Error()
+func Symbols() []Symbol {
+	durations := make([]Symbol, 0, len(periods))
+	for s := range periods {
+		durations = append(durations, s)
 	}
+	return durations
 }
 
-func Periods() []Period {
-	return []Period{
-		M1, M3, M5, M15, M30,
-		H1, H2, H4, H6, H8, H12,
-		D1, D3,
-		W1,
-	}
-}
-
-func RoundTime(t time.Time, p Period) time.Time {
-	diff := t.Unix() % int64(p)
+func (s Symbol) RoundTime(t time.Time) time.Time {
+	diff := t.Unix() % int64(s.Duration()/time.Second)
 	return time.Unix(t.Unix()-diff, 0)
 }
 
-func (p Period) IsAligned(t time.Time) bool {
-	return (t.Unix() % int64(p)) == 0
+func (s Symbol) IsAligned(t time.Time) bool {
+	return (t.Unix() % int64(s.Duration()/time.Second)) == 0
 }
 
-func FromSeconds(i int64) (Period, error) {
-	for _, p := range Periods() {
-		if int64(p) == i {
-			return Period(i), nil
+func FromSeconds(i int64) (Symbol, error) {
+	for s, p := range periods {
+		if p == time.Duration(i)*time.Second {
+			return s, nil
 		}
 	}
 
-	return Period(0), xerrors.Errorf("parsing period from seconds (%s): %w", ErrInvalidPeriod)
+	return Symbol(""), xerrors.Errorf("parsing period from seconds (%s): %w", ErrInvalidPeriod)
 }
 
-func (p Period) CountBetweenTimes(start, end time.Time) int64 {
-	roundedStart := RoundTime(start, p)
-	roundedEnd := RoundTime(end, p)
-	return (roundedEnd.Unix() - roundedStart.Unix()) / int64(p)
+func (s Symbol) CountBetweenTimes(start, end time.Time) int64 {
+	roundedStart := s.RoundTime(start)
+	roundedEnd := s.RoundTime(end)
+	return (roundedEnd.Unix() - roundedStart.Unix()) / int64(s.Duration()/time.Second)
 }
 
-func UniqueArray(per1, per2 []Period) []Period {
-	tmp := make([]Period, len(per1))
-	copy(tmp, per1)
+func UniqueArray(sym1, sym2 []Symbol) []Symbol {
+	tmp := make([]Symbol, len(sym1))
+	copy(tmp, sym1)
 
-	for _, p2 := range per2 {
+	for _, s2 := range sym2 {
 		present := false
-		for _, p1 := range per1 {
-			if p1 == p2 {
+		for _, s1 := range sym1 {
+			if s1 == s2 {
 				present = true
 				break
 			}
 		}
 
 		if !present {
-			tmp = append(tmp, p2)
+			tmp = append(tmp, s2)
 		}
 	}
 
 	return tmp
 }
 
-func (p Period) Opt() *Period {
-	return &p
+func (s Symbol) Opt() *Symbol {
+	return &s
 }
