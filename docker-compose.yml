@@ -31,6 +31,25 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/assets/main.go" ]
+  pairs-grpc:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9001:9001
+    env_file:
+      - configs/env/.example.env
+    environment:
+      - COCKROACHDB_DATABASE=pairs
+      - SERVICE_PORT=9001
+    depends_on:
+      - cockroachdb
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/pairs/main.go" ]
 
 networks:
     cryptellation-network:

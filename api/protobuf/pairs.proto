@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "/pkg/genproto/pairs";
+
+package pairs;
+
+service PairsService {
+    rpc CreatePairs(CreatePairsRequest) returns (CreatePairsResponse) {}
+    rpc ReadPairs(ReadPairsRequest) returns (ReadPairsResponse) {}
+}
+
+message Pair {
+    string base_symbol = 1;
+    string quote_symbol = 2;
+}
+
+message CreatePairsRequest {
+    repeated Pair pairs = 1;
+}
+
+message CreatePairsResponse {}
+
+message ReadPairsRequest {
+    repeated Pair pairs = 1;
+}
+
+message ReadPairsResponse {
+    repeated Pair pairs = 1;
+}
