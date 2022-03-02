@@ -36,7 +36,8 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "pairs")()
 	defer tests.TempEnvVar("CRYPTELLATION_PAIRS_GRPC_URL", ":9001")()
 
-	a := NewMockApplication()
+	a, err := NewApplication()
+	suite.Require().NoError(err)
 	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_PAIRS_GRPC_URL")

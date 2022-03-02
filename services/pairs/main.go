@@ -13,12 +13,11 @@ import (
 )
 
 func run() int {
-	application, cleanup, err := service.NewApplication()
+	application, err := service.NewApplication()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", xerrors.Errorf("creating application: %w", err))
 		return 255
 	}
-	defer cleanup()
 
 	server.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(application)
