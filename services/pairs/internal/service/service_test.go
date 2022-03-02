@@ -91,15 +91,3 @@ func (suite *ServiceSuite) TestCreateReadPairs() {
 		QuoteAssetSymbol: "USDC",
 	})
 }
-
-func (suite *ServiceSuite) TestCreatePairsMissingAsset() {
-	_, err := suite.client.CreatePairs(context.Background(), &pairs.CreatePairsRequest{
-		Pairs: []*pairs.Pair{
-			{
-				BaseAssetSymbol:  "BTC",
-				QuoteAssetSymbol: "USDC",
-			},
-		},
-	})
-	suite.Require().Error(err)
-}
