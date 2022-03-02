@@ -122,7 +122,7 @@ func (suite *CockroachDatabaseSuite) TestDelete() {
 	as.NoError(suite.db.CreateAssets(context.Background(), a))
 
 	// When we delete it
-	as.NoError(suite.db.DeleteAssets(context.Background(), a))
+	as.NoError(suite.db.DeleteAssets(context.Background(), a.Symbol))
 
 	// Then we can't read it anymore
 	assets, err := suite.db.ReadAssets(context.Background(), a.Symbol)

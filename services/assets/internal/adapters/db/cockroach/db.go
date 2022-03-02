@@ -79,17 +79,16 @@ func (cockroach *DB) UpdateAssets(ctx context.Context, assets ...asset.Asset) er
 	return nil
 }
 
-func (cockroach *DB) DeleteAssets(ctx context.Context, assets ...asset.Asset) error {
-	var entity Asset
-	for _, model := range assets {
-		entity.FromModel(model)
-
-		if err := cockroach.client.WithContext(ctx).Delete(&entity).Error; err != nil {
+func (cockroach *DB) DeleteAssets(ctx context.Context, symbols ...string) error {
+	for _, s := range symbols {
+		if err := cockroach.client.WithContext(ctx).Delete(&Asset{
+			Symbol: s,
+		}).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return xerrors.Errorf("deleting %+v: %w", assets, db.ErrNotFound)
+				return xerrors.Errorf("deleting %+v: %w", symbols, db.ErrNotFound)
 			}
 
-			return xerrors.Errorf("deleting %+v: %w", assets, err)
+			return xerrors.Errorf("deleting %+v: %w", symbols, err)
 		}
 	}
 	return nil
