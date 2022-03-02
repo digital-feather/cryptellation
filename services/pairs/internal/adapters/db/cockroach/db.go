@@ -79,17 +79,16 @@ func (cockroach *DB) UpdatePairs(ctx context.Context, pairs ...pair.Pair) error 
 	return nil
 }
 
-func (cockroach *DB) DeletePairs(ctx context.Context, pairs ...pair.Pair) error {
-	var entity Pair
-	for _, model := range pairs {
-		entity.FromModel(model)
-
-		if err := cockroach.client.WithContext(ctx).Delete(&entity).Error; err != nil {
+func (cockroach *DB) DeletePairs(ctx context.Context, symbols ...string) error {
+	for _, s := range symbols {
+		if err := cockroach.client.WithContext(ctx).Delete(&Pair{
+			Symbol: s,
+		}).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return xerrors.Errorf("deleting %+v: %w", pairs, db.ErrNotFound)
+				return xerrors.Errorf("deleting %+v: %w", symbols, db.ErrNotFound)
 			}
 
-			return xerrors.Errorf("deleting %+v: %w", pairs, err)
+			return xerrors.Errorf("deleting %+v: %w", symbols, err)
 		}
 	}
 	return nil

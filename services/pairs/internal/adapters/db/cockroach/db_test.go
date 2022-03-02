@@ -68,7 +68,6 @@ func (suite *CockroachDatabaseSuite) TestCreateReadInexistant() {
 		BaseAssetSymbol:  "BTC",
 		QuoteAssetSymbol: "USDC",
 	}
-	_, err := suite.db.ReadPairs(context.Background(), p.Symbol())
 	pairs, err := suite.db.ReadPairs(context.Background(), p.Symbol())
 
 	// Then there is no error but no pair
@@ -144,7 +143,7 @@ func (suite *CockroachDatabaseSuite) TestDelete() {
 	as.NoError(suite.db.CreatePairs(context.Background(), p))
 
 	// When we delete it
-	as.NoError(suite.db.DeletePairs(context.Background(), p))
+	as.NoError(suite.db.DeletePairs(context.Background(), p.Symbol()))
 
 	// Then we can't read it anymore
 	pairs, err := suite.db.ReadPairs(context.Background(), p.Symbol())
