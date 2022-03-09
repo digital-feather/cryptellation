@@ -23,11 +23,8 @@ services:
         depends_on:
             - cockroachdb
         image: cryptellation-testing
-        environment:
-            COCKROACHDB_USER: "root"
-            COCKROACHDB_PASSWORD: ""
-            COCKROACHDB_HOST: cockroachdb
-            COCKROACHDB_PORT: 26257
+        env_file:
+            - ../configs/env/.env
         volumes:
             - ..:/code
         command: [ "go", "test", "-coverprofile=/dev/null", "./..." ]

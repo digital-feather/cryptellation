@@ -22,7 +22,7 @@ services:
     ports:
       - 127.0.0.1:9000:9000
     env_file:
-      - configs/env/.example.env
+      - configs/env/.env
     environment:
       - COCKROACHDB_DATABASE=assets
       - SERVICE_PORT=9000
@@ -41,7 +41,7 @@ services:
     ports:
       - 127.0.0.1:9001:9001
     env_file:
-      - configs/env/.example.env
+      - configs/env/.env
     environment:
       - COCKROACHDB_DATABASE=pairs
       - SERVICE_PORT=9001
@@ -50,6 +50,25 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/pairs/main.go" ]
+  exchanges-grpc:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9002:9002
+    env_file:
+      - configs/env/.env
+    environment:
+      - COCKROACHDB_DATABASE=exchanges
+      - SERVICE_PORT=9002
+    depends_on:
+      - cockroachdb
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/exchanges/main.go" ]
 
 networks:
     cryptellation-network:
