@@ -12,15 +12,15 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type ReadAndSyncIfExpiredExchangesHandler struct {
+type CachedReadExchangesHandler struct {
 	repository db.Port
 	services   map[string]exchanges.Port
 }
 
-func NewReadAndSyncIfExpiredExchangesHandler(
+func NewCachedReadExchangesHandler(
 	repository db.Port,
 	services map[string]exchanges.Port,
-) ReadAndSyncIfExpiredExchangesHandler {
+) CachedReadExchangesHandler {
 	if repository == nil {
 		panic("nil repository")
 	}
@@ -29,13 +29,13 @@ func NewReadAndSyncIfExpiredExchangesHandler(
 		panic("nil services")
 	}
 
-	return ReadAndSyncIfExpiredExchangesHandler{
+	return CachedReadExchangesHandler{
 		repository: repository,
 		services:   services,
 	}
 }
 
-func (reh ReadAndSyncIfExpiredExchangesHandler) Handle(
+func (reh CachedReadExchangesHandler) Handle(
 	ctx context.Context,
 	expirationDuration *time.Duration,
 	names ...string,
@@ -68,7 +68,7 @@ func (reh ReadAndSyncIfExpiredExchangesHandler) Handle(
 	return exchange.MapToArray(mappedExchanges), nil
 }
 
-func (reh ReadAndSyncIfExpiredExchangesHandler) getExchangeFromServices(ctx context.Context, toSync ...string) ([]exchange.Exchange, error) {
+func (reh CachedReadExchangesHandler) getExchangeFromServices(ctx context.Context, toSync ...string) ([]exchange.Exchange, error) {
 	synced := make([]exchange.Exchange, 0, len(toSync))
 	for _, name := range toSync {
 		service, ok := reh.services[name]
@@ -87,7 +87,7 @@ func (reh ReadAndSyncIfExpiredExchangesHandler) getExchangeFromServices(ctx cont
 	return synced, nil
 }
 
-func (reh ReadAndSyncIfExpiredExchangesHandler) upsertExchanges(ctx context.Context, dbExchanges, toUpsert []exchange.Exchange) error {
+func (reh CachedReadExchangesHandler) upsertExchanges(ctx context.Context, dbExchanges, toUpsert []exchange.Exchange) error {
 	toCreate := make([]exchange.Exchange, 0, len(toUpsert))
 	toUpdate := make([]exchange.Exchange, 0, len(toUpsert))
 	mappedDbExchanges := exchange.ArrayToMap(dbExchanges)

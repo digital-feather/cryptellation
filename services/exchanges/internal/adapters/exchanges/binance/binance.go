@@ -12,25 +12,25 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type ExchangeService struct {
+type Service struct {
 	config binance.Config
 	client *client.Client
 }
 
-func New() (*ExchangeService, error) {
+func New() (*Service, error) {
 	var c binance.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading cockroachdb config: %w", err)
+		return nil, xerrors.Errorf("loading binance config: %w", err)
 	}
 
-	return &ExchangeService{
+	return &Service{
 		client: client.NewClient(
 			c.ApiKey,
 			c.SecretKey),
 	}, nil
 }
 
-func (ps *ExchangeService) Infos(ctx context.Context) (exchange.Exchange, error) {
+func (ps *Service) Infos(ctx context.Context) (exchange.Exchange, error) {
 	exchangeInfos, err := ps.client.NewExchangeInfoService().Do(ctx)
 	if err != nil {
 		return exchange.Exchange{}, err

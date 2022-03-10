@@ -19,7 +19,7 @@ func TestBinanceSuite(t *testing.T) {
 
 type BinanceSuite struct {
 	suite.Suite
-	service *ExchangeService
+	service *Service
 }
 
 func (suite *BinanceSuite) BeforeTest(suiteName, testName string) {

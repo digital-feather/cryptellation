@@ -37,7 +37,7 @@ func newApplication(services map[string]exchanges.Port) (app.Application, error)
 
 	return app.Application{
 		Commands: app.Commands{
-			ReadAndSyncIfExpiredExchanges: commands.NewReadAndSyncIfExpiredExchangesHandler(repository, services),
+			CachedReadExchanges: commands.NewCachedReadExchangesHandler(repository, services),
 		},
 	}, nil
 }

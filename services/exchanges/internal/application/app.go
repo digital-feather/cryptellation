@@ -10,7 +10,7 @@ type Application struct {
 }
 
 type Commands struct {
-	ReadAndSyncIfExpiredExchanges commands.ReadAndSyncIfExpiredExchangesHandler
+	CachedReadExchanges commands.CachedReadExchangesHandler
 }
 
 type Queries struct {

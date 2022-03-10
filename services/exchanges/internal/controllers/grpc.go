@@ -23,7 +23,7 @@ func NewGrpcController(application app.Application) GrpcController {
 }
 
 func (g GrpcController) ReadExchanges(ctx context.Context, req *exchanges.ReadExchangesRequest) (*exchanges.ReadExchangesResponse, error) {
-	list, err := g.application.Commands.ReadAndSyncIfExpiredExchanges.Handle(ctx, nil, req.Names...)
+	list, err := g.application.Commands.CachedReadExchanges.Handle(ctx, nil, req.Names...)
 	if err != nil {
 		log.Printf("%+v\n", err)
 		return nil, status.Error(codes.Internal, err.Error())
