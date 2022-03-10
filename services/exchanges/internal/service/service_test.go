@@ -35,7 +35,7 @@ type ServiceSuite struct {
 
 func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "exchanges")()
-	defer tests.TempEnvVar("CRYPTELLATION_EXCHANGES_GRPC_URL", ":9002")()
+	defer tests.TempEnvVar("CRYPTELLATION_EXCHANGES_GRPC_URL", ":9003")()
 
 	a, err := newMockApplication()
 	suite.Require().NoError(err)

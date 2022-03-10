@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "/pkg/genproto/candlesticks";
+
+package candlesticks;
+
+service CandlesticksService {
+    rpc ReadCandlesticks(ReadCandlesticksRequest) returns (ReadCandlesticksResponse) {}
+}
+
+message Candlestick {
+    float open = 1;
+    float high = 2;
+    float low = 3;
+    float close = 4;
+    float volume = 5;
+}
+
+message ReadCandlesticksRequest {
+    string exchange_name = 1;
+    string pair_symbol = 2;
+    string period_symbol = 3;
+    string start = 4;
+    string end = 5;
+    int64 limit = 6;
+}
+
+message ReadCandlesticksResponse {
+    repeated Candlestick candlesticks = 1;
+}

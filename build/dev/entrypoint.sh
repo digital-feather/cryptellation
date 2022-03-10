@@ -20,7 +20,7 @@ if [ ! -z ${COCKROACHDB_HOST+x} ]; then
     export PGDATABASE="${filename%.*}"
 
     echo "# Loading '$PGDATABASE' database from $f..."
-    psql -f $f
+    PGOPTIONS='--client-min-messages=error' psql -f $f
   done
 fi
 

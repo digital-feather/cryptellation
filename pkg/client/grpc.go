@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/cryptellation/cryptellation/internal/genproto/assets"
+	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
 	"github.com/cryptellation/cryptellation/internal/genproto/exchanges"
 	"github.com/cryptellation/cryptellation/internal/genproto/pairs"
 	"golang.org/x/xerrors"
@@ -50,6 +51,20 @@ func NewExchangesGrpcClient() (client exchanges.ExchangesServiceClient, close fu
 	}
 
 	return exchanges.NewExchangesServiceClient(conn), conn.Close, nil
+}
+
+func NewCandlesticksGrpcClient() (client candlesticks.CandlesticksServiceClient, close func() error, err error) {
+	grpcAddr := os.Getenv("CRYPTELLATION_CANDLESTICKS_GRPC_URL")
+	if grpcAddr == "" {
+		return nil, func() error { return nil }, xerrors.New("no grpc url provided")
+	}
+
+	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
+	if err != nil {
+		return nil, func() error { return nil }, xerrors.Errorf("dialing candlesticks grpc server: %w", err)
+	}
+
+	return candlesticks.NewCandlesticksServiceClient(conn), conn.Close, nil
 }
 
 func grpcDialOpts(grpcAddr string) []grpc.DialOption {

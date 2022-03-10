@@ -69,6 +69,25 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/exchanges/main.go" ]
+  candlesticks-grpc:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9003:9003
+    env_file:
+      - configs/env/.env
+    environment:
+      - COCKROACHDB_DATABASE=candlesticks
+      - SERVICE_PORT=9003
+    depends_on:
+      - cockroachdb
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/candlesticks/main.go" ]
 
 networks:
     cryptellation-network:
