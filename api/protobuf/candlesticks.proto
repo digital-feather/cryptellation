@@ -9,11 +9,12 @@ service CandlesticksService {
 }
 
 message Candlestick {
-    float open = 1;
-    float high = 2;
-    float low = 3;
-    float close = 4;
-    float volume = 5;
+    string time = 1;
+    float open = 2;
+    float high = 3;
+    float low = 4;
+    float close = 5;
+    float volume = 6;
 }
 
 message ReadCandlesticksRequest {

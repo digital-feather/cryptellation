@@ -75,6 +75,7 @@ func toGrpcCandlesticks(cl *candlestick.List) []*candlesticks.Candlestick {
 	gcandlesticks := make([]*candlesticks.Candlestick, 0, cl.Len())
 	_ = cl.Loop(func(t time.Time, cs candlestick.Candlestick) (bool, error) {
 		gcandlesticks = append(gcandlesticks, &candlesticks.Candlestick{
+			Time:   t.Format(time.RFC3339Nano),
 			Open:   float32(cs.Open),
 			High:   float32(cs.High),
 			Low:    float32(cs.Low),

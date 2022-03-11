@@ -22,30 +22,6 @@ type CachedReadCandlesticksPayload struct {
 	Limit        uint
 }
 
-func (req *CachedReadCandlesticksPayload) Process() {
-	defaultDuration := req.Period.Duration() * 500
-	if req.End == nil {
-		if req.Start == nil {
-			t := time.Now()
-			req.End = &t
-		} else {
-			t := req.Start.Add(defaultDuration)
-			req.End = &t
-		}
-	}
-
-	if req.Start == nil {
-		t := req.End.Add(-defaultDuration)
-		req.Start = &t
-	}
-
-	t := req.Period.RoundTime(*req.Start)
-	req.Start = &t
-
-	t = req.Period.RoundTime(*req.End)
-	req.End = &t
-}
-
 type CachedReadCandlesticksHandler struct {
 	repository db.Port
 	services   map[string]exchanges.Port
@@ -70,7 +46,7 @@ func NewCachedReadCandlesticksHandler(
 }
 
 func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload CachedReadCandlesticksPayload) (*candlestick.List, error) {
-	payload.Process()
+	start, end := domain.ProcessRequestedStartEndTimes(payload.Period, payload.Start, payload.End)
 
 	id := candlestick.ListID{
 		ExchangeName: payload.ExchangeName,
@@ -79,16 +55,16 @@ func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload Cac
 	}
 	cl := candlestick.NewList(id)
 
-	if err := reh.repository.ReadCandlesticks(ctx, cl, *payload.Start, *payload.End, payload.Limit); err != nil {
+	if err := reh.repository.ReadCandlesticks(ctx, cl, start, end, payload.Limit); err != nil {
 		return nil, err
 	}
 
-	if !domain.AreCsMissing(cl, *payload.Start, *payload.End, payload.Limit) {
+	if !domain.AreCsMissing(cl, start, end, payload.Limit) {
 		return cl, nil
 	}
 
-	downloadEnd := domain.MinimalCandlesticksEndTimeForDownload(cl, *payload.Start, *payload.End)
-	if err := reh.download(ctx, cl, *payload.Start, downloadEnd, payload.Limit); err != nil {
+	downloadStart, downloadEnd := domain.DownloadStartEndTimes(cl, start, end)
+	if err := reh.download(ctx, cl, downloadStart, downloadEnd, payload.Limit); err != nil {
 		return nil, err
 	}
 
@@ -96,7 +72,7 @@ func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload Cac
 		return nil, err
 	}
 
-	return domain.GetRequestedCandlesticksFromList(cl, *payload.Start, *payload.End, payload.Limit), nil
+	return domain.GetRequestedCandlesticksFromList(cl, start, end, payload.Limit), nil
 }
 
 func (reh CachedReadCandlesticksHandler) download(ctx context.Context, cl *candlestick.List, start, end time.Time, limit uint) error {
@@ -126,7 +102,7 @@ func (reh CachedReadCandlesticksHandler) download(ctx context.Context, cl *candl
 		}
 
 		t, _, exists := ncl.Last()
-		if !exists || t.Equal(end) || (limit != 0 && cl.Len() >= int(limit)) {
+		if !exists || !t.Before(end) || (limit != 0 && cl.Len() >= int(limit)) {
 			break
 		}
 
