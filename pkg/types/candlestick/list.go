@@ -1,9 +1,7 @@
 package candlestick
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/cryptellation/cryptellation/pkg/types/period"
@@ -162,56 +160,7 @@ func (l List) FirstN(limit uint) *List {
 	return el
 }
 
-type ExportedList struct {
-	Exchange     string                    `json:"exchange"`
-	Pair         string                    `json:"pair"`
-	Period       period.Symbol             `json:"period"`
-	Candlesticks map[time.Time]Candlestick `json:"candlesticks,omitempty"`
-}
-
-func (l List) MarshalJSON() ([]byte, error) {
-	var el ExportedList
-
-	el.Exchange = l.ExchangeName()
-	el.Pair = l.PairSymbol()
-	el.Period = l.Period()
-
-	el.Candlesticks = make(map[time.Time]Candlestick)
-	if err := l.Loop(func(t time.Time, cs Candlestick) (bool, error) {
-		el.Candlesticks[t] = cs
-		return false, nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return json.Marshal(&el)
-}
-
-func (l *List) UnmarshalJSON(data []byte) error {
-	var el ExportedList
-	if err := json.Unmarshal(data, &el); err != nil {
-		return err
-	}
-
-	per := el.Period
-	if err := el.Period.Validate(); err != nil {
-		return err
-	}
-
-	l.id.ExchangeName = el.Exchange
-	l.id.PairSymbol = el.Pair
-	l.id.Period = per
-	l.candleSticks = timeserie.New()
-	for t, c := range el.Candlesticks {
-		if err := l.Set(t, c); err != nil {
-			return fmt.Errorf("[candlestick %s]:%s", t.Format(time.RFC3339Nano), err)
-		}
-	}
-
-	return nil
-}
-
-func MergeIntoOne(csl *List, per period.Symbol) (time.Time, Candlestick) {
+func MergeListIntoOneCandlestick(csl *List, per period.Symbol) (time.Time, Candlestick) {
 	if csl.Len() == 0 {
 		return time.Unix(0, 0), Candlestick{}
 	}
