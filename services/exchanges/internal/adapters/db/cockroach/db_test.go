@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/internal/tests"
-	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -47,11 +47,11 @@ func (suite *CockroachDatabaseSuite) TestCreateRead() {
 
 	// Given a exchange
 	p := exchange.Exchange{
-		Name:         "exchange",
-		Pairs:        []string{"ABC-DEF", "IJK-LMN"},
-		Periods:      []string{"M1", "M3"},
-		Fees:         0.1,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange",
+		PairsSymbols:   []string{"ABC-DEF", "IJK-LMN"},
+		PeriodsSymbols: []string{"M1", "M3"},
+		Fees:           0.1,
+		LastSyncTime:   time.Now().UTC(),
 	}
 
 	// When we create it and read it
@@ -62,10 +62,10 @@ func (suite *CockroachDatabaseSuite) TestCreateRead() {
 	// Then it's the same
 	as.Len(rp, 1)
 	as.Equal(p.Name, rp[0].Name)
-	as.Contains(rp[0].Pairs, "ABC-DEF")
-	as.Contains(rp[0].Pairs, "IJK-LMN")
-	as.Contains(rp[0].Periods, "M1")
-	as.Contains(rp[0].Periods, "M3")
+	as.Contains(rp[0].PairsSymbols, "ABC-DEF")
+	as.Contains(rp[0].PairsSymbols, "IJK-LMN")
+	as.Contains(rp[0].PeriodsSymbols, "M1")
+	as.Contains(rp[0].PeriodsSymbols, "M3")
 	as.Equal(p.Fees, rp[0].Fees)
 	as.WithinDuration(time.Now().UTC(), rp[0].LastSyncTime, time.Second)
 }
@@ -86,27 +86,27 @@ func (suite *CockroachDatabaseSuite) TestReadAll() {
 
 	// Given 3 created exchanges
 	p1 := exchange.Exchange{
-		Name:         "exchange",
-		Pairs:        []string{"ABC-DEF", "IJK-LMN"},
-		Periods:      []string{"M1", "M3"},
-		Fees:         0.1,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange",
+		PairsSymbols:   []string{"ABC-DEF", "IJK-LMN"},
+		PeriodsSymbols: []string{"M1", "M3"},
+		Fees:           0.1,
+		LastSyncTime:   time.Now().UTC(),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p1))
 	p2 := exchange.Exchange{
-		Name:         "exchange2",
-		Pairs:        []string{"ABC-DEF", "XYZ-LMN"},
-		Periods:      []string{"M1", "M5"},
-		Fees:         0.2,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange2",
+		PairsSymbols:   []string{"ABC-DEF", "XYZ-LMN"},
+		PeriodsSymbols: []string{"M1", "M5"},
+		Fees:           0.2,
+		LastSyncTime:   time.Now().UTC(),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p2))
 	p3 := exchange.Exchange{
-		Name:         "exchange3",
-		Pairs:        []string{"ABC-XYZ", "IJK-LMN"},
-		Periods:      []string{"M1", "M10"},
-		Fees:         0.3,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange3",
+		PairsSymbols:   []string{"ABC-XYZ", "IJK-LMN"},
+		PeriodsSymbols: []string{"M1", "M10"},
+		Fees:           0.3,
+		LastSyncTime:   time.Now().UTC(),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p3))
 
@@ -128,21 +128,21 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 
 	// Given a created exchange
 	p1 := exchange.Exchange{
-		Name:         "exchange",
-		Pairs:        []string{"ABC-DEF", "IJK-LMN"},
-		Periods:      []string{"M1", "M3"},
-		Fees:         0.1,
-		LastSyncTime: time.Now().UTC().Add(-time.Hour),
+		Name:           "exchange",
+		PairsSymbols:   []string{"ABC-DEF", "IJK-LMN"},
+		PeriodsSymbols: []string{"M1", "M3"},
+		Fees:           0.1,
+		LastSyncTime:   time.Now().UTC().Add(-time.Hour),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p1))
 
 	// When we make some modification to it
 	p2 := exchange.Exchange{
-		Name:         "exchange",
-		Pairs:        []string{"ABC-XYZ", "IJK-XYZ"},
-		Periods:      []string{"M5", "D1"},
-		Fees:         0.2,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange",
+		PairsSymbols:   []string{"ABC-XYZ", "IJK-XYZ"},
+		PeriodsSymbols: []string{"M5", "D1"},
+		Fees:           0.2,
+		LastSyncTime:   time.Now().UTC(),
 	}
 
 	// And we update it
@@ -153,10 +153,10 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 	as.NoError(err)
 	as.Len(rp, 1)
 	as.Equal(p2.Name, rp[0].Name)
-	as.Contains(rp[0].Pairs, "ABC-XYZ")
-	as.Contains(rp[0].Pairs, "IJK-XYZ")
-	as.Contains(rp[0].Periods, "M5")
-	as.Contains(rp[0].Periods, "D1")
+	as.Contains(rp[0].PairsSymbols, "ABC-XYZ")
+	as.Contains(rp[0].PairsSymbols, "IJK-XYZ")
+	as.Contains(rp[0].PeriodsSymbols, "M5")
+	as.Contains(rp[0].PeriodsSymbols, "D1")
 	as.Equal(p2.Fees, rp[0].Fees)
 	as.WithinDuration(time.Now().UTC(), rp[0].LastSyncTime, time.Second)
 }
@@ -166,19 +166,19 @@ func (suite *CockroachDatabaseSuite) TestDelete() {
 
 	// Given twp created exchange
 	p1 := exchange.Exchange{
-		Name:         "exchange",
-		Pairs:        []string{"ABC-XYZ", "IJK-XYZ"},
-		Periods:      []string{"M5", "D1"},
-		Fees:         0.2,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange",
+		PairsSymbols:   []string{"ABC-XYZ", "IJK-XYZ"},
+		PeriodsSymbols: []string{"M5", "D1"},
+		Fees:           0.2,
+		LastSyncTime:   time.Now().UTC(),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p1))
 	p2 := exchange.Exchange{
-		Name:         "exchange2",
-		Pairs:        []string{"ABC-XYZ", "IJK-ABC"},
-		Periods:      []string{"M5", "M1"},
-		Fees:         0.3,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange2",
+		PairsSymbols:   []string{"ABC-XYZ", "IJK-ABC"},
+		PeriodsSymbols: []string{"M5", "M1"},
+		Fees:           0.3,
+		LastSyncTime:   time.Now().UTC(),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p2))
 
@@ -211,11 +211,11 @@ func (suite *CockroachDatabaseSuite) TestReset() {
 
 	// Given a created exchange
 	p := exchange.Exchange{
-		Name:         "exchange",
-		Pairs:        []string{"ABC-XYZ", "IJK-XYZ"},
-		Periods:      []string{"M5", "D1"},
-		Fees:         0.2,
-		LastSyncTime: time.Now().UTC(),
+		Name:           "exchange",
+		PairsSymbols:   []string{"ABC-XYZ", "IJK-XYZ"},
+		PeriodsSymbols: []string{"M5", "D1"},
+		Fees:           0.2,
+		LastSyncTime:   time.Now().UTC(),
 	}
 	as.NoError(suite.db.CreateExchanges(context.Background(), p))
 

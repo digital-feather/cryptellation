@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/timeserie"
+	"github.com/cryptellation/cryptellation/pkg/timeserie"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 )
 
 var (
@@ -148,10 +148,15 @@ func (l List) Last() (time.Time, Candlestick, bool) {
 	return t, data.(Candlestick), true
 }
 
-func (l List) Extract(start, end time.Time) *List {
+func (l List) Extract(start, end time.Time, limit uint) *List {
 	el := NewList(l.id)
 	el.candleSticks = l.candleSticks.Extract(start, end)
-	return el
+
+	if limit == 0 || el.Len() < int(limit) {
+		return el
+	}
+
+	return el.FirstN(limit)
 }
 
 func (l List) FirstN(limit uint) *List {

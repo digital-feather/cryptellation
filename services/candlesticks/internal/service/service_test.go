@@ -15,8 +15,8 @@ import (
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/db/cockroach"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/application"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/controllers"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 )

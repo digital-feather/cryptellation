@@ -34,9 +34,9 @@ func (suite *BinanceSuite) TestExchangeInfos() {
 	exch, err := suite.service.Infos(context.TODO())
 	suite.NoError(err)
 
-	as.True(checkPairExistance(exch.Pairs, "ETH-USDC"))
-	as.True(checkPairExistance(exch.Pairs, "FTM-USDC"))
-	as.True(checkPairExistance(exch.Pairs, "BTC-USDC"))
+	as.True(checkPairExistance(exch.PairsSymbols, "ETH-USDC"))
+	as.True(checkPairExistance(exch.PairsSymbols, "FTM-USDC"))
+	as.True(checkPairExistance(exch.PairsSymbols, "BTC-USDC"))
 
 	as.Equal(0.1, exch.Fees)
 

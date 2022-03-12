@@ -6,7 +6,7 @@ import (
 
 	"github.com/cryptellation/cryptellation/internal/genproto/assets"
 	app "github.com/cryptellation/cryptellation/services/assets/internal/application"
-	"github.com/cryptellation/cryptellation/services/assets/pkg/asset"
+	"github.com/cryptellation/cryptellation/services/assets/internal/domain/asset"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

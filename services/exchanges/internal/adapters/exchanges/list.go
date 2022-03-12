@@ -1,28 +1,17 @@
 package exchanges
 
 import (
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
-	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
 )
 
 var (
 	Binance = exchange.Exchange{
 		Name: "binance",
-		Periods: []string{
-			period.M1.String(),
-			period.M3.String(),
-			period.M5.String(),
-			period.M15.String(),
-			period.M30.String(),
-			period.H1.String(),
-			period.H2.String(),
-			period.H4.String(),
-			period.H6.String(),
-			period.H8.String(),
-			period.H12.String(),
-			period.D1.String(),
-			period.D3.String(),
-			period.W1.String(),
+		PeriodsSymbols: []string{
+			"M1", "M3", "M5", "M15", "M30",
+			"H1", "H2", "H4", "H6", "H8", "H12",
+			"D1", "D3",
+			"W1",
 		},
 		Fees: 0.1,
 	}

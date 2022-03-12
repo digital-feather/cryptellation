@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/cryptellation/cryptellation/internal/tests"
-	"github.com/cryptellation/cryptellation/services/assets/pkg/asset"
+	"github.com/cryptellation/cryptellation/services/assets/internal/domain/asset"
 	"github.com/stretchr/testify/suite"
 )
 

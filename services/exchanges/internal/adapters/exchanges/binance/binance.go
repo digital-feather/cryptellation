@@ -2,13 +2,13 @@ package binance
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	client "github.com/adshao/go-binance/v2"
 	"github.com/cryptellation/cryptellation/internal/adapters/binance"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
-	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
-	"github.com/cryptellation/cryptellation/services/pairs/pkg/pair"
+	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 )
 
@@ -38,14 +38,11 @@ func (ps *Service) Infos(ctx context.Context) (exchange.Exchange, error) {
 
 	pairSymbols := make([]string, len(exchangeInfos.Symbols))
 	for i, bs := range exchangeInfos.Symbols {
-		pairSymbols[i] = pair.Pair{
-			BaseAssetSymbol:  bs.BaseAsset,
-			QuoteAssetSymbol: bs.QuoteAsset,
-		}.Symbol()
+		pairSymbols[i] = fmt.Sprintf("%s-%s", bs.BaseAsset, bs.QuoteAsset)
 	}
 
 	exch := exchanges.Binance
-	exch.Pairs = pairSymbols
+	exch.PairsSymbols = pairSymbols
 	exch.LastSyncTime = time.Now()
 
 	return exch, nil

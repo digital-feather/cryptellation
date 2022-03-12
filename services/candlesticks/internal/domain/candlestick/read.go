@@ -1,10 +1,9 @@
-package domain
+package candlestick
 
 import (
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 )
 
 const (
@@ -13,7 +12,7 @@ const (
 	MinimalRetrievedMissingCandlesticks = 100
 )
 
-func AreCsMissing(cl *candlestick.List, start, end time.Time, limit uint) bool {
+func AreMissing(cl *List, start, end time.Time, limit uint) bool {
 	expectedCount := int(cl.Period().CountBetweenTimes(start, end)) + 1
 	qty := cl.Len()
 
@@ -28,16 +27,7 @@ func AreCsMissing(cl *candlestick.List, start, end time.Time, limit uint) bool {
 	return false
 }
 
-func GetRequestedCandlesticksFromList(cl *candlestick.List, start, end time.Time, limit uint) *candlestick.List {
-	ecl := cl.Extract(start, end)
-	if limit == 0 || ecl.Len() < int(limit) {
-		return ecl
-	}
-
-	return ecl.FirstN(limit)
-}
-
-func DownloadStartEndTimes(cl *candlestick.List, start, end time.Time) (time.Time, time.Time) {
+func GetDownloadStartEndTimes(cl *List, start, end time.Time) (time.Time, time.Time) {
 	t, _, exists := cl.Last()
 	if exists && !cl.HasUncomplete() {
 		start = t.Add(cl.Period().Duration())

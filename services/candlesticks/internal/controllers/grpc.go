@@ -8,8 +8,8 @@ import (
 	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
 	app "github.com/cryptellation/cryptellation/services/candlesticks/internal/application"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/application/commands"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

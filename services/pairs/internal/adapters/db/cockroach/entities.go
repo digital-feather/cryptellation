@@ -1,6 +1,6 @@
 package cockroach
 
-import "github.com/cryptellation/cryptellation/services/pairs/pkg/pair"
+import "github.com/cryptellation/cryptellation/services/pairs/internal/domain/pair"
 
 type Pair struct {
 	Symbol           string `gorm:"primaryKey;autoIncrement:false"`

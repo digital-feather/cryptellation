@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/timeserie"
+	"github.com/cryptellation/cryptellation/pkg/timeserie"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -263,7 +263,7 @@ func (suite *CandlestickListSuite) TestExtract() {
 		l.Set(time.Unix(60*i, 0), cs)
 	}
 
-	nl := l.Extract(time.Unix(60, 0), time.Unix(120, 0))
+	nl := l.Extract(time.Unix(60, 0), time.Unix(120, 0), 0)
 	suite.Require().Equal(2, nl.Len())
 
 	cs, exists := nl.Get(time.Unix(60, 0))
@@ -273,6 +273,10 @@ func (suite *CandlestickListSuite) TestExtract() {
 	cs, exists = nl.Get(time.Unix(120, 0))
 	suite.Require().True(exists)
 	suite.Require().Equal(2.0, cs.Open)
+}
+
+func (suite *CandlestickListSuite) TestExtractWithLimit() {
+	// TODO
 }
 
 func (suite *CandlestickListSuite) TestFirstN() {

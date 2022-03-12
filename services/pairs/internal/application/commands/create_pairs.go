@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/cryptellation/cryptellation/services/pairs/internal/adapters/db"
-	"github.com/cryptellation/cryptellation/services/pairs/pkg/pair"
+	"github.com/cryptellation/cryptellation/services/pairs/internal/domain/pair"
 	"golang.org/x/xerrors"
 )
 

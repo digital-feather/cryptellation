@@ -4,28 +4,28 @@ import "time"
 
 // swagger:model Exchange
 type Exchange struct {
-	Name         string
-	Periods      []string
-	Pairs        []string
-	Fees         float64
-	LastSyncTime time.Time
+	Name           string
+	PeriodsSymbols []string
+	PairsSymbols   []string
+	Fees           float64
+	LastSyncTime   time.Time
 }
 
 func (e Exchange) Merge(e2 Exchange) Exchange {
 	return Exchange{
-		Name:    e.Name,
-		Periods: addtoUniqueArray(e.Periods, e2.Periods...),
-		Pairs:   addtoUniqueArray(e.Pairs, e2.Pairs...),
-		Fees:    e.Fees,
+		Name:           e.Name,
+		PeriodsSymbols: addtoUniqueArray(e.PeriodsSymbols, e2.PeriodsSymbols...),
+		PairsSymbols:   addtoUniqueArray(e.PairsSymbols, e2.PairsSymbols...),
+		Fees:           e.Fees,
 	}
 }
 
 func (e *Exchange) AddPair(symbols ...string) {
-	e.Pairs = addtoUniqueArray(e.Pairs, symbols...)
+	e.PairsSymbols = addtoUniqueArray(e.PairsSymbols, symbols...)
 }
 
 func (e *Exchange) AddPeriods(symbols ...string) {
-	e.Periods = addtoUniqueArray(e.Periods, symbols...)
+	e.PeriodsSymbols = addtoUniqueArray(e.PeriodsSymbols, symbols...)
 }
 
 func addtoUniqueArray(a1 []string, a2 ...string) []string {

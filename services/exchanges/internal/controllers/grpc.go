@@ -8,7 +8,7 @@ import (
 
 	"github.com/cryptellation/cryptellation/internal/genproto/exchanges"
 	app "github.com/cryptellation/cryptellation/services/exchanges/internal/application"
-	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,11 +43,11 @@ func fromGrpcExchanges(gexchanges []*exchanges.Exchange) ([]exchange.Exchange, e
 		}
 
 		ps[i] = exchange.Exchange{
-			Name:         p.Name,
-			Pairs:        p.Pairs,
-			Periods:      p.Periods,
-			Fees:         float64(p.Fees),
-			LastSyncTime: lastSyncTime,
+			Name:           p.Name,
+			PairsSymbols:   p.Pairs,
+			PeriodsSymbols: p.Periods,
+			Fees:           float64(p.Fees),
+			LastSyncTime:   lastSyncTime,
 		}
 	}
 	return ps, nil
@@ -58,8 +58,8 @@ func toGrpcExchanges(ps []exchange.Exchange) []*exchanges.Exchange {
 	for i, p := range ps {
 		gexchanges[i] = &exchanges.Exchange{
 			Name:         p.Name,
-			Pairs:        p.Pairs,
-			Periods:      p.Periods,
+			Pairs:        p.PairsSymbols,
+			Periods:      p.PeriodsSymbols,
 			Fees:         float32(p.Fees),
 			LastSyncTime: p.LastSyncTime.Format(time.RFC3339),
 		}

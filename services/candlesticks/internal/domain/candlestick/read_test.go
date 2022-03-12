@@ -1,11 +1,10 @@
-package domain
+package candlestick
 
 import (
 	"testing"
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -17,30 +16,30 @@ type CandlesticksSuite struct {
 	suite.Suite
 }
 
-func (suite *CandlesticksSuite) TestAreCsMissing() {
+func (suite *CandlesticksSuite) TestAreMissing() {
 	// Given all candlesticks
-	cl := candlestick.NewList(candlestick.ListID{
+	cl := NewList(ListID{
 		ExchangeName: "exchange",
 		PairSymbol:   "ETH-USDC",
 		Period:       period.M1,
 	})
 
 	for i := int64(0); i < 10; i++ {
-		cl.Set(time.Unix(60*i, 0), candlestick.Candlestick{
+		cl.Set(time.Unix(60*i, 0), Candlestick{
 			Open: float64(i),
 		})
 	}
 
 	// When asking if there is missing candlesticks
-	res := AreCsMissing(cl, time.Unix(0, 0), time.Unix(540, 0), 0)
+	res := AreMissing(cl, time.Unix(0, 0), time.Unix(540, 0), 0)
 
 	// Then there is no missing
 	suite.Require().False(res)
 }
 
-func (suite *CandlesticksSuite) TestAreCsMissingWithOneMissing() {
+func (suite *CandlesticksSuite) TestAreMissingWithOneMissing() {
 	// Given all candlesticks
-	cl := candlestick.NewList(candlestick.ListID{
+	cl := NewList(ListID{
 		ExchangeName: "exchange",
 		PairSymbol:   "ETH-USDC",
 		Period:       period.M1,
@@ -51,21 +50,21 @@ func (suite *CandlesticksSuite) TestAreCsMissingWithOneMissing() {
 			continue
 		}
 
-		cl.Set(time.Unix(60*i, 0), candlestick.Candlestick{
+		cl.Set(time.Unix(60*i, 0), Candlestick{
 			Open: float64(i),
 		})
 	}
 
 	// When asking if there is missing candlesticks
-	res := AreCsMissing(cl, time.Unix(0, 0), time.Unix(540, 0), 0)
+	res := AreMissing(cl, time.Unix(0, 0), time.Unix(540, 0), 0)
 
 	// Then there is no missing
 	suite.Require().True(res)
 }
 
-func (suite *CandlesticksSuite) TestAreCsMissingWithOneMissingAndLimit() {
+func (suite *CandlesticksSuite) TestAreMissingWithOneMissingAndLimit() {
 	// Given all candlesticks
-	cl := candlestick.NewList(candlestick.ListID{
+	cl := NewList(ListID{
 		ExchangeName: "exchange",
 		PairSymbol:   "ETH-USDC",
 		Period:       period.M1,
@@ -76,13 +75,13 @@ func (suite *CandlesticksSuite) TestAreCsMissingWithOneMissingAndLimit() {
 			continue
 		}
 
-		cl.Set(time.Unix(60*i, 0), candlestick.Candlestick{
+		cl.Set(time.Unix(60*i, 0), Candlestick{
 			Open: float64(i),
 		})
 	}
 
 	// When asking if there is missing candlesticks
-	res := AreCsMissing(cl, time.Unix(0, 0), time.Unix(540, 0), 2)
+	res := AreMissing(cl, time.Unix(0, 0), time.Unix(540, 0), 2)
 
 	// Then there is no missing
 	suite.Require().False(res)

@@ -7,8 +7,7 @@ import (
 
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/db"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain"
-	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 )
 
@@ -45,7 +44,7 @@ func (reh CachedReadExchangesHandler) Handle(
 		return nil, xerrors.Errorf("handling exchanges from db reading: %w", err)
 	}
 
-	toSync, err := domain.GetExpiredExchangesNames(names, dbExchanges, expirationDuration)
+	toSync, err := exchange.GetExpiredExchangesNames(names, dbExchanges, expirationDuration)
 	if err != nil {
 		return nil, xerrors.Errorf("determining exchanges to synchronize: %w", err)
 	}

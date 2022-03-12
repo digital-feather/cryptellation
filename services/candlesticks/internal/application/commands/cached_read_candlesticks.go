@@ -7,9 +7,8 @@ import (
 
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/exchanges"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
 	"golang.org/x/xerrors"
 )
 
@@ -46,7 +45,7 @@ func NewCachedReadCandlesticksHandler(
 }
 
 func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload CachedReadCandlesticksPayload) (*candlestick.List, error) {
-	start, end := domain.ProcessRequestedStartEndTimes(payload.Period, payload.Start, payload.End)
+	start, end := candlestick.ProcessRequestedStartEndTimes(payload.Period, payload.Start, payload.End)
 
 	id := candlestick.ListID{
 		ExchangeName: payload.ExchangeName,
@@ -59,11 +58,11 @@ func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload Cac
 		return nil, err
 	}
 
-	if !domain.AreCsMissing(cl, start, end, payload.Limit) {
+	if !candlestick.AreMissing(cl, start, end, payload.Limit) {
 		return cl, nil
 	}
 
-	downloadStart, downloadEnd := domain.DownloadStartEndTimes(cl, start, end)
+	downloadStart, downloadEnd := candlestick.GetDownloadStartEndTimes(cl, start, end)
 	if err := reh.download(ctx, cl, downloadStart, downloadEnd, payload.Limit); err != nil {
 		return nil, err
 	}
@@ -72,7 +71,7 @@ func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload Cac
 		return nil, err
 	}
 
-	return domain.GetRequestedCandlesticksFromList(cl, start, end, payload.Limit), nil
+	return cl.Extract(start, end, payload.Limit), nil
 }
 
 func (reh CachedReadCandlesticksHandler) download(ctx context.Context, cl *candlestick.List, start, end time.Time, limit uint) error {

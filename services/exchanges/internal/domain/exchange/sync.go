@@ -1,19 +1,17 @@
-package domain
+package exchange
 
 import (
 	"time"
-
-	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 )
 
 const DefaultExpirationDuration = time.Hour
 
 func GetExpiredExchangesNames(
 	expectedExchanges []string,
-	exchangesFromDB []exchange.Exchange,
+	exchangesFromDB []Exchange,
 	expirationDuration *time.Duration,
 ) (toSync []string, err error) {
-	mappedExchanges := exchange.ArrayToMap(exchangesFromDB)
+	mappedExchanges := ArrayToMap(exchangesFromDB)
 
 	if expirationDuration == nil {
 		d := DefaultExpirationDuration
