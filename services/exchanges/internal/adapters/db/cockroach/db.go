@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/cryptellation/cryptellation/internal/adapters/cockroachdb"
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/db"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 	"golang.org/x/xerrors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/pkg/types/pair"
+	"github.com/cryptellation/cryptellation/services/pairs/pkg/pair"
 )
 
 type Port interface {

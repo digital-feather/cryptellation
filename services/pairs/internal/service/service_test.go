@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
+	client "github.com/cryptellation/cryptellation/clients/go"
 	"github.com/cryptellation/cryptellation/internal/genproto/pairs"
 	"github.com/cryptellation/cryptellation/internal/server"
 	"github.com/cryptellation/cryptellation/internal/tests"
-	"github.com/cryptellation/cryptellation/pkg/client"
 	"github.com/cryptellation/cryptellation/services/pairs/internal/adapters/db/cockroach"
 	"github.com/cryptellation/cryptellation/services/pairs/internal/application"
 	"github.com/cryptellation/cryptellation/services/pairs/internal/controllers"

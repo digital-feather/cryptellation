@@ -6,9 +6,9 @@ import (
 
 	client "github.com/adshao/go-binance/v2"
 	"github.com/cryptellation/cryptellation/internal/adapters/binance"
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
-	"github.com/cryptellation/cryptellation/pkg/types/pair"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
+	"github.com/cryptellation/cryptellation/services/pairs/pkg/pair"
 	"golang.org/x/xerrors"
 )
 

@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/cryptellation/cryptellation/internal/genproto/assets"
-	"github.com/cryptellation/cryptellation/pkg/types/asset"
 	app "github.com/cryptellation/cryptellation/services/assets/internal/application"
+	"github.com/cryptellation/cryptellation/services/assets/pkg/asset"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

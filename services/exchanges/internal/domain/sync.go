@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 )
 
 const DefaultExpirationDuration = time.Hour

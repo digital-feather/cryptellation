@@ -30,7 +30,7 @@ services:
       - cockroachdb
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/assets/main.go" ]
+    command: [ "go", "run", "./services/assets/cmd/assets-server/main.go" ]
   pairs-grpc:
     build:
       context: .
@@ -49,7 +49,7 @@ services:
       - cockroachdb
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/pairs/main.go" ]
+    command: [ "go", "run", "./services/pairs/cmd/pairs-server/main.go" ]
   exchanges-grpc:
     build:
       context: .
@@ -68,7 +68,7 @@ services:
       - cockroachdb
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/exchanges/main.go" ]
+    command: [ "go", "run", "./services/exchanges/cmd/exchanges-server/main.go" ]
   candlesticks-grpc:
     build:
       context: .
@@ -87,7 +87,7 @@ services:
       - cockroachdb
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/candlesticks/main.go" ]
+    command: [ "go", "run", "./services/candlesticks/cmd/candlesticks-server/main.go" ]
 
 networks:
     cryptellation-network:

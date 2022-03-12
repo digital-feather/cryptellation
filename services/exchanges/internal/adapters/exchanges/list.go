@@ -1,8 +1,8 @@
 package exchanges
 
 import (
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
-	"github.com/cryptellation/cryptellation/pkg/types/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 )
 
 var (

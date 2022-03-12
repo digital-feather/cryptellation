@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cryptellation/cryptellation/pkg/types/candlestick"
-	"github.com/cryptellation/cryptellation/pkg/types/period"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/exchanges"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 	"golang.org/x/xerrors"
 )
 

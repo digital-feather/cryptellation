@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/internal/adapters/cockroachdb"
-	"github.com/cryptellation/cryptellation/pkg/types/candlestick"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/db"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
 	"golang.org/x/xerrors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

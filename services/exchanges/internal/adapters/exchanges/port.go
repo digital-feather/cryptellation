@@ -3,7 +3,7 @@ package exchanges
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 )
 
 type Port interface {

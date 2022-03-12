@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/cryptellation/cryptellation/pkg/types/period"
-	"github.com/cryptellation/cryptellation/pkg/types/timeserie"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/timeserie"
 )
 
 var (

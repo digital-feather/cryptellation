@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	"github.com/cryptellation/cryptellation/pkg/types/candlestick"
-	"github.com/cryptellation/cryptellation/pkg/types/period"
 	app "github.com/cryptellation/cryptellation/services/candlesticks/internal/application"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/application/commands"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/candlestick"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

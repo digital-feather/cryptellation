@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/db"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
 	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 	"golang.org/x/xerrors"
 )
 

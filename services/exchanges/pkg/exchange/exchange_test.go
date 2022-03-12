@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cryptellation/cryptellation/pkg/types/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 func TestMerge(t *testing.T) {

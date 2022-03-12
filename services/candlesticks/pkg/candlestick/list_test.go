@@ -1,13 +1,12 @@
 package candlestick
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 	"time"
 
-	"github.com/cryptellation/cryptellation/pkg/types/period"
-	"github.com/cryptellation/cryptellation/pkg/types/timeserie"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/timeserie"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -246,38 +245,6 @@ func (suite *CandlestickListSuite) TestReplaceUncomplete() {
 
 func (suite *CandlestickListSuite) TestHasUncomplete() {
 	// TODO
-}
-
-func (suite *CandlestickListSuite) TestMarshalUnMarshal() {
-	p := "BTC-USDC"
-	csList := NewList(ListID{
-		ExchangeName: "exchange",
-		PairSymbol:   p,
-		Period:       period.M1,
-	})
-
-	cs1 := Candlestick{Open: 1, High: 2, Low: 0.5, Close: 1.5}
-	ts, err := time.Parse(time.RFC3339Nano, "1970-01-01T00:01:00Z")
-	suite.Require().NoError(err)
-	suite.Require().NoError(csList.Set(ts, cs1))
-
-	ts, err = time.Parse(time.RFC3339Nano, "1970-01-01T00:02:00Z")
-	suite.Require().NoError(err)
-	suite.Require().NoError(csList.Set(ts, cs1))
-
-	data, err := json.Marshal(&csList)
-	suite.Require().NoError(err)
-
-	var recvCSList List
-	suite.Require().NoError(json.Unmarshal(data, &recvCSList))
-
-	suite.Require().Equal(csList.ExchangeName(), recvCSList.ExchangeName())
-	suite.Require().Equal(csList.PairSymbol(), recvCSList.PairSymbol())
-	suite.Require().Equal(csList.Period(), csList.Period())
-	suite.Require().Equal(2, csList.Len())
-	cs2, exists := recvCSList.Get(time.Unix(60, 0))
-	suite.Require().True(exists)
-	suite.Require().Equal(cs1, cs2)
 }
 
 func (suite *CandlestickListSuite) TestExtract() {

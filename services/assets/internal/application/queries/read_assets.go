@@ -3,8 +3,8 @@ package queries
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/pkg/types/asset"
 	"github.com/cryptellation/cryptellation/services/assets/internal/adapters/db"
+	"github.com/cryptellation/cryptellation/services/assets/pkg/asset"
 	"golang.org/x/xerrors"
 )
 

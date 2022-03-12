@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 )
 
 type MockExchangeService struct {

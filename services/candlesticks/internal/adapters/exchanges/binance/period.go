@@ -3,7 +3,7 @@ package binance
 import (
 	"fmt"
 
-	"github.com/cryptellation/cryptellation/pkg/types/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 // Intervals represents every intervals supported by Binance API

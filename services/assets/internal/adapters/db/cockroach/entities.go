@@ -1,6 +1,6 @@
 package cockroach
 
-import "github.com/cryptellation/cryptellation/pkg/types/asset"
+import "github.com/cryptellation/cryptellation/services/assets/pkg/asset"
 
 type Asset struct {
 	Symbol string `gorm:"primaryKey"`

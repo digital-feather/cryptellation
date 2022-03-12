@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/internal/genproto/exchanges"
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
 	app "github.com/cryptellation/cryptellation/services/exchanges/internal/application"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

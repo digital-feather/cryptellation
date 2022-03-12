@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/internal/tests"
-	"github.com/cryptellation/cryptellation/pkg/types/exchange"
+	"github.com/cryptellation/cryptellation/services/exchanges/pkg/exchange"
 	"github.com/stretchr/testify/suite"
 )
 
