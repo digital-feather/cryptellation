@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "/pkg/genproto/backtests";
+
+package backtests;
+
+service BacktestsService {
+    rpc CreateBacktest(CreateBacktestRequest) returns (CreateBacktestResponse) {}
+}
+
+message AssetQuantity {
+    string asset_name = 1;
+    float quantity = 2;
+}
+
+message Account {
+    string exchange = 1;
+    repeated AssetQuantity assets = 2;
+}
+
+message CreateBacktestRequest {
+    repeated Account accounts = 1;
+	string start_time = 2;
+	string end_time = 3;
+    uint64 seconds_between_price_events = 4;
+}
+
+message CreateBacktestResponse {
+    uint64 id = 1;
+}

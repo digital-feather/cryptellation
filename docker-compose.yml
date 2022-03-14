@@ -12,6 +12,13 @@ services:
               soft: 65536
               hard: 65536
       command: start-single-node --insecure
+  redis:
+      image: redis:alpine
+      hostname: redis
+      ports:
+          - "6379:6379"
+      networks:
+          - cryptellation-network
   assets-grpc:
     build:
       context: .
@@ -88,6 +95,23 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/candlesticks/cmd/candlesticks-server/main.go" ]
-
+  backtests-grpc:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9004:9004
+    env_file:
+      - configs/env/.env
+    environment:
+      - SERVICE_PORT=9004
+    depends_on:
+      - redis
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/backtests/cmd/backtests-server/main.go" ]
 networks:
     cryptellation-network:

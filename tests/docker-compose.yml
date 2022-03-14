@@ -15,6 +15,14 @@ services:
                 hard: 65536
         command: start-single-node --insecure
         restart: unless-stopped
+    redis:
+        container_name: cryptellation-tests-redis
+        image: redis:alpine
+        hostname: redis
+        ports:
+            - "6379:6379"
+        networks:
+            - cryptellation-tests-network
     tests:
         container_name: cryptellation-tests
         build:
