@@ -63,7 +63,7 @@ func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.N
 			balances[a.AssetName] = float64(a.Quantity)
 		}
 
-		acc[v.Exchange] = account.Account{
+		acc[v.ExchangeName] = account.Account{
 			Balances: balances,
 		}
 	}

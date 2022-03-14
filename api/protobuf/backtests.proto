@@ -14,7 +14,7 @@ message AssetQuantity {
 }
 
 message Account {
-    string exchange = 1;
+    string exchange_name = 1;
     repeated AssetQuantity assets = 2;
 }
 
