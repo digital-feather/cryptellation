@@ -19,44 +19,6 @@ services:
           - "6379:6379"
       networks:
           - cryptellation-network
-  assets-grpc:
-    build:
-      context: .
-      dockerfile: build/dev/Dockerfile
-    volumes:
-      - .:/code
-    working_dir: /code
-    ports:
-      - 127.0.0.1:9000:9000
-    env_file:
-      - configs/env/.env
-    environment:
-      - COCKROACHDB_DATABASE=assets
-      - SERVICE_PORT=9000
-    depends_on:
-      - cockroachdb
-    networks:
-      - cryptellation-network
-    command: [ "go", "run", "./services/assets/cmd/assets-server/main.go" ]
-  pairs-grpc:
-    build:
-      context: .
-      dockerfile: build/dev/Dockerfile
-    volumes:
-      - .:/code
-    working_dir: /code
-    ports:
-      - 127.0.0.1:9001:9001
-    env_file:
-      - configs/env/.env
-    environment:
-      - COCKROACHDB_DATABASE=pairs
-      - SERVICE_PORT=9001
-    depends_on:
-      - cockroachdb
-    networks:
-      - cryptellation-network
-    command: [ "go", "run", "./services/pairs/cmd/pairs-server/main.go" ]
   exchanges-grpc:
     build:
       context: .

@@ -1,7 +1,0 @@
-CREATE DATABASE IF NOT EXISTS assets;
-
-CREATE TABLE IF NOT EXISTS assets
-(
-    symbol TEXT NOT NULL,
-    PRIMARY KEY (symbol)
-);
