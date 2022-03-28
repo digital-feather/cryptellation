@@ -1,35 +1,28 @@
-package commands
+package cmdBacktest
 
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/pubsub"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
 	"golang.org/x/xerrors"
 )
 
-type CreateBacktestHandler struct {
+type CreateHandler struct {
 	repository vdb.Port
-	pubsub     pubsub.Port
 }
 
-func NewCreateBacktestHandler(repository vdb.Port, ps pubsub.Port) CreateBacktestHandler {
+func NewCreateHandler(repository vdb.Port) CreateHandler {
 	if repository == nil {
 		panic("nil repository")
 	}
 
-	if ps == nil {
-		panic("nil pubsub")
-	}
-
-	return CreateBacktestHandler{
+	return CreateHandler{
 		repository: repository,
-		pubsub:     ps,
 	}
 }
 
-func (h CreateBacktestHandler) Handle(ctx context.Context, req backtest.NewPayload) (id uint, err error) {
+func (h CreateHandler) Handle(ctx context.Context, req backtest.NewPayload) (id uint, err error) {
 	bt, err := backtest.New(ctx, req)
 	if err != nil {
 		return 0, xerrors.Errorf("creating a new backtest from request: %w", err)

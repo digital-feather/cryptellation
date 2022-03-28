@@ -2,12 +2,11 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/exchanges"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 type MockExchangeService struct {
@@ -36,7 +35,6 @@ func (m *CandlesticksService) Do(ctx context.Context) (*candlestick.List, error)
 		Period:       m.Period(),
 	})
 
-	fmt.Println("#", m.start, m.end)
 	for i := m.start.Unix(); i < 60*1000; i++ {
 		if time.Unix(i, 0).After(m.end) {
 			break

@@ -5,9 +5,9 @@ import (
 )
 
 type Tick struct {
-	PairSymbol string
-	Price      float64
-	Exchange   string
+	PairSymbol string  `json:"pair_symbol"`
+	Price      float64 `json:"price"`
+	Exchange   string  `json:"exchange"`
 }
 
 func (t Tick) MarshalBinary() ([]byte, error) {

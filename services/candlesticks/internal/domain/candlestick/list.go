@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/pkg/timeserie"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 var (

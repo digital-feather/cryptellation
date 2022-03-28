@@ -6,6 +6,9 @@ package backtests;
 
 service BacktestsService {
     rpc CreateBacktest(CreateBacktestRequest) returns (CreateBacktestResponse) {}
+    rpc SubscribeToBacktestEvents(SubscribeToBacktestEventsRequest) returns (SubscribeToBacktestEventsResponse){}
+    rpc ListenBacktest(ListenBacktestRequest) returns (stream Event) {}
+    rpc AdvanceBacktest(AdvanceBacktestRequest) returns (AdvanceBacktestResponse) {}
 }
 
 message AssetQuantity {
@@ -27,4 +30,31 @@ message CreateBacktestRequest {
 
 message CreateBacktestResponse {
     uint64 id = 1;
+}
+
+message SubscribeToBacktestEventsRequest {
+    uint64 id = 1;
+    string exchange = 2;
+    string pair_symbol = 3;
+}
+
+message SubscribeToBacktestEventsResponse{
+}
+
+message AdvanceBacktestRequest {
+    uint64 id = 1;
+}
+
+message AdvanceBacktestResponse {
+    bool finished = 1;
+}
+
+message ListenBacktestRequest {
+    uint64 id = 1;
+}
+
+message Event {
+    string type = 1;
+    string time = 2;
+    string content = 3;
 }

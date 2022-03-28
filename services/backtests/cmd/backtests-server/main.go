@@ -13,11 +13,12 @@ import (
 )
 
 func run() int {
-	application, err := service.NewApplication()
+	application, closeFunc, err := service.NewApplication()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", xerrors.Errorf("creating application: %w", err))
 		return 255
 	}
+	defer closeFunc()
 
 	server.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(application)

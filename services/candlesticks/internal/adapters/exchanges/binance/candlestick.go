@@ -7,7 +7,7 @@ import (
 	client "github.com/adshao/go-binance/v2"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/exchanges"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 // CandlestickService is the real service for candlesticks

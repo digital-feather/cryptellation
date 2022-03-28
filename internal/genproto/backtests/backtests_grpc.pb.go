@@ -23,6 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BacktestsServiceClient interface {
 	CreateBacktest(ctx context.Context, in *CreateBacktestRequest, opts ...grpc.CallOption) (*CreateBacktestResponse, error)
+	SubscribeToBacktestEvents(ctx context.Context, in *SubscribeToBacktestEventsRequest, opts ...grpc.CallOption) (*SubscribeToBacktestEventsResponse, error)
+	ListenBacktest(ctx context.Context, in *ListenBacktestRequest, opts ...grpc.CallOption) (BacktestsService_ListenBacktestClient, error)
+	AdvanceBacktest(ctx context.Context, in *AdvanceBacktestRequest, opts ...grpc.CallOption) (*AdvanceBacktestResponse, error)
 }
 
 type backtestsServiceClient struct {
@@ -42,11 +45,64 @@ func (c *backtestsServiceClient) CreateBacktest(ctx context.Context, in *CreateB
 	return out, nil
 }
 
+func (c *backtestsServiceClient) SubscribeToBacktestEvents(ctx context.Context, in *SubscribeToBacktestEventsRequest, opts ...grpc.CallOption) (*SubscribeToBacktestEventsResponse, error) {
+	out := new(SubscribeToBacktestEventsResponse)
+	err := c.cc.Invoke(ctx, "/backtests.BacktestsService/SubscribeToBacktestEvents", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *backtestsServiceClient) ListenBacktest(ctx context.Context, in *ListenBacktestRequest, opts ...grpc.CallOption) (BacktestsService_ListenBacktestClient, error) {
+	stream, err := c.cc.NewStream(ctx, &BacktestsService_ServiceDesc.Streams[0], "/backtests.BacktestsService/ListenBacktest", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &backtestsServiceListenBacktestClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type BacktestsService_ListenBacktestClient interface {
+	Recv() (*Event, error)
+	grpc.ClientStream
+}
+
+type backtestsServiceListenBacktestClient struct {
+	grpc.ClientStream
+}
+
+func (x *backtestsServiceListenBacktestClient) Recv() (*Event, error) {
+	m := new(Event)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *backtestsServiceClient) AdvanceBacktest(ctx context.Context, in *AdvanceBacktestRequest, opts ...grpc.CallOption) (*AdvanceBacktestResponse, error) {
+	out := new(AdvanceBacktestResponse)
+	err := c.cc.Invoke(ctx, "/backtests.BacktestsService/AdvanceBacktest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BacktestsServiceServer is the server API for BacktestsService service.
 // All implementations should embed UnimplementedBacktestsServiceServer
 // for forward compatibility
 type BacktestsServiceServer interface {
 	CreateBacktest(context.Context, *CreateBacktestRequest) (*CreateBacktestResponse, error)
+	SubscribeToBacktestEvents(context.Context, *SubscribeToBacktestEventsRequest) (*SubscribeToBacktestEventsResponse, error)
+	ListenBacktest(*ListenBacktestRequest, BacktestsService_ListenBacktestServer) error
+	AdvanceBacktest(context.Context, *AdvanceBacktestRequest) (*AdvanceBacktestResponse, error)
 }
 
 // UnimplementedBacktestsServiceServer should be embedded to have forward compatible implementations.
@@ -55,6 +111,15 @@ type UnimplementedBacktestsServiceServer struct {
 
 func (UnimplementedBacktestsServiceServer) CreateBacktest(context.Context, *CreateBacktestRequest) (*CreateBacktestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBacktest not implemented")
+}
+func (UnimplementedBacktestsServiceServer) SubscribeToBacktestEvents(context.Context, *SubscribeToBacktestEventsRequest) (*SubscribeToBacktestEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubscribeToBacktestEvents not implemented")
+}
+func (UnimplementedBacktestsServiceServer) ListenBacktest(*ListenBacktestRequest, BacktestsService_ListenBacktestServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListenBacktest not implemented")
+}
+func (UnimplementedBacktestsServiceServer) AdvanceBacktest(context.Context, *AdvanceBacktestRequest) (*AdvanceBacktestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdvanceBacktest not implemented")
 }
 
 // UnsafeBacktestsServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -86,6 +151,63 @@ func _BacktestsService_CreateBacktest_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BacktestsService_SubscribeToBacktestEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscribeToBacktestEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BacktestsServiceServer).SubscribeToBacktestEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backtests.BacktestsService/SubscribeToBacktestEvents",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BacktestsServiceServer).SubscribeToBacktestEvents(ctx, req.(*SubscribeToBacktestEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BacktestsService_ListenBacktest_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ListenBacktestRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BacktestsServiceServer).ListenBacktest(m, &backtestsServiceListenBacktestServer{stream})
+}
+
+type BacktestsService_ListenBacktestServer interface {
+	Send(*Event) error
+	grpc.ServerStream
+}
+
+type backtestsServiceListenBacktestServer struct {
+	grpc.ServerStream
+}
+
+func (x *backtestsServiceListenBacktestServer) Send(m *Event) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _BacktestsService_AdvanceBacktest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdvanceBacktestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BacktestsServiceServer).AdvanceBacktest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backtests.BacktestsService/AdvanceBacktest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BacktestsServiceServer).AdvanceBacktest(ctx, req.(*AdvanceBacktestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BacktestsService_ServiceDesc is the grpc.ServiceDesc for BacktestsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -97,7 +219,21 @@ var BacktestsService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateBacktest",
 			Handler:    _BacktestsService_CreateBacktest_Handler,
 		},
+		{
+			MethodName: "SubscribeToBacktestEvents",
+			Handler:    _BacktestsService_SubscribeToBacktestEvents_Handler,
+		},
+		{
+			MethodName: "AdvanceBacktest",
+			Handler:    _BacktestsService_AdvanceBacktest_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ListenBacktest",
+			Handler:       _BacktestsService_ListenBacktest_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "backtests.proto",
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 type Port interface {

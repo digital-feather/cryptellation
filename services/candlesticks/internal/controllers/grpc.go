@@ -9,7 +9,7 @@ import (
 	app "github.com/cryptellation/cryptellation/services/candlesticks/internal/application"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/application/commands"
 	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

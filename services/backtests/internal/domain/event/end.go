@@ -25,3 +25,7 @@ func (e EndEvent) MarshalBinary() ([]byte, error) {
 func (e *EndEvent) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, e)
 }
+
+func (e EndEvent) GetContent() interface{} {
+	return nil
+}

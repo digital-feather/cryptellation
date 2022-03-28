@@ -3,7 +3,7 @@ package candlestick
 import (
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/period"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
 )
 
 const (

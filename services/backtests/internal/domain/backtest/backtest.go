@@ -10,6 +10,8 @@ import (
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/candlestick"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/order"
+	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"golang.org/x/xerrors"
 )
 
 var (
@@ -27,21 +29,21 @@ type CurrentCsTick struct {
 }
 
 type Backtest struct {
-	ID               uint
-	StartTime        time.Time
-	CurrentCsTick    CurrentCsTick
-	EndTime          time.Time
-	Accounts         map[string]account.Account
-	TimeBetweenEvent time.Duration
-	TickSubscribers  []event.Subscription
-	Orders           []order.Order
+	ID                  uint
+	StartTime           time.Time
+	CurrentCsTick       CurrentCsTick
+	EndTime             time.Time
+	Accounts            map[string]account.Account
+	PeriodBetweenEvents period.Symbol
+	TickSubscribers     []event.Subscription
+	Orders              []order.Order
 }
 
 type NewPayload struct {
-	Accounts          map[string]account.Account
-	StartTime         time.Time
-	EndTime           *time.Time
-	TimeBetweenEvents *time.Duration
+	Accounts              map[string]account.Account
+	StartTime             time.Time
+	EndTime               *time.Time
+	DurationBetweenEvents *time.Duration
 }
 
 func (payload *NewPayload) EmptyFieldsToDefault() *NewPayload {
@@ -49,9 +51,9 @@ func (payload *NewPayload) EmptyFieldsToDefault() *NewPayload {
 		payload.EndTime = defaultEndTime()
 	}
 
-	if payload.TimeBetweenEvents == nil {
+	if payload.DurationBetweenEvents == nil {
 		d := time.Minute
-		payload.TimeBetweenEvents = &d
+		payload.DurationBetweenEvents = &d
 	}
 
 	return payload
@@ -85,17 +87,22 @@ func New(ctx context.Context, payload NewPayload) (Backtest, error) {
 		return Backtest{}, err
 	}
 
+	per, err := period.FromDuration(*payload.DurationBetweenEvents)
+	if err != nil {
+		return Backtest{}, xerrors.Errorf("invalid duration between events: %w", err)
+	}
+
 	return Backtest{
 		StartTime: payload.StartTime,
 		CurrentCsTick: CurrentCsTick{
 			Time:      payload.StartTime,
 			PriceType: candlestick.PriceTypeIsOpen,
 		},
-		EndTime:          *payload.EndTime,
-		Accounts:         payload.Accounts,
-		TimeBetweenEvent: *payload.TimeBetweenEvents,
-		TickSubscribers:  make([]event.Subscription, 0),
-		Orders:           make([]order.Order, 0),
+		EndTime:             *payload.EndTime,
+		Accounts:            payload.Accounts,
+		PeriodBetweenEvents: per,
+		TickSubscribers:     make([]event.Subscription, 0),
+		Orders:              make([]order.Order, 0),
 	}, nil
 }
 
@@ -120,7 +127,7 @@ func (bt *Backtest) advanceThroughTicks() {
 	case candlestick.PriceTypeIsLow:
 		bt.CurrentCsTick.PriceType = candlestick.PriceTypeIsClose
 	case candlestick.PriceTypeIsClose:
-		bt.SetCurrentTime(bt.CurrentCsTick.Time.Add(bt.TimeBetweenEvent))
+		bt.SetCurrentTime(bt.CurrentCsTick.Time.Add(bt.PeriodBetweenEvents.Duration()))
 	default:
 		bt.CurrentCsTick.PriceType = candlestick.PriceTypeIsOpen
 	}

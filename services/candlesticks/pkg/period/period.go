@@ -35,7 +35,7 @@ func (s Symbol) String() string {
 }
 
 var (
-	periods = map[Symbol]time.Duration{
+	symbolToDuration = map[Symbol]time.Duration{
 		M1:  time.Minute,
 		M3:  3 * time.Minute,
 		M5:  5 * time.Minute,
@@ -51,10 +51,27 @@ var (
 		D3:  3 * 24 * time.Hour,
 		W1:  7 * 24 * time.Hour,
 	}
+
+	durationToSymbol = map[time.Duration]Symbol{
+		time.Minute:        M1,
+		3 * time.Minute:    M3,
+		5 * time.Minute:    M5,
+		15 * time.Minute:   M15,
+		30 * time.Minute:   M30,
+		time.Hour:          H1,
+		2 * time.Hour:      H2,
+		4 * time.Hour:      H4,
+		6 * time.Hour:      H6,
+		8 * time.Hour:      H8,
+		12 * time.Hour:     H12,
+		24 * time.Hour:     D1,
+		3 * 24 * time.Hour: D3,
+		7 * 24 * time.Hour: W1,
+	}
 )
 
 func (s Symbol) Duration() time.Duration {
-	return periods[s]
+	return symbolToDuration[s]
 }
 
 func FromString(symbol string) (Symbol, error) {
@@ -62,8 +79,17 @@ func FromString(symbol string) (Symbol, error) {
 	return s, s.Validate()
 }
 
+func FromDuration(d time.Duration) (Symbol, error) {
+	s, ok := durationToSymbol[d]
+	if !ok {
+		return "", xerrors.Errorf("getting symbol from duration (%s): %w", d, ErrInvalidPeriod)
+	}
+
+	return s, nil
+}
+
 func (s Symbol) Validate() error {
-	_, ok := periods[s]
+	_, ok := symbolToDuration[s]
 	if !ok {
 		return xerrors.Errorf("parsing period from name (%s): %w", ErrInvalidPeriod)
 	}
@@ -72,8 +98,8 @@ func (s Symbol) Validate() error {
 }
 
 func Symbols() []Symbol {
-	durations := make([]Symbol, 0, len(periods))
-	for s := range periods {
+	durations := make([]Symbol, 0, len(symbolToDuration))
+	for s := range symbolToDuration {
 		durations = append(durations, s)
 	}
 	return durations
@@ -89,7 +115,7 @@ func (s Symbol) IsAligned(t time.Time) bool {
 }
 
 func FromSeconds(i int64) (Symbol, error) {
-	for s, p := range periods {
+	for s, p := range symbolToDuration {
 		if p == time.Duration(i)*time.Second {
 			return s, nil
 		}
