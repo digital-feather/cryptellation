@@ -6,6 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
+	"github.com/cryptellation/cryptellation/pkg/utils"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/account"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/candlestick"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
@@ -159,67 +161,57 @@ func (bt *Backtest) CreateTickSubscription(exchangeName string, pairSymbol strin
 	return s, nil
 }
 
-// func (bt *Backtest) AddOrder(ctx context.Context, ord *order.Order) error {
-// 	exchangeAccount, ok := bt.Accounts[ord.ExchangeName]
-// 	if !ok {
-// 		return ErrInvalidExchange
-// 	}
+func (bt *Backtest) AddOrder(ord order.Order, cs candlesticks.Candlestick) error {
+	exchangeAccount, ok := bt.Accounts[ord.ExchangeName]
+	if !ok {
+		return ErrInvalidExchange
+	}
 
-// 	csl := candlestick.NewList(candlestick.ListID{
-// 		Exchange: ord.ExchangeName,
-// 		Pair:     ord.Pair,
-// 		Period:   bt.TimeBetweenEvent,
-// 	})
+	baseSymbol, quoteSymbol, err := utils.ParsePairSymbol(ord.PairSymbol)
+	if err != nil {
+		return xerrors.Errorf("error when parsing order pair symbol: %w", err)
+	}
 
-// 	if err := historian.FromContext(ctx).Candlesticks().Get(csl, bt.CurrentCsTick.Time, bt.CurrentCsTick.Time, 0); err != nil {
-// 		return err
-// 	}
+	var price float64
+	switch bt.CurrentCsTick.PriceType {
+	case candlestick.PriceTypeIsOpen:
+		price = float64(cs.Open)
+	case candlestick.PriceTypeIsHigh:
+		price = float64(cs.High)
+	case candlestick.PriceTypeIsLow:
+		price = float64(cs.Low)
+	case candlestick.PriceTypeIsClose:
+		fallthrough
+	default:
+		price = float64(cs.Close)
+	}
 
-// 	cs, ok := csl.Get(bt.CurrentCsTick.Time)
-// 	if !ok {
-// 		return ErrNoDataForOrderValidation
-// 	}
+	quoteEquivalentQty := price * ord.Quantity
+	if ord.Side == order.SideIsBuy {
+		available, ok := exchangeAccount.Balances[quoteSymbol]
+		if !ok {
+			return ErrNotEnoughAsset
+		} else if quoteEquivalentQty > available {
+			return ErrNotEnoughAsset
+		}
 
-// 	var price float64
-// 	switch bt.CurrentCsTick.PriceType {
-// 	case candlestick.PriceTypeIsOpen:
-// 		price = cs.Open
-// 	case candlestick.PriceTypeIsHigh:
-// 		price = cs.High
-// 	case candlestick.PriceTypeIsLow:
-// 		price = cs.Low
-// 	case candlestick.PriceTypeIsClose:
-// 		fallthrough
-// 	default:
-// 		price = cs.Close
-// 	}
+		bt.Accounts[ord.ExchangeName].Balances[quoteSymbol] -= quoteEquivalentQty
+		bt.Accounts[ord.ExchangeName].Balances[baseSymbol] += ord.Quantity
+	} else {
+		available, ok := exchangeAccount.Balances[baseSymbol]
+		if !ok {
+			return ErrNotEnoughAsset
+		} else if ord.Quantity > available {
+			return ErrNotEnoughAsset
+		}
 
-// 	quoteEquivalentQty := price * ord.Quantity
-// 	if ord.Side == order.SideIsBuy {
-// 		available, ok := exchangeAccount.Balances[ord.Pair.QuoteSymbol]
-// 		if !ok {
-// 			return ErrNotEnoughAsset
-// 		} else if quoteEquivalentQty > available {
-// 			return ErrNotEnoughAsset
-// 		}
+		bt.Accounts[ord.ExchangeName].Balances[quoteSymbol] += quoteEquivalentQty
+		bt.Accounts[ord.ExchangeName].Balances[baseSymbol] -= ord.Quantity
+	}
 
-// 		bt.Accounts[ord.ExchangeName].Balances[ord.Pair.QuoteSymbol] -= quoteEquivalentQty
-// 		bt.Accounts[ord.ExchangeName].Balances[ord.Pair.BaseSymbol] += ord.Quantity
-// 	} else {
-// 		available, ok := exchangeAccount.Balances[ord.Pair.BaseSymbol]
-// 		if !ok {
-// 			return ErrNotEnoughAsset
-// 		} else if ord.Quantity > available {
-// 			return ErrNotEnoughAsset
-// 		}
+	ord.ID = uint(len(bt.Orders))
+	ord.Status = order.StatusIsFilled
 
-// 		bt.Accounts[ord.ExchangeName].Balances[ord.Pair.QuoteSymbol] += quoteEquivalentQty
-// 		bt.Accounts[ord.ExchangeName].Balances[ord.Pair.BaseSymbol] -= ord.Quantity
-// 	}
-
-// 	ord.ID = uint(len(bt.Orders))
-// 	ord.Status = order.StatusIsFilled
-
-// 	bt.Orders = append(bt.Orders, *ord)
-// 	return nil
-// }
+	bt.Orders = append(bt.Orders, ord)
+	return nil
+}

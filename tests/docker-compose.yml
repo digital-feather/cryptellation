@@ -35,7 +35,7 @@ services:
             - ../configs/env/.env
         volumes:
             - ..:/code
-        command: [ "go", "test", "-coverprofile=/dev/null", "./..." ]
+        command: [ "go", "test", "-timeout=10s", "-coverprofile=/dev/null", "./..." ]
         networks:
             - cryptellation-tests-network
 

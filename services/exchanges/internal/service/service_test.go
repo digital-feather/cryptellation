@@ -86,7 +86,7 @@ func (suite *ServiceSuite) TestReadExchanges() {
 	firstTime := resp.Exchanges[0].LastSyncTime
 	t, err := time.Parse(time.RFC3339, firstTime)
 	suite.Require().NoError(err)
-	suite.Require().WithinDuration(time.Now().UTC(), t, time.Second)
+	suite.Require().WithinDuration(time.Now().UTC(), t, 2*time.Second)
 
 	// When the second request is made
 	resp, err = suite.client.ReadExchanges(context.Background(), &exchanges.ReadExchangesRequest{

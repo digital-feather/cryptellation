@@ -19,7 +19,7 @@ services:
           - "6379:6379"
       networks:
           - cryptellation-network
-  exchanges-grpc:
+  exchanges:
     build:
       context: .
       dockerfile: build/dev/Dockerfile
@@ -38,7 +38,7 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/exchanges/cmd/exchanges-server/main.go" ]
-  candlesticks-grpc:
+  candlesticks:
     build:
       context: .
       dockerfile: build/dev/Dockerfile
@@ -57,7 +57,7 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/candlesticks/cmd/candlesticks-server/main.go" ]
-  backtests-grpc:
+  backtests:
     build:
       context: .
       dockerfile: build/dev/Dockerfile
@@ -72,6 +72,7 @@ services:
       - SERVICE_PORT=9004
     depends_on:
       - redis
+      - candlesticks
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/backtests/cmd/backtests-server/main.go" ]

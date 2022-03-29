@@ -8,9 +8,11 @@ import (
 
 	"github.com/cryptellation/cryptellation/internal/genproto/backtests"
 	app "github.com/cryptellation/cryptellation/services/backtests/internal/application"
+	cmdBacktest "github.com/cryptellation/cryptellation/services/backtests/internal/application/commands/backtest"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/account"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
+	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/order"
 	"golang.org/x/xerrors"
 )
 
@@ -62,8 +64,8 @@ func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.N
 	acc := make(map[string]account.Account, len(req.Accounts))
 	for _, v := range req.Accounts {
 		balances := make(map[string]float64, len(v.Assets))
-		for _, a := range v.Assets {
-			balances[a.AssetName] = float64(a.Quantity)
+		for asset, qty := range v.Assets {
+			balances[asset] = float64(qty)
 		}
 
 		acc[v.ExchangeName] = account.Account{
@@ -122,7 +124,7 @@ func sendEvent(srv backtests.BacktestsService_ListenBacktestServer, evt event.In
 }
 
 func (g GrpcController) SubscribeToBacktestEvents(ctx context.Context, req *backtests.SubscribeToBacktestEventsRequest) (*backtests.SubscribeToBacktestEventsResponse, error) {
-	err := g.application.Commands.Backtest.SubscribeToEvents.Handle(ctx, uint(req.Id), req.Exchange, req.PairSymbol)
+	err := g.application.Commands.Backtest.SubscribeToEvents.Handle(ctx, uint(req.Id), req.ExchangeName, req.PairSymbol)
 	return &backtests.SubscribeToBacktestEventsResponse{}, err
 }
 
@@ -131,4 +133,47 @@ func (g GrpcController) AdvanceBacktest(ctx context.Context, req *backtests.Adva
 	return &backtests.AdvanceBacktestResponse{
 		Finished: finished,
 	}, err
+}
+
+func (g GrpcController) CreateBacktestOrder(ctx context.Context, req *backtests.CreateBacktestOrderRequest) (*backtests.CreateBacktestOrderResponse, error) {
+	payload := cmdBacktest.CreateOrderPayload{
+		BacktestId:   uint(req.BacktestId),
+		Type:         order.Type(req.Type),
+		ExchangeName: req.ExchangeName,
+		PairSymbol:   req.PairSymbol,
+		Side:         order.Side(req.Side),
+		Quantity:     float64(req.Quantity),
+	}
+
+	err := g.application.Commands.Backtest.CreateOrder.Handle(ctx, payload)
+	return &backtests.CreateBacktestOrderResponse{}, err
+}
+
+func (g GrpcController) Accounts(ctx context.Context, req *backtests.AccountsRequest) (*backtests.AccountsResponse, error) {
+	accounts, err := g.application.Queries.Backtest.GetAccounts.Handle(ctx, uint(req.BacktestId))
+	if err != nil {
+		return nil, err
+	}
+
+	resp := backtests.AccountsResponse{
+		Accounts: make([]*backtests.Account, 0, len(accounts)),
+	}
+
+	for exch, acc := range accounts {
+		resp.Accounts = append(resp.Accounts, toGrpcAccount(exch, acc))
+	}
+
+	return &resp, nil
+}
+
+func toGrpcAccount(exchange string, account account.Account) *backtests.Account {
+	assets := make(map[string]float32, len(account.Balances))
+	for asset, qty := range account.Balances {
+		assets[asset] = float32(qty)
+	}
+
+	return &backtests.Account{
+		ExchangeName: exchange,
+		Assets:       assets,
+	}
 }

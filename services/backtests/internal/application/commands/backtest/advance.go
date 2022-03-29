@@ -8,6 +8,7 @@ import (
 	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/pubsub"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
+	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
 	"golang.org/x/xerrors"
 )
@@ -51,7 +52,7 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) (finished b
 			return nil
 		}
 
-		evts, err := h.readActualEvents(ctx, backtestId)
+		evts, err := h.readActualEvents(ctx, bt)
 		if err != nil {
 			return xerrors.Errorf("cannot read actual events: %w", err)
 		}
@@ -67,12 +68,7 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) (finished b
 	return finished, err
 }
 
-func (h AdvanceHandler) readActualEvents(ctx context.Context, backtestId uint) ([]event.Interface, error) {
-	bt, err := h.repository.ReadBacktest(ctx, backtestId)
-	if err != nil {
-		return nil, err
-	}
-
+func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backtest) ([]event.Interface, error) {
 	evts := make([]event.Interface, len(bt.TickSubscribers))
 	for i, sub := range bt.TickSubscribers {
 		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticks.ReadCandlesticksRequest{

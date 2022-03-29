@@ -9,16 +9,13 @@ service BacktestsService {
     rpc SubscribeToBacktestEvents(SubscribeToBacktestEventsRequest) returns (SubscribeToBacktestEventsResponse){}
     rpc ListenBacktest(ListenBacktestRequest) returns (stream Event) {}
     rpc AdvanceBacktest(AdvanceBacktestRequest) returns (AdvanceBacktestResponse) {}
-}
-
-message AssetQuantity {
-    string asset_name = 1;
-    float quantity = 2;
+    rpc CreateBacktestOrder(CreateBacktestOrderRequest) returns (CreateBacktestOrderResponse) {}
+    rpc Accounts(AccountsRequest) returns (AccountsResponse) {}
 }
 
 message Account {
     string exchange_name = 1;
-    repeated AssetQuantity assets = 2;
+    map<string, float> assets = 2;
 }
 
 message CreateBacktestRequest {
@@ -34,7 +31,7 @@ message CreateBacktestResponse {
 
 message SubscribeToBacktestEventsRequest {
     uint64 id = 1;
-    string exchange = 2;
+    string exchange_name = 2;
     string pair_symbol = 3;
 }
 
@@ -57,4 +54,24 @@ message Event {
     string type = 1;
     string time = 2;
     string content = 3;
+}
+
+message CreateBacktestOrderRequest {
+    uint64 backtest_id = 1;
+    string type = 2;
+    string exchange_name = 3;
+    string pair_symbol = 4;
+    string side = 5;
+    float quantity = 6;
+}
+
+message CreateBacktestOrderResponse {
+}
+
+message AccountsRequest {
+    uint64 backtest_id = 1;
+}
+
+message AccountsResponse {
+    repeated Account accounts = 1;
 }

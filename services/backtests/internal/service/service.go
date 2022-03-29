@@ -44,11 +44,13 @@ func newApplication(client candlesticks.CandlesticksServiceClient) (app.Applicat
 			Backtest: app.BacktestCommands{
 				Advance:           cmdBacktest.NewAdvanceHandler(repository, ps, client),
 				Create:            cmdBacktest.NewCreateHandler(repository),
+				CreateOrder:       cmdBacktest.NewCreateOrderHandler(repository, client),
 				SubscribeToEvents: cmdBacktest.NewSubscribeToEventsHandler(repository),
 			},
 		},
 		Queries: app.Queries{
 			Backtest: app.BacktestQueries{
+				GetAccounts:  queriesBacktest.NewGetAccounts(repository),
 				ListenEvents: queriesBacktest.NewListenEventsHandler(ps),
 			},
 		},

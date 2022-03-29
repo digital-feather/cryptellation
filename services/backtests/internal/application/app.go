@@ -13,6 +13,7 @@ type Application struct {
 type BacktestCommands struct {
 	Advance           cmdBacktest.AdvanceHandler
 	Create            cmdBacktest.CreateHandler
+	CreateOrder       cmdBacktest.CreateOrderHandler
 	SubscribeToEvents cmdBacktest.SubscribeToEventsHandler
 }
 
@@ -22,6 +23,7 @@ type Commands struct {
 
 type BacktestQueries struct {
 	ListenEvents queriesBacktest.ListenEventsHandler
+	GetAccounts  queriesBacktest.GetAccounts
 }
 
 type Queries struct {
