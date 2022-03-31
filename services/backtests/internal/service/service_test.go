@@ -76,9 +76,8 @@ func (suite *ServiceSuite) TestCreateBacktest() {
 	req := backtests.CreateBacktestRequest{
 		StartTime: time.Unix(0, 0).Format(time.RFC3339),
 		EndTime:   time.Unix(120, 0).Format(time.RFC3339),
-		Accounts: []*backtests.Account{
-			{
-				ExchangeName: "exchange",
+		Accounts: map[string]*backtests.Account{
+			"exchange": {
 				Assets: map[string]float32{
 					"DAI": 1000,
 				},
@@ -102,9 +101,8 @@ func (suite *ServiceSuite) TestBacktestSubscribeToEvents() {
 	req := backtests.CreateBacktestRequest{
 		StartTime: time.Unix(0, 0).Format(time.RFC3339),
 		EndTime:   time.Unix(120, 0).Format(time.RFC3339),
-		Accounts: []*backtests.Account{
-			{
-				ExchangeName: "exchange",
+		Accounts: map[string]*backtests.Account{
+			"exchange": {
 				Assets: map[string]float32{
 					"DAI": 1000,
 				},
@@ -132,9 +130,8 @@ func (suite *ServiceSuite) TestBacktestListenEvents() {
 	req := backtests.CreateBacktestRequest{
 		StartTime: time.Unix(0, 0).Format(time.RFC3339),
 		EndTime:   time.Unix(120, 0).Format(time.RFC3339),
-		Accounts: []*backtests.Account{
-			{
-				ExchangeName: "exchange",
+		Accounts: map[string]*backtests.Account{
+			"exchange": {
 				Assets: map[string]float32{
 					"DAI": 1000,
 				},
@@ -220,9 +217,8 @@ func (suite *ServiceSuite) TestBacktestCreateOrder() {
 	req := backtests.CreateBacktestRequest{
 		StartTime: time.Unix(0, 0).Format(time.RFC3339),
 		EndTime:   time.Unix(600, 0).Format(time.RFC3339),
-		Accounts: []*backtests.Account{
-			{
-				ExchangeName: "exchange",
+		Accounts: map[string]*backtests.Account{
+			"exchange": {
 				Assets: map[string]float32{
 					"DAI": 1000,
 				},
@@ -247,8 +243,8 @@ func (suite *ServiceSuite) TestBacktestCreateOrder() {
 		BacktestId: resp.Id,
 	})
 	suite.Require().NoError(err)
-	suite.Require().Equal(float32(999), accountsResp.Accounts[0].Assets["DAI"])
-	suite.Require().Equal(float32(1), accountsResp.Accounts[0].Assets["ETH"])
+	suite.Require().Equal(float32(999), accountsResp.Accounts["exchange"].Assets["DAI"])
+	suite.Require().Equal(float32(1), accountsResp.Accounts["exchange"].Assets["ETH"])
 
 	suite.advance(resp.Id)
 
@@ -266,6 +262,6 @@ func (suite *ServiceSuite) TestBacktestCreateOrder() {
 		BacktestId: resp.Id,
 	})
 	suite.Require().NoError(err)
-	suite.Require().Equal(float32(1001), accountsResp.Accounts[0].Assets["DAI"])
-	suite.Require().Equal(float32(0), accountsResp.Accounts[0].Assets["ETH"])
+	suite.Require().Equal(float32(1001), accountsResp.Accounts["exchange"].Assets["DAI"])
+	suite.Require().Equal(float32(0), accountsResp.Accounts["exchange"].Assets["ETH"])
 }

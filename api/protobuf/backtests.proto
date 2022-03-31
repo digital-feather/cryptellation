@@ -14,12 +14,11 @@ service BacktestsService {
 }
 
 message Account {
-    string exchange_name = 1;
-    map<string, float> assets = 2;
+    map<string, float> assets = 1;
 }
 
 message CreateBacktestRequest {
-    repeated Account accounts = 1;
+    map<string, Account> accounts = 1;
 	string start_time = 2;
 	string end_time = 3;
     uint64 seconds_between_price_events = 4;
@@ -73,5 +72,5 @@ message AccountsRequest {
 }
 
 message AccountsResponse {
-    repeated Account accounts = 1;
+    map<string, Account> accounts = 1;
 }

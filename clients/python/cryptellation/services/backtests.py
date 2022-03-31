@@ -4,6 +4,7 @@ import threading
 import queue
 
 from cryptellation.config import Config
+from cryptellation.models.account import Account
 
 import cryptellation.services.genproto.backtests_pb2 as backtests
 import cryptellation.services.genproto.backtests_pb2_grpc as backtests_grpc
@@ -32,7 +33,7 @@ class Backtests(object):
             self._config[Config.BACKTESTS_URL])
         self._stub = backtests_grpc.BacktestsServiceStub(self._channel)
 
-    def create_backtest(self, start: datetime, end: datetime):
+    def create_backtest(self, start: datetime, end: datetime, accounts: dict):
         if start.tzinfo is None or start.tzinfo.utcoffset(start) is None:
             raise Exception("no timezone specified on start")
 
@@ -40,7 +41,17 @@ class Backtests(object):
             backtests.CreateBacktestRequest(
                 start_time=start.isoformat(),
                 end_time=end.isoformat(),
+                accounts=self._account_to_grpc(accounts),
             )).id
+
+    def _account_to_grpc(self, accounts: dict):
+        req_accounts = {}
+        for exch, account in accounts.items():
+            assets = {}
+            for asset, quantity in account.assets.items():
+                assets[asset] = quantity
+            req_accounts[exch] = backtests.Account(assets=assets)
+        return req_accounts
 
     def advance_backtest(self, id):
         return self._stub.AdvanceBacktest(
@@ -59,3 +70,29 @@ class Backtests(object):
         q = BacktestsEventsQueue(self._stub.ListenBacktest(req))
         q.start()
         return q
+
+    def new_order(self, id: int, type: str, exchange: str, pair: str,
+                  side: str, quantity: float):
+        req = backtests.CreateBacktestOrderRequest(
+            backtest_id=id,
+            type=type,
+            exchange_name=exchange,
+            pair_symbol=pair,
+            side=side,
+            quantity=quantity,
+        )
+        self._stub.CreateBacktestOrder(req)
+
+    def accounts(self, id: int):
+        req = backtests.AccountsRequest(backtest_id=id, )
+        resp = self._stub.Accounts(req)
+        return self._grpc_to_accounts(resp.accounts)
+
+    def _grpc_to_accounts(self, resp: dict):
+        accounts = {}
+        for exch, account in resp.items():
+            assets = {}
+            for asset, quantity in account.assets.items():
+                assets[asset] = quantity
+            accounts[exch] = Account(assets)
+        return accounts

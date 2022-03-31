@@ -62,13 +62,13 @@ func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.N
 	}
 
 	acc := make(map[string]account.Account, len(req.Accounts))
-	for _, v := range req.Accounts {
+	for exch, v := range req.Accounts {
 		balances := make(map[string]float64, len(v.Assets))
 		for asset, qty := range v.Assets {
 			balances[asset] = float64(qty)
 		}
 
-		acc[v.ExchangeName] = account.Account{
+		acc[exch] = account.Account{
 			Balances: balances,
 		}
 	}
@@ -156,11 +156,11 @@ func (g GrpcController) Accounts(ctx context.Context, req *backtests.AccountsReq
 	}
 
 	resp := backtests.AccountsResponse{
-		Accounts: make([]*backtests.Account, 0, len(accounts)),
+		Accounts: make(map[string]*backtests.Account, len(accounts)),
 	}
 
 	for exch, acc := range accounts {
-		resp.Accounts = append(resp.Accounts, toGrpcAccount(exch, acc))
+		resp.Accounts[exch] = toGrpcAccount(exch, acc)
 	}
 
 	return &resp, nil
@@ -173,7 +173,6 @@ func toGrpcAccount(exchange string, account account.Account) *backtests.Account 
 	}
 
 	return &backtests.Account{
-		ExchangeName: exchange,
-		Assets:       assets,
+		Assets: assets,
 	}
 }

@@ -68,7 +68,7 @@ func (payload NewPayload) Validate() error {
 
 	for exchangeName, a := range payload.Accounts {
 		if exchangeName == "" {
-			return ErrInvalidExchange
+			return xerrors.Errorf("error with exchange %q in new backtest payload: %w", exchangeName, ErrInvalidExchange)
 		}
 
 		if err := a.Validate(); err != nil {
@@ -164,7 +164,7 @@ func (bt *Backtest) CreateTickSubscription(exchangeName string, pairSymbol strin
 func (bt *Backtest) AddOrder(ord order.Order, cs candlesticks.Candlestick) error {
 	exchangeAccount, ok := bt.Accounts[ord.ExchangeName]
 	if !ok {
-		return ErrInvalidExchange
+		return xerrors.Errorf("error with orders exchange %q: %w", ord.ExchangeName, ErrInvalidExchange)
 	}
 
 	baseSymbol, quoteSymbol, err := utils.ParsePairSymbol(ord.PairSymbol)
