@@ -56,6 +56,14 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) (finished b
 		if err != nil {
 			return xerrors.Errorf("cannot read actual events: %w", err)
 		}
+		if len(evts) == 0 {
+			log.Println("WARNING: no event detected for", bt.CurrentCsTick.Time)
+			bt.SetCurrentTime(bt.EndTime)
+		} else if !evts[0].GetTime().Equal(bt.CurrentCsTick.Time) {
+			log.Println("WARNING: no event between", bt.CurrentCsTick.Time, "and", evts[0].GetTime())
+			bt.SetCurrentTime(evts[0].GetTime())
+		}
+
 		h.broadcastEvents(ctx, backtestId, evts)
 
 		if err := h.repository.UpdateBacktest(ctx, bt); err != nil {
@@ -95,14 +103,6 @@ func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backte
 	}
 
 	t, evts := event.OnlyKeepEarliestSameTimeEvents(evts)
-	if len(evts) == 0 {
-		log.Println("WARNING: no event detected for", bt.CurrentCsTick.Time)
-		bt.SetCurrentTime(bt.EndTime)
-	} else if !evts[0].GetTime().Equal(bt.CurrentCsTick.Time) {
-		log.Println("WARNING: no event between", bt.CurrentCsTick.Time, "and", evts[0].GetTime())
-		bt.SetCurrentTime(evts[0].GetTime())
-	}
-
 	return append(evts, event.NewEndEvent(t)), nil
 }
 
