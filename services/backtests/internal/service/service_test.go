@@ -213,7 +213,7 @@ func (suite *ServiceSuite) checkEvent(stream backtests.BacktestsService_ListenBa
 	suite.Require().Equal(content, evt.Content)
 }
 
-func (suite *ServiceSuite) TestBacktestCreateOrder() {
+func (suite *ServiceSuite) TestBacktestOrders() {
 	req := backtests.CreateBacktestRequest{
 		StartTime: time.Unix(0, 0).Format(time.RFC3339),
 		EndTime:   time.Unix(600, 0).Format(time.RFC3339),
@@ -227,6 +227,13 @@ func (suite *ServiceSuite) TestBacktestCreateOrder() {
 	}
 
 	resp, err := suite.client.CreateBacktest(context.Background(), &req)
+	suite.Require().NoError(err)
+
+	_, err = suite.client.SubscribeToBacktestEvents(context.Background(), &backtests.SubscribeToBacktestEventsRequest{
+		Id:           resp.Id,
+		ExchangeName: "exchange",
+		PairSymbol:   "ETH-DAI",
+	})
 	suite.Require().NoError(err)
 
 	_, err = suite.client.CreateBacktestOrder(context.Background(), &backtests.CreateBacktestOrderRequest{
@@ -246,7 +253,9 @@ func (suite *ServiceSuite) TestBacktestCreateOrder() {
 	suite.Require().Equal(float32(999), accountsResp.Accounts["exchange"].Assets["DAI"])
 	suite.Require().Equal(float32(1), accountsResp.Accounts["exchange"].Assets["ETH"])
 
-	suite.advance(resp.Id)
+	for i := 0; i < 5; i++ {
+		suite.checkAdvance(resp.Id, false)
+	}
 
 	_, err = suite.client.CreateBacktestOrder(context.Background(), &backtests.CreateBacktestOrderRequest{
 		BacktestId:   resp.Id,
@@ -264,4 +273,24 @@ func (suite *ServiceSuite) TestBacktestCreateOrder() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(float32(1001), accountsResp.Accounts["exchange"].Assets["DAI"])
 	suite.Require().Equal(float32(0), accountsResp.Accounts["exchange"].Assets["ETH"])
+
+	ordersResp, err := suite.client.Orders(context.Background(), &backtests.OrdersRequest{
+		BacktestId: resp.Id,
+	})
+	suite.Require().NoError(err)
+	suite.Require().Len(ordersResp.Orders, 2)
+
+	suite.Require().Equal("1970-01-01T00:00:00Z", ordersResp.Orders[0].Time)
+	suite.Require().Equal("market", ordersResp.Orders[0].Type)
+	suite.Require().Equal("exchange", ordersResp.Orders[0].ExchangeName)
+	suite.Require().Equal("ETH-DAI", ordersResp.Orders[0].PairSymbol)
+	suite.Require().Equal("buy", ordersResp.Orders[0].Side)
+	suite.Require().Equal(float32(1), ordersResp.Orders[0].Quantity)
+
+	suite.Require().Equal("1970-01-01T00:01:00Z", ordersResp.Orders[1].Time)
+	suite.Require().Equal("market", ordersResp.Orders[1].Type)
+	suite.Require().Equal("exchange", ordersResp.Orders[1].ExchangeName)
+	suite.Require().Equal("ETH-DAI", ordersResp.Orders[1].PairSymbol)
+	suite.Require().Equal("sell", ordersResp.Orders[1].Side)
+	suite.Require().Equal(float32(1), ordersResp.Orders[1].Quantity)
 }

@@ -18,14 +18,16 @@ type EventSuite struct {
 
 func (suite *EventSuite) TestOnlyKeepEarliestSameTimeEvents() {
 	cases := []struct {
-		In   []Interface
-		Time time.Time
-		Out  []Interface
+		In      []Interface
+		InTime  time.Time
+		Out     []Interface
+		OutTime time.Time
 	}{
 		{
-			In:   []Interface{},
-			Time: time.Unix(1<<62, 0),
-			Out:  []Interface{},
+			In:      []Interface{},
+			InTime:  time.Unix(1<<62, 0),
+			Out:     []Interface{},
+			OutTime: time.Unix(1<<62, 0),
 		},
 		{
 			In: []Interface{
@@ -35,17 +37,18 @@ func (suite *EventSuite) TestOnlyKeepEarliestSameTimeEvents() {
 				NewTickEvent(time.Unix(60, 0), tick.Tick{}),
 				NewTickEvent(time.Unix(180, 0), tick.Tick{}),
 			},
-			Time: time.Unix(60, 0),
+			InTime: time.Unix(1<<62, 0),
 			Out: []Interface{
 				NewTickEvent(time.Unix(60, 0), tick.Tick{}),
 				NewTickEvent(time.Unix(60, 0), tick.Tick{}),
 			},
+			OutTime: time.Unix(60, 0),
 		},
 	}
 
 	for i, c := range cases {
-		t, out := OnlyKeepEarliestSameTimeEvents(c.In)
-		suite.Require().WithinDuration(c.Time, t, time.Microsecond, i)
+		t, out := OnlyKeepEarliestSameTimeEvents(c.In, c.InTime)
+		suite.Require().WithinDuration(c.OutTime, t, time.Microsecond, i)
 		suite.Require().Len(out, len(c.Out), i)
 	}
 }

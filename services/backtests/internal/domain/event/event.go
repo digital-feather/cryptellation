@@ -43,8 +43,8 @@ type Interface interface {
 	GetContent() interface{}
 }
 
-func OnlyKeepEarliestSameTimeEvents(evts []Interface) (earliestTime time.Time, filtered []Interface) {
-	earliestTime = time.Unix(1<<62, 0)
+func OnlyKeepEarliestSameTimeEvents(evts []Interface, endTime time.Time) (earliestTime time.Time, filtered []Interface) {
+	earliestTime = endTime
 	for _, e := range evts {
 		t := e.GetTime()
 

@@ -44,6 +44,11 @@ class BacktestsServiceStub(object):
                 request_serializer=backtests__pb2.AccountsRequest.SerializeToString,
                 response_deserializer=backtests__pb2.AccountsResponse.FromString,
                 )
+        self.Orders = channel.unary_unary(
+                '/backtests.BacktestsService/Orders',
+                request_serializer=backtests__pb2.OrdersRequest.SerializeToString,
+                response_deserializer=backtests__pb2.OrdersResponse.FromString,
+                )
 
 
 class BacktestsServiceServicer(object):
@@ -85,6 +90,12 @@ class BacktestsServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Orders(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BacktestsServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -117,6 +128,11 @@ def add_BacktestsServiceServicer_to_server(servicer, server):
                     servicer.Accounts,
                     request_deserializer=backtests__pb2.AccountsRequest.FromString,
                     response_serializer=backtests__pb2.AccountsResponse.SerializeToString,
+            ),
+            'Orders': grpc.unary_unary_rpc_method_handler(
+                    servicer.Orders,
+                    request_deserializer=backtests__pb2.OrdersRequest.FromString,
+                    response_serializer=backtests__pb2.OrdersResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -227,5 +243,22 @@ class BacktestsService(object):
         return grpc.experimental.unary_unary(request, target, '/backtests.BacktestsService/Accounts',
             backtests__pb2.AccountsRequest.SerializeToString,
             backtests__pb2.AccountsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Orders(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/backtests.BacktestsService/Orders',
+            backtests__pb2.OrdersRequest.SerializeToString,
+            backtests__pb2.OrdersResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

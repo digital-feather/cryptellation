@@ -176,3 +176,29 @@ func toGrpcAccount(exchange string, account account.Account) *backtests.Account 
 		Assets: assets,
 	}
 }
+
+func (g GrpcController) Orders(ctx context.Context, req *backtests.OrdersRequest) (*backtests.OrdersResponse, error) {
+	orders, err := g.application.Queries.Backtest.GetOrders.Handle(ctx, uint(req.BacktestId))
+	if err != nil {
+		return nil, err
+	}
+
+	return &backtests.OrdersResponse{
+		Orders: toGrpcOrders(orders),
+	}, nil
+}
+
+func toGrpcOrders(orders []order.Order) []*backtests.Order {
+	formattedOrders := make([]*backtests.Order, len(orders))
+	for i, o := range orders {
+		formattedOrders[i] = &backtests.Order{
+			Time:         o.Time.Format(time.RFC3339),
+			Type:         o.Type.String(),
+			ExchangeName: o.ExchangeName,
+			PairSymbol:   o.PairSymbol,
+			Side:         o.Side.String(),
+			Quantity:     float32(o.Quantity),
+		}
+	}
+	return formattedOrders
+}

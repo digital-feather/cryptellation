@@ -210,7 +210,7 @@ func (bt *Backtest) AddOrder(ord order.Order, cs candlesticks.Candlestick) error
 	}
 
 	ord.ID = uint(len(bt.Orders))
-	ord.Status = order.StatusIsFilled
+	ord.Time = bt.CurrentCsTick.Time
 
 	bt.Orders = append(bt.Orders, ord)
 	return nil

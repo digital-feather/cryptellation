@@ -28,6 +28,7 @@ type BacktestsServiceClient interface {
 	AdvanceBacktest(ctx context.Context, in *AdvanceBacktestRequest, opts ...grpc.CallOption) (*AdvanceBacktestResponse, error)
 	CreateBacktestOrder(ctx context.Context, in *CreateBacktestOrderRequest, opts ...grpc.CallOption) (*CreateBacktestOrderResponse, error)
 	Accounts(ctx context.Context, in *AccountsRequest, opts ...grpc.CallOption) (*AccountsResponse, error)
+	Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error)
 }
 
 type backtestsServiceClient struct {
@@ -115,6 +116,15 @@ func (c *backtestsServiceClient) Accounts(ctx context.Context, in *AccountsReque
 	return out, nil
 }
 
+func (c *backtestsServiceClient) Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error) {
+	out := new(OrdersResponse)
+	err := c.cc.Invoke(ctx, "/backtests.BacktestsService/Orders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BacktestsServiceServer is the server API for BacktestsService service.
 // All implementations should embed UnimplementedBacktestsServiceServer
 // for forward compatibility
@@ -125,6 +135,7 @@ type BacktestsServiceServer interface {
 	AdvanceBacktest(context.Context, *AdvanceBacktestRequest) (*AdvanceBacktestResponse, error)
 	CreateBacktestOrder(context.Context, *CreateBacktestOrderRequest) (*CreateBacktestOrderResponse, error)
 	Accounts(context.Context, *AccountsRequest) (*AccountsResponse, error)
+	Orders(context.Context, *OrdersRequest) (*OrdersResponse, error)
 }
 
 // UnimplementedBacktestsServiceServer should be embedded to have forward compatible implementations.
@@ -148,6 +159,9 @@ func (UnimplementedBacktestsServiceServer) CreateBacktestOrder(context.Context, 
 }
 func (UnimplementedBacktestsServiceServer) Accounts(context.Context, *AccountsRequest) (*AccountsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Accounts not implemented")
+}
+func (UnimplementedBacktestsServiceServer) Orders(context.Context, *OrdersRequest) (*OrdersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Orders not implemented")
 }
 
 // UnsafeBacktestsServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -272,6 +286,24 @@ func _BacktestsService_Accounts_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BacktestsService_Orders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrdersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BacktestsServiceServer).Orders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backtests.BacktestsService/Orders",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BacktestsServiceServer).Orders(ctx, req.(*OrdersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BacktestsService_ServiceDesc is the grpc.ServiceDesc for BacktestsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -298,6 +330,10 @@ var BacktestsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Accounts",
 			Handler:    _BacktestsService_Accounts_Handler,
+		},
+		{
+			MethodName: "Orders",
+			Handler:    _BacktestsService_Orders_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

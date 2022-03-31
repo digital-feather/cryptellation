@@ -11,6 +11,7 @@ service BacktestsService {
     rpc AdvanceBacktest(AdvanceBacktestRequest) returns (AdvanceBacktestResponse) {}
     rpc CreateBacktestOrder(CreateBacktestOrderRequest) returns (CreateBacktestOrderResponse) {}
     rpc Accounts(AccountsRequest) returns (AccountsResponse) {}
+    rpc Orders(OrdersRequest) returns (OrdersResponse) {}
 }
 
 message Account {
@@ -73,4 +74,21 @@ message AccountsRequest {
 
 message AccountsResponse {
     map<string, Account> accounts = 1;
+}
+
+message OrdersRequest {
+    uint64 backtest_id = 1;
+}
+
+message Order {
+    string time = 1;
+    string type = 2;
+    string exchange_name = 3;
+    string pair_symbol = 4;
+    string side = 5;
+    float quantity = 6;
+}
+
+message OrdersResponse {
+    repeated Order orders = 1;
 }

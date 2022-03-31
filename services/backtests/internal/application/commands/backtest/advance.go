@@ -102,7 +102,7 @@ func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backte
 		evts[i] = evt
 	}
 
-	t, evts := event.OnlyKeepEarliestSameTimeEvents(evts)
+	t, evts := event.OnlyKeepEarliestSameTimeEvents(evts, bt.EndTime)
 	return append(evts, event.NewEndEvent(t)), nil
 }
 

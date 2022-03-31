@@ -1,6 +1,9 @@
 package order
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 var (
 	ErrInvalidOrderQty = errors.New("invalid-order-quantity")
@@ -8,12 +11,12 @@ var (
 
 type Order struct {
 	ID           uint
+	Time         time.Time
 	Type         Type
 	ExchangeName string
 	PairSymbol   string
 	Side         Side
 	Quantity     float64
-	Status       Status
 }
 
 func (o Order) Validate() error {
