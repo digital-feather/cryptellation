@@ -4,6 +4,7 @@ from typing import List
 from cryptellation.models.account import Account
 from cryptellation.services.backtests import Backtests
 
+
 class Config(object):
     START_TIME = "start_time"
     END_TIME = "end_time"
@@ -37,14 +38,14 @@ class Config(object):
     def __getitem__(self, key):
         return self._config[key]
 
+
 class Backtester(object):
 
     def __init__(self, config: Config):
         self._config = config
         self._backtests = Backtests()
         self._id = self._backtests.create_backtest(
-            start_time=self._config[Config.START_TIME]
-        )
+            start_time=self._config[Config.START_TIME])
         self._events = self._backtests.listen_events(self._id)
         self.init()
 
