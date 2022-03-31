@@ -1,5 +1,6 @@
 from typing import List
 
+
 class Config():
     EXCHANGES_URL = "exchanges_url"
     CANDLESTICKS_URL = "candlesticks_url"

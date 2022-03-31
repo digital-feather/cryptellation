@@ -2,6 +2,7 @@ from datetime import datetime
 
 from cryptellation.backtester import Backtester, Config
 
+
 class Visualizer(Backtester):
 
     def init(self):
@@ -11,6 +12,7 @@ class Visualizer(Backtester):
 
     def on_event(self, event):
         print(event.time, event.content)
+
 
 if __name__ == "__main__":
     config = Config({
