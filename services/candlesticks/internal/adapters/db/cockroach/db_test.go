@@ -337,11 +337,12 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 	t, err := time.Parse(time.RFC3339, "1993-11-15T11:29:00Z")
 	suite.Require().NoError(err)
 	suite.Require().NoError(list.Set(t, candlestick.Candlestick{
-		Open:   1,
-		Low:    0.5,
-		High:   2,
-		Close:  1.5,
-		Volume: 1000,
+		Open:       1,
+		Low:        0.5,
+		High:       2,
+		Close:      1.5,
+		Volume:     1000,
+		Uncomplete: true,
 	}))
 	suite.Require().NoError(suite.db.CreateCandlesticks(context.Background(), list))
 
@@ -351,11 +352,12 @@ func (suite *CockroachDatabaseSuite) TestUpdate() {
 		Period:       period.M1,
 	})
 	suite.Require().NoError(update.Set(t, candlestick.Candlestick{
-		Open:   2,
-		Low:    1,
-		High:   4,
-		Close:  3,
-		Volume: 2000,
+		Open:       2,
+		Low:        1,
+		High:       4,
+		Close:      3,
+		Volume:     2000,
+		Uncomplete: false,
 	}))
 	suite.Require().NoError(suite.db.UpdateCandlesticks(context.Background(), update))
 	receivedList := candlestick.NewList(candlestick.ListID{

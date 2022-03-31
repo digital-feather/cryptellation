@@ -126,16 +126,12 @@ func (reh CachedReadCandlesticksHandler) upsert(ctx context.Context, cl *candles
 	csToInsert := candlestick.NewList(cl.ID())
 	csToUpdate := candlestick.NewList(cl.ID())
 	if err := cl.Loop(func(ts time.Time, cs candlestick.Candlestick) (bool, error) {
-		c, exists := rcl.Get(ts)
+		_, exists := rcl.Get(ts)
 		if !exists {
 			return false, csToInsert.Set(ts, cs)
-		}
-
-		if c.Uncomplete {
+		} else {
 			return false, csToUpdate.Set(ts, cs)
 		}
-
-		return false, nil
 	}); err != nil {
 		return err
 	}

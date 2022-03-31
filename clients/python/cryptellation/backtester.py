@@ -1,8 +1,12 @@
 from datetime import datetime
+import plotly.graph_objects as go
 from typing import List
+import iso8601
 
+from cryptellation.models.period import Period
 from cryptellation.models.account import Account
 from cryptellation.services.backtests import Backtests
+from cryptellation.services.candlesticks import Candlesticks
 
 
 class Config(object):
@@ -44,16 +48,37 @@ class Backtester(object):
     def __init__(self, config: Config):
         self._config = config
         self._backtests = Backtests()
+        self._candlesticks = Candlesticks()
         self._id = self._backtests.create_backtest(
-            start_time=self._config[Config.START_TIME])
+            start=self._config[Config.START_TIME],
+            end=self._config[Config.END_TIME])
+        self._actual_time = self._config[Config.START_TIME]
         self._events = self._backtests.listen_events(self._id)
-        self.init()
+        self.on_init()
 
-    def init(self):
+    def on_init(self):
         pass
 
     def on_event(self, event):
         pass
+
+    def on_exit(self):
+        pass
+
+    def visual_summary(self,
+                       exchange: str,
+                       pair: str,
+                       period: Period = Period.M15):
+        start = self._config[Config.START_TIME]
+        end = self._config[Config.END_TIME]
+        data = self._candlesticks.get(exchange, pair, period, start, end)
+        chart_data = go.Candlestick(x=data.index,
+                                    open=data['open'],
+                                    high=data['high'],
+                                    low=data['low'],
+                                    close=data['close'])
+        fig = go.Figure(data=[chart_data])
+        fig.show()
 
     def subscribe_ticks(self, exchange_name, pair_symbol):
         self._backtests.subscribe_ticks(self._id, exchange_name, pair_symbol)
@@ -68,6 +93,23 @@ class Backtester(object):
                 e = self._events.get()
 
                 if e.type == "end":
+                    self._actual_time = iso8601.parse_date(e.time)
                     break
                 else:
                     self.on_event(e)
+
+        self.on_exit()
+
+    def candlesticks(
+        self,
+        exchange: str,
+        pair: str,
+        period: Period,
+        relative_start: int,
+        relative_end: int = 0,
+        limit: int = 0,
+    ):
+        start = self._actual_time - relative_start * period.duration()
+        end = self._actual_time - relative_end * period.duration()
+        return self._candlesticks.get(exchange, pair, period, start, end,
+                                      limit)

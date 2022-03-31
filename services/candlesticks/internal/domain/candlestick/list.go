@@ -2,6 +2,7 @@ package candlestick
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/cryptellation/cryptellation/pkg/timeserie"
@@ -19,6 +20,10 @@ type ListID struct {
 	ExchangeName string
 	PairSymbol   string
 	Period       period.Symbol
+}
+
+func (lid ListID) String() string {
+	return fmt.Sprintf("%s - %s - %s", lid.ExchangeName, lid.PairSymbol, lid.Period)
 }
 
 type List struct {
@@ -195,4 +200,28 @@ func MergeListIntoOneCandlestick(csl *List, per period.Symbol) (time.Time, Candl
 	})
 
 	return mts, mcs
+}
+
+func (l List) String() string {
+	txt := fmt.Sprintf("# %s\n", l.id.String())
+
+	l.Loop(func(t time.Time, cs Candlestick) (bool, error) {
+		uncomplete := ""
+		if cs.Uncomplete {
+			uncomplete = "uncomplete"
+		}
+
+		txt += fmt.Sprintf(
+			" %s: %04f/%04f/%04f/%04f (%f) %s\n",
+			t.Format(time.RFC3339),
+			cs.Open,
+			cs.High,
+			cs.Low,
+			cs.Close,
+			cs.Volume,
+			uncomplete)
+		return false, nil
+	})
+
+	return txt
 }

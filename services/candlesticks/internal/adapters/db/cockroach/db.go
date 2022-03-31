@@ -75,6 +75,7 @@ func (d *DB) UpdateCandlesticks(ctx context.Context, cs *candlestick.List) error
 	listCE := FromModelListToEntityList(cs)
 	for _, ce := range listCE {
 		tx := d.client.WithContext(ctx).
+			Select("*").
 			Model(&Candlestick{}).
 			Where("exchange_name = ?", ce.ExchangeName).
 			Where("pair_symbol = ?", ce.PairSymbol).

@@ -1,4 +1,3 @@
-import pytz
 import grpc
 from datetime import datetime
 import threading
@@ -33,10 +32,15 @@ class Backtests(object):
             self._config[Config.BACKTESTS_URL])
         self._stub = backtests_grpc.BacktestsServiceStub(self._channel)
 
-    def create_backtest(self, start_time: datetime):
+    def create_backtest(self, start: datetime, end: datetime):
+        if start.tzinfo is None or start.tzinfo.utcoffset(start) is None:
+            raise Exception("no timezone specified on start")
+
         return self._stub.CreateBacktest(
-            backtests.CreateBacktestRequest(start_time=start_time.replace(
-                tzinfo=pytz.UTC).isoformat(), )).id
+            backtests.CreateBacktestRequest(
+                start_time=start.isoformat(),
+                end_time=end.isoformat(),
+            )).id
 
     def advance_backtest(self, id):
         return self._stub.AdvanceBacktest(

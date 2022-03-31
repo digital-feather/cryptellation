@@ -1,4 +1,7 @@
 grpcio==1.44.0
+iso8601==1.0.2
+pandas==1.4.1
+plotly==5.6.0
 protobuf==3.19.4
 pytz==2022.1
 setuptools==44.0.0
