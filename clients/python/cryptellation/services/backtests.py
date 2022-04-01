@@ -96,3 +96,7 @@ class Backtests(object):
                 assets[asset] = quantity
             accounts[exch] = Account(assets)
         return accounts
+
+    def orders(self, id: int):
+        req = backtests.OrdersRequest(backtest_id=id)
+        return self._stub.Orders(req)

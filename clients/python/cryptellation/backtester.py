@@ -124,3 +124,6 @@ class Backtester(object):
 
     def accounts(self):
         return self._backtests.accounts(self._id)
+
+    def orders(self):
+        return self._backtests.orders(self._id)
