@@ -63,3 +63,8 @@ class Grapher(object):
 
     def show(self):
         py.plot(self._figure)
+
+    def save(self, path: str):
+        layout = go.Layout(autosize=False, width=1920, height=1080)
+        self._figure.update_layout(layout)
+        self._figure.write_image(path)
