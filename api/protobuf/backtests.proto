@@ -87,6 +87,7 @@ message Order {
     string pair_symbol = 4;
     string side = 5;
     float quantity = 6;
+    float price = 7;
 }
 
 message OrdersResponse {

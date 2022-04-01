@@ -18,8 +18,8 @@ class Graph(object):
         self._grapher.simple_moving_average(10, 'red')
         self._grapher.simple_moving_average(20, 'yellow')
         self._grapher.simple_moving_average(50, 'green')
-        # self._grapher.show()
-        self._grapher.save()
+        self._grapher.show()
+        # self._grapher.save("image.png")
 
 
 if __name__ == "__main__":

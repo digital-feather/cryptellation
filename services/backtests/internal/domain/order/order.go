@@ -17,6 +17,7 @@ type Order struct {
 	PairSymbol   string
 	Side         Side
 	Quantity     float64
+	Price        float64
 }
 
 func (o Order) Validate() error {

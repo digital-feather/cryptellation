@@ -286,6 +286,7 @@ func (suite *ServiceSuite) TestBacktestOrders() {
 	suite.Require().Equal("ETH-DAI", ordersResp.Orders[0].PairSymbol)
 	suite.Require().Equal("buy", ordersResp.Orders[0].Side)
 	suite.Require().Equal(float32(1), ordersResp.Orders[0].Quantity)
+	suite.Require().Equal(float32(1), ordersResp.Orders[0].Price)
 
 	suite.Require().Equal("1970-01-01T00:01:00Z", ordersResp.Orders[1].Time)
 	suite.Require().Equal("market", ordersResp.Orders[1].Type)
@@ -293,4 +294,5 @@ func (suite *ServiceSuite) TestBacktestOrders() {
 	suite.Require().Equal("ETH-DAI", ordersResp.Orders[1].PairSymbol)
 	suite.Require().Equal("sell", ordersResp.Orders[1].Side)
 	suite.Require().Equal(float32(1), ordersResp.Orders[1].Quantity)
+	suite.Require().Equal(float32(2), ordersResp.Orders[1].Price)
 }

@@ -198,6 +198,7 @@ func toGrpcOrders(orders []order.Order) []*backtests.Order {
 			PairSymbol:   o.PairSymbol,
 			Side:         o.Side.String(),
 			Quantity:     float32(o.Quantity),
+			Price:        float32(o.Price),
 		}
 	}
 	return formattedOrders
