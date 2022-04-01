@@ -2,12 +2,13 @@ import plotly.graph_objects as go
 import plotly.offline as py
 from datetime import datetime
 import numpy as np
+from ta.trend import SMAIndicator
 
 from cryptellation.models.period import Period
 from cryptellation.services.candlesticks import Candlesticks
 
 
-class Plotter(object):
+class Grapher(object):
 
     def __init__(self):
         self._candlesticks = Candlesticks()
@@ -49,6 +50,15 @@ class Plotter(object):
                            marker=go.Marker(size=20,
                                             symbol=self._data["symbol"],
                                             color=self._data["color"]))
+        self._figure.add_trace(trace)
+
+    def simple_moving_average(self, window: int, color: str = 'green'):
+        sma = SMAIndicator(close=self._data['close'], window=window)
+        data = sma.sma_indicator()
+
+        trace = go.Scatter(x=self._data.index,
+                           y=data,
+                           line=dict(color=color, width=1))
         self._figure.add_trace(trace)
 
     def show(self):

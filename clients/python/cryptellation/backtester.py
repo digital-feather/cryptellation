@@ -9,7 +9,7 @@ from cryptellation.models.period import Period
 from cryptellation.models.account import Account
 from cryptellation.services.backtests import Backtests
 from cryptellation.services.candlesticks import Candlesticks
-from cryptellation.plotter import Plotter
+from cryptellation.grapher import Grapher
 
 
 class Config(object):
@@ -70,7 +70,7 @@ class Backtester(object):
         pass
 
     def display(self, exchange: str, pair: str, period: Period):
-        p = Plotter()
+        p = Grapher()
 
         start = self._config[Config.START_TIME]
         end = self._config[Config.END_TIME]
