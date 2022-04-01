@@ -1,4 +1,5 @@
 from datetime import datetime
+from re import S
 import plotly.graph_objects as go
 from typing import List
 import iso8601
@@ -8,6 +9,7 @@ from cryptellation.models.period import Period
 from cryptellation.models.account import Account
 from cryptellation.services.backtests import Backtests
 from cryptellation.services.candlesticks import Candlesticks
+from cryptellation.plotter import Plotter
 
 
 class Config(object):
@@ -67,20 +69,16 @@ class Backtester(object):
     def on_exit(self):
         pass
 
-    def visual_summary(self,
-                       exchange: str,
-                       pair: str,
-                       period: Period = Period.M15):
+    def display(self, exchange: str, pair: str, period: Period):
+        p = Plotter()
+
         start = self._config[Config.START_TIME]
         end = self._config[Config.END_TIME]
-        data = self._candlesticks.get(exchange, pair, period, start, end)
-        chart_data = go.Candlestick(x=data.index,
-                                    open=data['open'],
-                                    high=data['high'],
-                                    low=data['low'],
-                                    close=data['close'])
-        fig = go.Figure(data=[chart_data])
-        fig.show()
+        p.candlesticks(exchange, pair, period, start, end)
+
+        p.orders(self.orders())
+
+        p.show()
 
     def subscribe_ticks(self, exchange_name, pair_symbol):
         self._backtests.subscribe_ticks(self._id, exchange_name, pair_symbol)
@@ -123,7 +121,7 @@ class Backtester(object):
                                   quantity)
 
     def accounts(self):
-        return self._backtests.accounts(self._id)
+        return self._backtests.accounts(self._id).accounts
 
     def orders(self):
-        return self._backtests.orders(self._id)
+        return self._backtests.orders(self._id).orders

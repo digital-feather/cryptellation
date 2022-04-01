@@ -20,10 +20,7 @@ class Visualizer(Backtester):
 
     def on_exit(self):
         self.order('market', 'binance', 'BTC-USDC', 'sell', 1)
-        print(self.accounts())
-        print(self.orders())
-        # self.visual_summary('binance', 'BTC-USDC', Period.M1)
-        pass
+        self.display('binance', 'BTC-USDC', Period.M1)
 
 
 if __name__ == "__main__":
