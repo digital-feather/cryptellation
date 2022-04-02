@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+from plotly.graph_objs.scatter import Marker
 import plotly.offline as py
 from datetime import datetime
 import numpy as np
@@ -51,9 +52,9 @@ class Grapher(object):
                            y=data['marker'],
                            mode='markers',
                            name='markers',
-                           marker=go.Marker(size=20,
-                                            symbol=data["symbol"],
-                                            color=data["color"]))
+                           marker=Marker(size=20,
+                                         symbol=data["symbol"],
+                                         color=data["color"]))
         self._figure.add_trace(trace)
 
     def orders(self, orders):
