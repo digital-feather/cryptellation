@@ -1,8 +1,10 @@
 import pytz
 from datetime import datetime
+from ta.trend import SMAIndicator
 
 from cryptellation.grapher import Grapher
 from cryptellation.models.period import Period
+from cryptellation.services.candlesticks import Candlesticks
 
 
 class Graph(object):
@@ -13,13 +15,20 @@ class Graph(object):
     def run(self):
         start = datetime(2020, 7, 28).replace(tzinfo=pytz.utc)
         end = datetime(2020, 7, 29).replace(tzinfo=pytz.utc)
-        self._grapher.candlesticks('binance', 'BTC-USDC', Period.M5, start,
-                                   end)
-        self._grapher.simple_moving_average(10, 'red')
-        self._grapher.simple_moving_average(20, 'yellow')
-        self._grapher.simple_moving_average(50, 'green')
+
+        data = Candlesticks().get('binance', 'BTC-USDC', Period.M5, start, end)
+        self._grapher.candlesticks(data)
+
+        sma = SMAIndicator(close=data['close'], window=10)
+        self._grapher.line(sma.sma_indicator(), 'red')
+
+        sma = SMAIndicator(close=data['close'], window=20)
+        self._grapher.line(sma.sma_indicator(), 'yellow')
+
+        sma = SMAIndicator(close=data['close'], window=40)
+        self._grapher.line(sma.sma_indicator(), 'green')
+
         self._grapher.show()
-        # self._grapher.save("image.png")
 
 
 if __name__ == "__main__":

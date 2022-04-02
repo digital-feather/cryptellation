@@ -1,26 +1,19 @@
 import plotly.graph_objects as go
 from plotly.graph_objs.scatter import Marker
 import plotly.offline as py
-from datetime import datetime
 import numpy as np
 import pandas as pd
-from ta.trend import SMAIndicator
 from plotly.offline import init_notebook_mode, iplot
-
-from cryptellation.models.period import Period
-from cryptellation.services.candlesticks import Candlesticks
 
 
 class Grapher(object):
 
     def __init__(self):
-        self._candlesticks = Candlesticks()
         self._figure = None
         self._data = None
 
-    def candlesticks(self, exchange: str, pair: str, period: Period,
-                     start: datetime, end: datetime):
-        self._data = self._candlesticks.get(exchange, pair, period, start, end)
+    def candlesticks(self, data):
+        self._data = data
         chart_data = go.Candlestick(x=self._data.index,
                                     open=self._data['open'],
                                     high=self._data['high'],
@@ -70,12 +63,9 @@ class Grapher(object):
         self.markers(buy, 'triangle-up', 'green')
         self.markers(sell, 'triangle-down', 'red')
 
-    def simple_moving_average(self, window: int, color: str = 'green'):
-        sma = SMAIndicator(close=self._data['close'], window=window)
-        data = sma.sma_indicator()
-
+    def line(self, series, color: str = 'green'):
         trace = go.Scatter(x=self._data.index,
-                           y=data,
+                           y=series,
                            line=dict(color=color, width=1))
         self._figure.add_trace(trace)
 
