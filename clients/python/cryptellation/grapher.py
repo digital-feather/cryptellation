@@ -2,7 +2,9 @@ import plotly.graph_objects as go
 import plotly.offline as py
 from datetime import datetime
 import numpy as np
+import pandas as pd
 from ta.trend import SMAIndicator
+from plotly.offline import init_notebook_mode, iplot
 
 from cryptellation.models.period import Period
 from cryptellation.services.candlesticks import Candlesticks
@@ -25,32 +27,47 @@ class Grapher(object):
                                     close=self._data['close'])
         self._figure = go.Figure(data=[chart_data])
 
-    def orders(self, orders):
-        self._data['marker'] = np.nan
-        self._data['symbol'] = 0
-        self._data['color'] = np.nan
-
+    def markers(self, series, symbol, color):
         min = self._data['low'].min()
         max = self._data['high'].min()
 
-        for order in orders:
-            self._data.at[order.time,
-                          'marker'] = self._data.loc[order.time,
-                                                     'high'] + (max - min)
-            self._data.at[
-                order.time,
-                'symbol'] = "triangle-up" if order.side == "buy" else "triangle-down"
-            self._data.at[order.time,
-                          'color'] = "green" if order.side == "buy" else "red"
+        data = pd.DataFrame(index=self._data.index)
+        data['marker'] = np.nan
+        data['symbol'] = 0
+        data['color'] = np.nan
 
-        trace = go.Scatter(x=self._data.index,
-                           y=self._data['marker'],
+        for idx in self._data.index:
+            if idx not in series:
+                continue
+
+            marker = self._data.loc[idx, 'high'] + (max - min)
+            data.loc[idx] = {
+                'marker': marker,
+                'symbol': symbol,
+                'color': color
+            }
+
+        trace = go.Scatter(x=data.index,
+                           y=data['marker'],
                            mode='markers',
                            name='markers',
                            marker=go.Marker(size=20,
-                                            symbol=self._data["symbol"],
-                                            color=self._data["color"]))
+                                            symbol=data["symbol"],
+                                            color=data["color"]))
         self._figure.add_trace(trace)
+
+    def orders(self, orders):
+
+        buy = pd.Series()
+        sell = pd.Series()
+        for order in orders:
+            if order.side == "buy":
+                buy.at[order.time] = True
+            else:
+                sell.at[order.time] = True
+
+        self.markers(buy, 'triangle-up', 'green')
+        self.markers(sell, 'triangle-down', 'red')
 
     def simple_moving_average(self, window: int, color: str = 'green'):
         sma = SMAIndicator(close=self._data['close'], window=window)
@@ -68,3 +85,7 @@ class Grapher(object):
         layout = go.Layout(autosize=False, width=1920, height=1080)
         self._figure.update_layout(layout)
         self._figure.write_image(path)
+
+    def jupyter_plot(self):
+        init_notebook_mode(connected=True)
+        iplot(self._figure)
