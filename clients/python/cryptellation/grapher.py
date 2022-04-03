@@ -11,6 +11,16 @@ class Grapher(object):
     def __init__(self):
         self._figure = None
         self._data = None
+        self._shades = []
+
+    def shade(self, start, stop, color: str = "black", opacity: float = 0.1):
+        self._figure.add_vrect(
+            x0=start,
+            x1=stop,
+            fillcolor=color,
+            opacity=opacity,
+            line_width=0,
+        )
 
     def candlesticks(self, data):
         self._data = data

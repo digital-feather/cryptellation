@@ -28,6 +28,8 @@ class Graph(object):
         sma = SMAIndicator(close=data['close'], window=40)
         self._grapher.line(sma.sma_indicator(), 'green')
 
+        self._grapher.shade("2020-07-28T12:00:00Z", "2020-07-28T14:00:00Z",
+                            "red", 0.1)
         self._grapher.show()
 
 
