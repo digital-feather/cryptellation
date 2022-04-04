@@ -1,0 +1,31 @@
+html, body, #logo {
+    height: 100%;
+}
+
+body { 
+    margin: 0px;
+    background-color: #33447e;
+}
+
+#logo {
+    display: -webkit-flexbox;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    justify-content: center;
+    animation: svg-shadow 2s ease-in-out infinite alternate;
+  }
+  
+@keyframes svg-shadow {
+    from {
+      filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 5px #33447e);
+    }
+  
+    to {
+      filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 10px #33447e);
+    }
+}
