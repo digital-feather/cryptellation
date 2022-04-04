@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/db/cockroach"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges/binance"
-	app "github.com/cryptellation/cryptellation/services/exchanges/internal/application"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/application/commands"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db/cockroach"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/exchanges"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/exchanges/binance"
+	app "github.com/digital-feather/cryptellation/services/exchanges/internal/application"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/application/commands"
 )
 
 func NewApplication() (app.Application, error) {

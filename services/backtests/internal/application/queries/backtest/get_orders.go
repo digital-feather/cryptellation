@@ -3,8 +3,8 @@ package queriesBacktest
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/order"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
 )
 
 type GetOrders struct {

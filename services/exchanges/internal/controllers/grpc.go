@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/exchanges"
-	app "github.com/cryptellation/cryptellation/services/exchanges/internal/application"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
+	"github.com/digital-feather/cryptellation/internal/genproto/exchanges"
+	app "github.com/digital-feather/cryptellation/services/exchanges/internal/application"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

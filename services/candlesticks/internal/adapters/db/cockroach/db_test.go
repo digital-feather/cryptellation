@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/tests"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/digital-feather/cryptellation/internal/tests"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
 	"github.com/stretchr/testify/suite"
 )
 

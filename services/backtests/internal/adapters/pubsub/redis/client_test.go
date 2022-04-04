@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/tick"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
 	"github.com/stretchr/testify/suite"
 )
 

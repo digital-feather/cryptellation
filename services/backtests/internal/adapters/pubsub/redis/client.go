@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	config "github.com/cryptellation/cryptellation/internal/adapters/redis"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/pubsub"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
+	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
 )

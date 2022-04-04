@@ -1,7 +1,7 @@
 package application
 
 import (
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/application/commands"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/application/commands"
 )
 
 type Application struct {

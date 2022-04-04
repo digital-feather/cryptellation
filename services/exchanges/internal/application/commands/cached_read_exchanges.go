@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/db"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/exchanges"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 )
 

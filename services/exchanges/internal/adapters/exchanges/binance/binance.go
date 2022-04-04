@@ -6,9 +6,9 @@ import (
 	"time"
 
 	client "github.com/adshao/go-binance/v2"
-	"github.com/cryptellation/cryptellation/internal/adapters/binance"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/exchanges"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
+	"github.com/digital-feather/cryptellation/internal/adapters/binance"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/exchanges"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 )
 

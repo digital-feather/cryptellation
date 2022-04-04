@@ -3,9 +3,9 @@ package client
 import (
 	"os"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/backtests"
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	"github.com/cryptellation/cryptellation/internal/genproto/exchanges"
+	"github.com/digital-feather/cryptellation/internal/genproto/backtests"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/internal/genproto/exchanges"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )

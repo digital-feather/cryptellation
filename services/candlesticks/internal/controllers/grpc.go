@@ -5,11 +5,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	app "github.com/cryptellation/cryptellation/services/candlesticks/internal/application"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/application/commands"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/candlesticks/pkg/period"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	app "github.com/digital-feather/cryptellation/services/candlesticks/internal/application"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/application/commands"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	config "github.com/cryptellation/cryptellation/internal/adapters/redis"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
+	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"

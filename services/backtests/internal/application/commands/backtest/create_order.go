@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/order"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
 	"golang.org/x/xerrors"
 )
 

@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/adapters/cockroachdb"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/adapters/db"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/internal/adapters/cockroachdb"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
 	"golang.org/x/xerrors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

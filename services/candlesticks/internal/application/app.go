@@ -1,6 +1,6 @@
 package application
 
-import "github.com/cryptellation/cryptellation/services/candlesticks/internal/application/commands"
+import "github.com/digital-feather/cryptellation/services/candlesticks/internal/application/commands"
 
 type Application struct {
 	Commands Commands

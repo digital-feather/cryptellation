@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/pubsub"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"github.com/go-redis/redis/v8"
 )
 

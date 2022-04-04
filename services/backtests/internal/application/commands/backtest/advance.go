@@ -5,11 +5,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/pubsub"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"golang.org/x/xerrors"
 )
 

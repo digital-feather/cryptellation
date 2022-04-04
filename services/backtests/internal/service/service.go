@@ -1,13 +1,13 @@
 package service
 
 import (
-	client "github.com/cryptellation/cryptellation/clients/go"
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	pubsubRedis "github.com/cryptellation/cryptellation/services/backtests/internal/adapters/pubsub/redis"
-	vdbRedis "github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb/redis"
-	app "github.com/cryptellation/cryptellation/services/backtests/internal/application"
-	cmdBacktest "github.com/cryptellation/cryptellation/services/backtests/internal/application/commands/backtest"
-	queriesBacktest "github.com/cryptellation/cryptellation/services/backtests/internal/application/queries/backtest"
+	client "github.com/digital-feather/cryptellation/clients/go"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	pubsubRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub/redis"
+	vdbRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb/redis"
+	app "github.com/digital-feather/cryptellation/services/backtests/internal/application"
+	cmdBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/commands/backtest"
+	queriesBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/queries/backtest"
 )
 
 func NewApplication() (app.Application, func(), error) {

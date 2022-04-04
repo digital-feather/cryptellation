@@ -3,9 +3,9 @@ package cockroach
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/internal/adapters/cockroachdb"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/adapters/db"
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
+	"github.com/digital-feather/cryptellation/internal/adapters/cockroachdb"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"golang.org/x/xerrors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

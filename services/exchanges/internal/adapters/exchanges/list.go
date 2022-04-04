@@ -1,7 +1,7 @@
 package exchanges
 
 import (
-	"github.com/cryptellation/cryptellation/services/exchanges/internal/domain/exchange"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 )
 
 var (

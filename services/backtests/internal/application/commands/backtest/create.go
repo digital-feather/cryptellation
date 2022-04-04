@@ -3,8 +3,8 @@ package cmdBacktest
 import (
 	"context"
 
-	"github.com/cryptellation/cryptellation/services/backtests/internal/adapters/vdb"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"golang.org/x/xerrors"
 )
 

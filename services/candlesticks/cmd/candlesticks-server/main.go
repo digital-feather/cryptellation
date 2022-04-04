@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	"github.com/cryptellation/cryptellation/internal/server"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/controllers"
-	"github.com/cryptellation/cryptellation/services/candlesticks/internal/service"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/internal/server"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/service"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )

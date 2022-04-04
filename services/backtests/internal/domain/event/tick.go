@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/cryptellation/cryptellation/internal/genproto/candlesticks"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/candlestick"
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/tick"
+	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
 	"golang.org/x/xerrors"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/cryptellation/cryptellation/services/backtests/internal/domain/backtest"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 )
 
 const (

@@ -1,4 +1,4 @@
-module github.com/cryptellation/cryptellation
+module github.com/digital-feather/cryptellation
 
 go 1.17
 

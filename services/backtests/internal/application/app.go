@@ -1,8 +1,8 @@
 package application
 
 import (
-	cmdBacktest "github.com/cryptellation/cryptellation/services/backtests/internal/application/commands/backtest"
-	queriesBacktest "github.com/cryptellation/cryptellation/services/backtests/internal/application/queries/backtest"
+	cmdBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/commands/backtest"
+	queriesBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/queries/backtest"
 )
 
 type Application struct {
