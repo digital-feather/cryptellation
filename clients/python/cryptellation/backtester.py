@@ -58,15 +58,11 @@ class Backtester(object):
             accounts=self._config[Config.START_ACCOUNTS])
         self._actual_time = self._config[Config.START_TIME]
         self._events = self._backtests.listen_events(self._id)
-        self.on_init()
-
-    def on_init(self):
-        pass
 
     def on_event(self, time: datetime, type: str, content: dict):
         pass
 
-    def on_exit(self):
+    def on_end(self):
         pass
 
     def display(self, exchange: str, pair: str, period: Period):
@@ -74,7 +70,8 @@ class Backtester(object):
 
         start = self._config[Config.START_TIME]
         end = self._config[Config.END_TIME]
-        p.candlesticks(exchange, pair, period, start, end)
+        cs = self._candlesticks.get(exchange, pair, period, start, end)
+        p.candlesticks(cs)
 
         p.orders(self.orders())
 
@@ -99,7 +96,7 @@ class Backtester(object):
                 self.on_event(iso8601.parse_date(e.time), e.type,
                               json.loads(e.content))
 
-        self.on_exit()
+        self.on_end()
 
     def candlesticks(
         self,

@@ -7,7 +7,8 @@ from cryptellation.backtester import Backtester, Config
 
 class Visualizer(Backtester):
 
-    def on_init(self):
+    def __init__(self, config: Config):
+        super().__init__(config)
         self.unique_order = False
         self.target_time = datetime(2020, 7, 28, 10,
                                     15).replace(tzinfo=pytz.utc)
@@ -18,7 +19,7 @@ class Visualizer(Backtester):
             self.order('market', 'binance', 'BTC-USDC', 'buy', 1)
             self.unique_order = True
 
-    def on_exit(self):
+    def on_end(self):
         self.order('market', 'binance', 'BTC-USDC', 'sell', 1)
         self.display('binance', 'BTC-USDC', Period.M1)
 
