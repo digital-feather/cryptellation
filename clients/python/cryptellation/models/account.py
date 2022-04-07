@@ -1,7 +1,7 @@
+from typing import Dict
+
+
 class Account(object):
 
-    def __init__(self, assets: dict = {}):
+    def __init__(self, assets: Dict[str, float] = {}):
         self.assets = assets
-
-    def __repr__(self):
-        return str(self.__dict__)
