@@ -5,10 +5,8 @@ from typing import List
 import iso8601
 import json
 
-from cryptellation.models.period import Period
-from cryptellation.models.account import Account
-from cryptellation.services.backtests import Backtests
-from cryptellation.services.candlesticks import Candlesticks
+from cryptellation.models import Period, Account, Event
+from cryptellation.services import Backtests, Candlesticks
 from cryptellation.grapher import Grapher
 
 
@@ -29,7 +27,7 @@ class Config(object):
 
         if Config.START_ACCOUNTS not in self._config:
             self._config[Config.START_ACCOUNTS] = {
-                "binance": Account({"USDC": 100000})
+                "binance": Account({"USDC": 100000}),
             }
 
         if Config.END_TIME not in self._config:
@@ -59,7 +57,7 @@ class Backtester(object):
         self._actual_time = self._config[Config.START_TIME]
         self._events = self._backtests.listen_events(self._id)
 
-    def on_event(self, time: datetime, type: str, content: dict):
+    def on_event(self, event: Event):
         pass
 
     def on_end(self):
@@ -82,19 +80,17 @@ class Backtester(object):
 
     def run(self):
         while True:
-            finished = self._backtests.advance_backtest(self._id)
-            if finished:
+            if self._backtests.advance_backtest(self._id):
                 break
 
             while True:
-                e = self._events.get()
+                event = self._events.get()
 
-                if e.type == "end":
-                    self._actual_time = iso8601.parse_date(e.time)
+                if event.type() == "end":
+                    self._actual_time = event.time()
                     break
 
-                self.on_event(iso8601.parse_date(e.time), e.type,
-                              json.loads(e.content))
+                self.on_event(event)
 
         self.on_end()
 
@@ -118,7 +114,7 @@ class Backtester(object):
                                   quantity)
 
     def accounts(self):
-        return self._backtests.accounts(self._id).accounts
+        return self._backtests.accounts(self._id)
 
     def orders(self):
-        return self._backtests.orders(self._id).orders
+        return self._backtests.orders(self._id)

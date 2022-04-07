@@ -1,7 +1,7 @@
 import pytz
 from datetime import datetime
 
-from cryptellation.models.period import Period
+from cryptellation.models import Period, Event
 from cryptellation.backtester import Backtester, Config
 
 
@@ -14,8 +14,8 @@ class Visualizer(Backtester):
                                     15).replace(tzinfo=pytz.utc)
         self.subscribe_ticks("binance", "BTC-USDC")
 
-    def on_event(self, time: datetime, type: str, content: dict):
-        if not self.unique_order and time == self.target_time:
+    def on_event(self, event: Event):
+        if not self.unique_order and event.time() == self.target_time:
             self.order('market', 'binance', 'BTC-USDC', 'buy', 1)
             self.unique_order = True
 

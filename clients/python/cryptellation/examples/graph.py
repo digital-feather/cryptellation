@@ -3,8 +3,8 @@ from datetime import datetime
 from ta.trend import SMAIndicator
 
 from cryptellation.grapher import Grapher
-from cryptellation.models.period import Period
-from cryptellation.services.candlesticks import Candlesticks
+from cryptellation.models import Period
+from cryptellation.services import Candlesticks
 
 
 class Graph(object):

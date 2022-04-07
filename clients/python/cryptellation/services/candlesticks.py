@@ -4,7 +4,7 @@ import pytz
 import pandas as pd
 
 from cryptellation.config import Config
-from cryptellation.models.period import Period
+from cryptellation.models import Period
 
 import cryptellation.services.genproto.candlesticks_pb2 as candlesticks
 import cryptellation.services.genproto.candlesticks_pb2_grpc as candlesticks_grpc
@@ -26,7 +26,7 @@ class Candlesticks(object):
         start: datetime,
         end: datetime,
         limit: int = 0,
-    ):
+    ) -> pd.DataFrame:
         if start.tzinfo is None or start.tzinfo.utcoffset(start) is None:
             raise Exception("no timezone specified on start")
         if end.tzinfo is None or end.tzinfo.utcoffset(end) is None:
@@ -52,11 +52,3 @@ class Candlesticks(object):
             columns=['open', 'high', 'low', 'close', 'volume'])
         df.index.names = ['time']
         return df
-
-
-if __name__ == "__main__":
-    now = datetime.utcnow().replace(tzinfo=pytz.utc)
-    start = now - timedelta(hours=0, minutes=5)
-    end = now - timedelta(hours=0, minutes=3)
-    cs = Candlesticks().get("binance", "BTC-USDT", Period.M1, start, end, 0)
-    print(cs)

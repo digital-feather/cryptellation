@@ -2,9 +2,12 @@ import grpc
 from datetime import datetime
 import threading
 import queue
+from typing import Dict, List
+import iso8601
+import json
 
 from cryptellation.config import Config
-from cryptellation.models.account import Account
+from cryptellation.models import Account, Event, Order
 
 import cryptellation.services.genproto.backtests_pb2 as backtests
 import cryptellation.services.genproto.backtests_pb2_grpc as backtests_grpc
@@ -21,8 +24,9 @@ class BacktestsEventsQueue(threading.Thread):
         for event in self._generator:
             self._events_queue.put(event)
 
-    def get(self):
-        return self._events_queue.get()
+    def get(self) -> Event:
+        e = self._events_queue.get()
+        return Event(iso8601.parse_date(e.time), e.type, json.loads(e.content))
 
 
 class Backtests(object):
@@ -33,7 +37,8 @@ class Backtests(object):
             self._config[Config.BACKTESTS_URL])
         self._stub = backtests_grpc.BacktestsServiceStub(self._channel)
 
-    def create_backtest(self, start: datetime, end: datetime, accounts: dict):
+    def create_backtest(self, start: datetime, end: datetime,
+                        accounts: dict) -> int:
         if start.tzinfo is None or start.tzinfo.utcoffset(start) is None:
             raise Exception("no timezone specified on start")
 
@@ -44,7 +49,7 @@ class Backtests(object):
                 accounts=self._account_to_grpc(accounts),
             )).id
 
-    def _account_to_grpc(self, accounts: dict):
+    def _account_to_grpc(self, accounts: Dict[str, Account]):
         req_accounts = {}
         for exch, account in accounts.items():
             assets = {}
@@ -53,7 +58,7 @@ class Backtests(object):
             req_accounts[exch] = backtests.Account(assets=assets)
         return req_accounts
 
-    def advance_backtest(self, id):
+    def advance_backtest(self, id) -> bool:
         return self._stub.AdvanceBacktest(
             backtests.AdvanceBacktestRequest(id=id, )).finished
 
@@ -65,7 +70,7 @@ class Backtests(object):
                 pair_symbol=pair_symbol,
             ))
 
-    def listen_events(self, id):
+    def listen_events(self, id) -> BacktestsEventsQueue:
         req = backtests.ListenBacktestRequest(id=id)
         q = BacktestsEventsQueue(self._stub.ListenBacktest(req))
         q.start()
@@ -83,12 +88,13 @@ class Backtests(object):
         )
         self._stub.CreateBacktestOrder(req)
 
-    def accounts(self, id: int):
+    def accounts(self, id: int) -> Dict[str, Account]:
         req = backtests.AccountsRequest(backtest_id=id, )
         resp = self._stub.Accounts(req)
-        return self._grpc_to_accounts(resp.accounts)
+        return self._grpc_to_accounts(resp)
 
-    def _grpc_to_accounts(self, resp: dict):
+    def _grpc_to_accounts(
+            self, resp: backtests.AccountsResponse) -> Dict[str, Account]:
         accounts = {}
         for exch, account in resp.items():
             assets = {}
@@ -97,6 +103,22 @@ class Backtests(object):
             accounts[exch] = Account(assets)
         return accounts
 
-    def orders(self, id: int):
+    def orders(self, id: int) -> List[Order]:
         req = backtests.OrdersRequest(backtest_id=id)
-        return self._stub.Orders(req)
+        resp = self._stub.Orders(req)
+        return self._grpc_orders(resp)
+
+    def _grpc_orders(self, resp: backtests.OrdersResponse) -> List[Order]:
+        orders = []
+        for o in resp.orders:
+            orders.append(
+                Order(
+                    iso8601.parse_date(o.time),
+                    o.type,
+                    o.exchange_name,
+                    o.pair_symbol,
+                    o.side,
+                    o.quantity,
+                    o.price,
+                ))
+        return orders
