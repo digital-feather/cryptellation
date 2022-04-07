@@ -2,13 +2,13 @@ import pytz
 from datetime import datetime
 
 from cryptellation.models import Period, Event
-from cryptellation.backtester import Backtester, Config
+from cryptellation.backtester import Backtester
 
 
-class Visualizer(Backtester):
+class Backtest(Backtester):
 
-    def __init__(self, config: Config):
-        super().__init__(config)
+    def __init__(self, start_time: datetime, end_time: datetime):
+        super().__init__(start_time=start_time, end_time=end_time)
         self.unique_order = False
         self.target_time = datetime(2020, 7, 28, 10,
                                     15).replace(tzinfo=pytz.utc)
@@ -25,10 +25,6 @@ class Visualizer(Backtester):
 
 
 if __name__ == "__main__":
-    config = Config({
-        Config.START_TIME:
-        datetime(2020, 7, 28, 10).replace(tzinfo=pytz.utc),
-        Config.END_TIME:
-        datetime(2020, 7, 28, 12).replace(tzinfo=pytz.utc),
-    })
-    Visualizer(config).run()
+    b = Backtest(start_time=datetime(2020, 7, 28, 10).replace(tzinfo=pytz.utc),
+                 end_time=datetime(2020, 7, 28, 12).replace(tzinfo=pytz.utc))
+    b.run()

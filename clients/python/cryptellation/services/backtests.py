@@ -33,8 +33,7 @@ class Backtests(object):
 
     def __init__(self):
         self._config = Config()
-        self._channel = grpc.insecure_channel(
-            self._config[Config.BACKTESTS_URL])
+        self._channel = grpc.insecure_channel(self._config.backtests_url)
         self._stub = backtests_grpc.BacktestsServiceStub(self._channel)
 
     def create_backtest(self, start: datetime, end: datetime,

@@ -14,8 +14,7 @@ class Candlesticks(object):
 
     def __init__(self):
         self._config = Config()
-        self._channel = grpc.insecure_channel(
-            self._config[Config.CANDLESTICKS_URL])
+        self._channel = grpc.insecure_channel(self._config.candlesticks_url)
         self._stub = candlesticks_grpc.CandlesticksServiceStub(self._channel)
 
     def get(

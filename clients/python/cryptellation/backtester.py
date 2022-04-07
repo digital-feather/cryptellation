@@ -1,60 +1,27 @@
 from datetime import datetime
-from re import S
-import plotly.graph_objects as go
-from typing import List
-import iso8601
-import json
+from typing import Dict, List
 
 from cryptellation.models import Period, Account, Event
 from cryptellation.services import Backtests, Candlesticks
 from cryptellation.grapher import Grapher
 
 
-class Config(object):
-    START_TIME = "start_time"
-    END_TIME = "end_time"
-    START_ACCOUNTS = "start_accounts"
-
-    def __init__(self, config: dict = {}):
-        self._config = config
-        self._check_config()
-
-    def _check_config(self):
-        if Config.START_TIME not in self._config:
-            raise ValueError('No start time specified')
-        if type(self._config[Config.START_TIME]) is not datetime:
-            raise ValueError('Invalid start time')
-
-        if Config.START_ACCOUNTS not in self._config:
-            self._config[Config.START_ACCOUNTS] = {
-                "binance": Account({"USDC": 100000}),
-            }
-
-        if Config.END_TIME not in self._config:
-            self._config[Config.END_TIME] = datetime.now()
-
-    def keys() -> List[str]:
-        return [
-            Config.START_TIME,
-            Config.END_TIME,
-            Config.START_ACCOUNTS,
-        ]
-
-    def __getitem__(self, key):
-        return self._config[key]
-
-
 class Backtester(object):
 
-    def __init__(self, config: Config):
-        self._config = config
+    def __init__(self,
+                 start_time: datetime,
+                 end_time: datetime = datetime.now(),
+                 accounts: Dict[str, Account] = {
+                     "binance": Account({"USDC": 100000}),
+                 }):
+        self._start_time = start_time
+        self._end_time = end_time
         self._backtests = Backtests()
         self._candlesticks = Candlesticks()
-        self._id = self._backtests.create_backtest(
-            start=self._config[Config.START_TIME],
-            end=self._config[Config.END_TIME],
-            accounts=self._config[Config.START_ACCOUNTS])
-        self._actual_time = self._config[Config.START_TIME]
+        self._id = self._backtests.create_backtest(start=start_time,
+                                                   end=end_time,
+                                                   accounts=accounts)
+        self._actual_time = self._start_time
         self._events = self._backtests.listen_events(self._id)
 
     def on_event(self, event: Event):
@@ -66,8 +33,8 @@ class Backtester(object):
     def display(self, exchange: str, pair: str, period: Period):
         p = Grapher()
 
-        start = self._config[Config.START_TIME]
-        end = self._config[Config.END_TIME]
+        start = self._start_time
+        end = self._end_time
         cs = self._candlesticks.get(exchange, pair, period, start, end)
         p.candlesticks(cs)
 
