@@ -45,6 +45,9 @@ class Backtester(object):
     def subscribe_ticks(self, exchange_name, pair_symbol):
         self._backtests.subscribe_ticks(self._id, exchange_name, pair_symbol)
 
+    def actual_time(self) -> datetime:
+        return self._actual_time
+
     def run(self):
         while True:
             if self._backtests.advance_backtest(self._id):
