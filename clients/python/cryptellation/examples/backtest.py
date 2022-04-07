@@ -21,6 +21,7 @@ class Backtest(Backtester):
 
     def on_end(self):
         self.order('market', 'binance', 'BTC-USDC', 'sell', 1)
+        print("Accounts:", self.accounts())
         self.display('binance', 'BTC-USDC', Period.M1)
 
 

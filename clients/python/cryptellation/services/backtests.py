@@ -95,7 +95,7 @@ class Backtests(object):
     def _grpc_to_accounts(
             self, resp: backtests.AccountsResponse) -> Dict[str, Account]:
         accounts = {}
-        for exch, account in resp.items():
+        for exch, account in resp.accounts.items():
             assets = {}
             for asset, quantity in account.assets.items():
                 assets[asset] = quantity
