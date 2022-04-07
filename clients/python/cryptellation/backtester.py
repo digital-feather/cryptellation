@@ -53,8 +53,8 @@ class Backtester(object):
             while True:
                 event = self._events.get()
 
-                if event.type() == "end":
-                    self._actual_time = event.time()
+                if event.type == "end":
+                    self._actual_time = event.time
                     break
 
                 self.on_event(event)

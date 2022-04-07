@@ -15,7 +15,7 @@ class Backtest(Backtester):
         self.subscribe_ticks("binance", "BTC-USDC")
 
     def on_event(self, event: Event):
-        if not self.unique_order and event.time() == self.target_time:
+        if not self.unique_order and event.time == self.target_time:
             self.order('market', 'binance', 'BTC-USDC', 'buy', 1)
             self.unique_order = True
 
