@@ -59,7 +59,7 @@ class Backtester(object):
 
                 self.on_event(event)
 
-        self.on_end()
+        return self.on_end()
 
     def candlesticks(
         self,
