@@ -1,3 +1,3 @@
 .PHONY: proto
 proto:
-	@./scripts/proto.sh backtests candlesticks exchanges
+	@./scripts/proto.sh backtests candlesticks exchanges ticks

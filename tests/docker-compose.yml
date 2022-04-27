@@ -19,8 +19,6 @@ services:
         container_name: cryptellation-tests-redis
         image: redis:alpine
         hostname: redis
-        ports:
-            - "6379:6379"
         networks:
             - cryptellation-tests-network
     tests:

@@ -23,6 +23,7 @@ services:
       dockerfile: build/dev/Dockerfile
     volumes:
       - .:/code
+      - /root/.cache/go-build
     working_dir: /code
     ports:
       - 127.0.0.1:9002:9002
@@ -42,6 +43,7 @@ services:
       dockerfile: build/dev/Dockerfile
     volumes:
       - .:/code
+      - /root/.cache/go-build
     working_dir: /code
     ports:
       - 127.0.0.1:9003:9003
@@ -61,6 +63,7 @@ services:
       dockerfile: build/dev/Dockerfile
     volumes:
       - .:/code
+      - /root/.cache/go-build
     working_dir: /code
     ports:
       - 127.0.0.1:9004:9004
@@ -74,5 +77,24 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/backtests/cmd/backtests-server/main.go" ]
+  ticks:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+      - /root/.cache/go-build
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9005:9005
+    env_file:
+      - configs/env/.env
+    environment:
+      - SERVICE_PORT=9005
+    depends_on:
+      - redis
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/ticks/cmd/ticks-server/main.go" ]
 networks:
     cryptellation-network:
