@@ -79,13 +79,17 @@ func (suite *ServiceSuite) TestListenSymbol() {
 		})
 	suite.Require().NoError(err)
 
-	for i := int64(0); i < 50; i++ {
+	for i := int64(-1); i < 50; i++ {
 		t, err := stream.Recv()
 		suite.Require().NoError(err)
 		suite.Require().Equal("mock_exchange", t.Exchange)
 		suite.Require().Equal("SYMBOL", t.PairSymbol)
-		suite.Require().Equal(float32(i), t.Price)
 
+		if i == -1 {
+			// Some messages could have been lost at start and it doesn't matter
+			i = int64(t.Price)
+		}
+		suite.Require().Equal(float32(i), t.Price)
 		ti, err := time.Parse(time.RFC3339Nano, t.Time)
 		suite.Require().NoError(err)
 		suite.Require().WithinDuration(time.Unix(i, 0), ti, time.Microsecond)
