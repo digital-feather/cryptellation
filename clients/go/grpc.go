@@ -6,6 +6,7 @@ import (
 	"github.com/digital-feather/cryptellation/internal/genproto/backtests"
 	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/internal/genproto/exchanges"
+	"github.com/digital-feather/cryptellation/internal/genproto/ticks"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )
@@ -50,6 +51,20 @@ func NewBacktestsGrpcClient() (client backtests.BacktestsServiceClient, close fu
 	}
 
 	return backtests.NewBacktestsServiceClient(conn), conn.Close, nil
+}
+
+func NewTicksGrpcClient() (client ticks.TicksServiceClient, close func() error, err error) {
+	grpcAddr := os.Getenv("CRYPTELLATION_TICKS_GRPC_URL")
+	if grpcAddr == "" {
+		return nil, func() error { return nil }, xerrors.New("no grpc url provided")
+	}
+
+	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
+	if err != nil {
+		return nil, func() error { return nil }, xerrors.Errorf("dialing ticks grpc server: %w", err)
+	}
+
+	return ticks.NewTicksServiceClient(conn), conn.Close, nil
 }
 
 func grpcDialOpts(grpcAddr string) []grpc.DialOption {
