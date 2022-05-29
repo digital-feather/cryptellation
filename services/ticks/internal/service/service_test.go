@@ -36,7 +36,7 @@ type ServiceSuite struct {
 }
 
 func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
-	defer tests.TempEnvVar("CRYPTELLATION_TICKS_GRPC_URL", ":9004")()
+	defer tests.TempEnvVar("CRYPTELLATION_TICKS_GRPC_URL", ":9005")()
 
 	a, closeApplication, err := NewMockedApplication()
 	suite.Require().NoError(err)
