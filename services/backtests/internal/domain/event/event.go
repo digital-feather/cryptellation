@@ -16,6 +16,15 @@ func (t Type) String() string {
 	return string(t)
 }
 
+func (t Type) MarshalBinary() ([]byte, error) {
+	return []byte(t.String()), nil
+}
+
+func (t Type) UnmarshalBinary(data []byte) error {
+	t = Type(string(data))
+	return nil
+}
+
 type Event struct {
 	Type Type
 	Time time.Time

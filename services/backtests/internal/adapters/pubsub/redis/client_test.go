@@ -32,18 +32,21 @@ func (suite *RedisPubSubSuite) BeforeTest(suiteName, testName string) {
 
 func (suite *RedisPubSubSuite) TestOnePubOneSubObject() {
 	as := suite.Require()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	backtestID := uint(1)
-	ts := time.Unix(0, 0).UTC()
+	ts := time.Unix(60, 0).UTC()
 	t := tick.Tick{
 		PairSymbol: "BTC-USDC",
-		Price:      40000,
+		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
-	sub, err := suite.client.Subscribe(context.TODO(), backtestID)
+	ch, err := suite.client.Subscribe(ctx, backtestID)
 	as.NoError(err)
-	ch := sub.Channel()
 
-	as.NoError(suite.client.Publish(context.TODO(), backtestID, event.NewTickEvent(ts, t)))
+	as.NoError(suite.client.Publish(ctx, backtestID, event.NewTickEvent(ts, t)))
 	select {
 	case recvEvent := <-ch:
 		suite.checkTick(recvEvent, ts, t)
@@ -51,36 +54,36 @@ func (suite *RedisPubSubSuite) TestOnePubOneSubObject() {
 		as.FailNow("Timeout")
 	}
 
-	as.NoError(suite.client.Publish(context.TODO(), backtestID, event.NewEndEvent(ts)))
+	as.NoError(suite.client.Publish(ctx, backtestID, event.NewEndEvent(ts)))
 	select {
 	case recvEvent := <-ch:
 		suite.checkEnd(recvEvent, ts)
 	case <-time.After(1 * time.Second):
 		as.FailNow("Timeout")
 	}
-
-	as.NoError(sub.Close())
 }
 
 func (suite *RedisPubSubSuite) TestOnePubTwoSub() {
 	as := suite.Require()
-	backtestID := uint(1)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	backtestID := uint(2)
 	ts := time.Unix(0, 0).UTC()
 	t := tick.Tick{
 		PairSymbol: "BTC-USDC",
-		Price:      40000,
+		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
 
-	sub1, err := suite.client.Subscribe(context.TODO(), backtestID)
+	ch1, err := suite.client.Subscribe(ctx, backtestID)
 	as.NoError(err)
-	ch1 := sub1.Channel()
 
-	sub2, err := suite.client.Subscribe(context.TODO(), backtestID)
+	ch2, err := suite.client.Subscribe(ctx, backtestID)
 	as.NoError(err)
-	ch2 := sub2.Channel()
 
-	as.NoError(suite.client.Publish(context.TODO(), backtestID, event.NewTickEvent(ts, t)))
+	as.NoError(suite.client.Publish(ctx, backtestID, event.NewTickEvent(ts, t)))
 
 	for i := 0; i < 2; i++ {
 		select {
@@ -92,37 +95,28 @@ func (suite *RedisPubSubSuite) TestOnePubTwoSub() {
 			as.FailNow("Timeout")
 		}
 	}
-
-	as.NoError(sub1.Close())
-	as.NoError(sub2.Close())
 }
 
 func (suite *RedisPubSubSuite) TestCheckClose() {
 	as := suite.Require()
-	backtestID := uint(1)
+
+	backtestID := uint(3)
 	ts := time.Unix(0, 0).UTC()
 	t := tick.Tick{
 		PairSymbol: "BTC-USDC",
-		Price:      40000,
+		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
 
-	sub, err := suite.client.Subscribe(context.TODO(), backtestID)
+	ctx, cancel := context.WithCancel(context.Background())
+	ch, err := suite.client.Subscribe(ctx, backtestID)
 	as.NoError(err)
-	ch := sub.Channel()
 
-	as.NoError(sub.Close())
+	cancel()
+	as.NoError(suite.client.Publish(context.Background(), backtestID, event.NewTickEvent(ts, t)))
 
 	_, open := <-ch
 	suite.False(open)
-
-	ch2 := sub.Channel()
-	_, open = <-ch2
-	suite.False(open)
-
-	as.Error(sub.Close())
-
-	as.NoError(suite.client.Publish(context.TODO(), backtestID, event.NewTickEvent(ts, t)))
 }
 
 func (suite *RedisPubSubSuite) checkTick(evt event.Interface, t time.Time, ti tick.Tick) {

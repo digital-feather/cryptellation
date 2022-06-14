@@ -28,6 +28,7 @@ services:
             dockerfile: build/dev/Dockerfile
         depends_on:
             - cockroachdb
+            - redis
         image: cryptellation-testing
         env_file:
             - ../configs/env/.env

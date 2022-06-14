@@ -22,10 +22,5 @@ func NewListenSymbolsHandler(ps pubsub.Port) ListenSymbolsHandler {
 }
 
 func (h ListenSymbolsHandler) Handle(ctx context.Context, exchange, pairSymbol string) (<-chan tick.Tick, error) {
-	sub, err := h.pubsub.Subscribe(ctx, pairSymbol)
-	if err != nil {
-		return nil, err
-	}
-
-	return sub.Channel(), nil
+	return h.pubsub.Subscribe(ctx, pairSymbol)
 }
