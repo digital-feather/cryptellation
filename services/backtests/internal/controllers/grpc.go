@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"time"
 
 	"github.com/digital-feather/cryptellation/internal/genproto/backtests"
@@ -81,45 +80,77 @@ func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.N
 	}, nil
 }
 
-func (g GrpcController) ListenBacktest(req *backtests.ListenBacktestRequest, srv backtests.BacktestsService_ListenBacktestServer) error {
+func (g GrpcController) ListenBacktest(srv backtests.BacktestsService_ListenBacktestServer) error {
+	var eventChan <-chan event.Event
+	var err error
+
+	// Get event requests channel
+	reqChan := listenEventRequests(srv)
+
 	ctx := srv.Context()
-
-	log.Println("register")
-	eventsChanRecv, err := g.application.Queries.Backtest.ListenEvents.Handle(ctx, req.Id)
-	if err != nil {
-		return err
-	}
-
+	firstRequest := true
 	for {
-		// exit if context is done
-		// or continue
 		select {
 		case <-ctx.Done():
+			// Exit if context is done or continue
 			return ctx.Err()
-		default:
-		}
+		case req, ok := <-reqChan:
+			if !ok {
+				return nil
+			}
 
-		event, ok := <-eventsChanRecv
-		if !ok {
-			return nil
-		}
+			// If if it's the first request, then listen to events
+			if firstRequest {
+				eventChan, err = g.application.Queries.Backtest.ListenEvents.Handle(ctx, req.Id)
+				if err != nil {
+					return err
+				}
+				firstRequest = false
+			}
 
-		if err := sendEvent(srv, event); err != nil {
-			log.Println("error when sending event:", err)
-			return nil
+			if err = g.application.Commands.Backtest.Advance.Handle(ctx, uint(req.Id)); err != nil {
+				return err
+			}
+		case event, ok := <-eventChan:
+			if !ok {
+				return nil
+			}
+
+			if err := sendEventResponse(srv, event); err != nil {
+				return err
+			}
 		}
 	}
 }
 
-func sendEvent(srv backtests.BacktestsService_ListenBacktestServer, evt event.Interface) error {
-	content, err := json.Marshal(evt.GetContent())
+func listenEventRequests(srv backtests.BacktestsService_ListenBacktestServer) <-chan backtests.BacktestEventRequest {
+	requests := make(chan backtests.BacktestEventRequest)
+
+	go func() {
+		for {
+			req, err := srv.Recv()
+			if err != nil {
+				// return will close stream from server side
+				close(requests)
+				break
+			}
+
+			requests <- *req
+		}
+	}()
+
+	return requests
+}
+
+func sendEventResponse(srv backtests.BacktestsService_ListenBacktestServer, evt event.Event) error {
+	content, err := json.Marshal(evt.Content)
 	if err != nil {
 		return xerrors.Errorf("marshaling event content: %w", err)
 	}
 
-	return srv.Send(&backtests.Event{
-		Type:    evt.GetType().String(),
-		Time:    evt.GetTime().Format(time.RFC3339),
+	return srv.Send(&backtests.BacktestEventResponse{
+		Type:    evt.Type.String(),
+		Time:    evt.Time.Format(time.RFC3339),
 		Content: string(content),
 	})
 }
@@ -129,13 +160,12 @@ func (g GrpcController) SubscribeToBacktestEvents(ctx context.Context, req *back
 	return &backtests.SubscribeToBacktestEventsResponse{}, err
 }
 
-func (g GrpcController) AdvanceBacktest(ctx context.Context, req *backtests.AdvanceBacktestRequest) (*backtests.AdvanceBacktestResponse, error) {
-	finished, err := g.application.Commands.Backtest.Advance.Handle(ctx, uint(req.Id))
-	log.Println("advance")
-	return &backtests.AdvanceBacktestResponse{
-		Finished: finished,
-	}, err
-}
+// func (g GrpcController) AdvanceBacktest(ctx context.Context, req *backtests.AdvanceBacktestRequest) (*backtests.AdvanceBacktestResponse, error) {
+// 	finished, err := g.application.Commands.Backtest.Advance.Handle(ctx, uint(req.Id))
+// 	return &backtests.AdvanceBacktestResponse{
+// 		Finished: finished,
+// 	}, err
+// }
 
 func (g GrpcController) CreateBacktestOrder(ctx context.Context, req *backtests.CreateBacktestOrderRequest) (*backtests.CreateBacktestOrderResponse, error) {
 	payload := cmdBacktest.CreateOrderPayload{

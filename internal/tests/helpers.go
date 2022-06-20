@@ -21,7 +21,7 @@ func WaitForPort(address string) bool {
 		for {
 			conn, err := net.DialTimeout("tcp", address, time.Second)
 			if err != nil {
-				time.Sleep(time.Second)
+				time.Sleep(10 * time.Millisecond)
 				continue
 			}
 

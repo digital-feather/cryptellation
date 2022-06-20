@@ -18,19 +18,19 @@ type EventSuite struct {
 
 func (suite *EventSuite) TestOnlyKeepEarliestSameTimeEvents() {
 	cases := []struct {
-		In      []Interface
+		In      []Event
 		InTime  time.Time
-		Out     []Interface
+		Out     []Event
 		OutTime time.Time
 	}{
 		{
-			In:      []Interface{},
+			In:      []Event{},
 			InTime:  time.Unix(1<<62, 0),
-			Out:     []Interface{},
+			Out:     []Event{},
 			OutTime: time.Unix(1<<62, 0),
 		},
 		{
-			In: []Interface{
+			In: []Event{
 				NewTickEvent(time.Unix(120, 0), tick.Tick{}),
 				NewTickEvent(time.Unix(60, 0), tick.Tick{}),
 				NewTickEvent(time.Unix(240, 0), tick.Tick{}),
@@ -38,7 +38,7 @@ func (suite *EventSuite) TestOnlyKeepEarliestSameTimeEvents() {
 				NewTickEvent(time.Unix(180, 0), tick.Tick{}),
 			},
 			InTime: time.Unix(1<<62, 0),
-			Out: []Interface{
+			Out: []Event{
 				NewTickEvent(time.Unix(60, 0), tick.Tick{}),
 				NewTickEvent(time.Unix(60, 0), tick.Tick{}),
 			},

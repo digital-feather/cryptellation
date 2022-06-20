@@ -9,6 +9,7 @@ import (
 
 	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/status"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
@@ -41,7 +42,7 @@ func New() (*Client, error) {
 	}, nil
 }
 
-func (c *Client) Publish(ctx context.Context, backtestID uint, evt event.Interface) error {
+func (c *Client) Publish(ctx context.Context, backtestID uint, evt event.Event) error {
 	channel := fmt.Sprintf(pricesChannelName, backtestID)
 	return c.client.XAdd(ctx, &redis.XAddArgs{
 		Stream:       channel,
@@ -49,21 +50,21 @@ func (c *Client) Publish(ctx context.Context, backtestID uint, evt event.Interfa
 		MaxLenApprox: 0,
 		ID:           "",
 		Values: map[string]interface{}{
-			"type":    evt.GetType(),
-			"time":    evt.GetTime(),
-			"content": evt.GetContent(),
+			"type":    evt.Type,
+			"time":    evt.Time,
+			"content": evt.Content,
 		},
 	}).Err()
 }
 
-func (c *Client) Subscribe(ctx context.Context, backtestID uint) (<-chan event.Interface, error) {
-	ch := make(chan event.Interface)
+func (c *Client) Subscribe(ctx context.Context, backtestID uint) (<-chan event.Event, error) {
+	ch := make(chan event.Event)
 	go c.redisToChannelEvents(ctx, backtestID, ch)
 	time.Sleep(time.Millisecond) // Wait 1 millisecond to avoid missing messages
 	return ch, nil
 }
 
-func (c *Client) redisToChannelEvents(ctx context.Context, backtestID uint, ch chan event.Interface) {
+func (c *Client) redisToChannelEvents(ctx context.Context, backtestID uint, ch chan event.Event) {
 	id := "$"
 	channel := fmt.Sprintf(pricesChannelName, backtestID)
 	for {
@@ -99,7 +100,7 @@ func (c *Client) redisToChannelEvents(ctx context.Context, backtestID uint, ch c
 				continue
 			}
 			ch <- tickEvent
-		case event.TypeIsEnd:
+		case event.TypeIsStatus:
 			endEvent, err := eventToEnd(msg.Values)
 			if err != nil {
 				log.Println("error when unmarshaling end from redis,", err)
@@ -108,33 +109,39 @@ func (c *Client) redisToChannelEvents(ctx context.Context, backtestID uint, ch c
 			ch <- endEvent
 		default:
 			// TODO: handle
-			fmt.Println("Unknown type:", msg.Values["type"])
+			log.Println("Unknown type:", msg.Values["type"])
 		}
 	}
 }
 
-func eventToTick(values map[string]interface{}) (event.TickEvent, error) {
+func eventToTick(values map[string]interface{}) (event.Event, error) {
 	var ti tick.Tick
 	content := fmt.Sprint(values["content"])
 	if err := json.Unmarshal([]byte(content), &ti); err != nil {
-		return event.TickEvent{}, err
+		return event.Event{}, err
 	}
 
 	tString := fmt.Sprint(values["time"])
 	t, err := time.Parse(time.RFC3339, tString)
 	if err != nil {
-		return event.TickEvent{}, err
+		return event.Event{}, err
 	}
 
 	return event.NewTickEvent(t, ti), nil
 }
 
-func eventToEnd(values map[string]interface{}) (event.EndEvent, error) {
+func eventToEnd(values map[string]interface{}) (event.Event, error) {
+	var status status.Status
+	content := fmt.Sprint(values["content"])
+	if err := json.Unmarshal([]byte(content), &status); err != nil {
+		return event.Event{}, err
+	}
+
 	tString := fmt.Sprint(values["time"])
 	t, err := time.Parse(time.RFC3339, tString)
 	if err != nil {
-		return event.EndEvent{}, err
+		return event.Event{}, err
 	}
 
-	return event.NewEndEvent(t), nil
+	return event.NewStatusEvent(t, status), nil
 }

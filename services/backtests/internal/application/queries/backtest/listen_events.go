@@ -21,6 +21,6 @@ func NewListenEventsHandler(ps pubsub.Port) ListenEventsHandler {
 	}
 }
 
-func (h ListenEventsHandler) Handle(ctx context.Context, backtestId uint64) (<-chan event.Interface, error) {
+func (h ListenEventsHandler) Handle(ctx context.Context, backtestId uint64) (<-chan event.Event, error) {
 	return h.pubsub.Subscribe(ctx, uint(backtestId))
 }

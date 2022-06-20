@@ -7,6 +7,6 @@ import (
 )
 
 type Port interface {
-	Publish(ctx context.Context, backtestID uint, event event.Interface) error
-	Subscribe(ctx context.Context, backtestID uint) (<-chan event.Interface, error)
+	Publish(ctx context.Context, backtestID uint, event event.Event) error
+	Subscribe(ctx context.Context, backtestID uint) (<-chan event.Event, error)
 }

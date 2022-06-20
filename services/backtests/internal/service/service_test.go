@@ -149,60 +149,54 @@ func (suite *ServiceSuite) TestBacktestListenEvents() {
 	})
 	suite.Require().NoError(err)
 
-	stream, err := suite.client.ListenBacktest(context.Background(), &backtests.ListenBacktestRequest{
-		Id: resp.Id,
-	})
+	stream, err := suite.client.ListenBacktest(context.Background())
 	suite.Require().NoError(err)
 
 	// First candlestick (high)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:00:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":2,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:00:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:00:00Z", "{\"finished\":false}")
 
 	// First candlestick (low)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:00:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":0.5,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:00:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:00:00Z", "{\"finished\":false}")
 
 	// First candlestick (close)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:00:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":1.5,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:00:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:00:00Z", "{\"finished\":false}")
 
 	// Second candlestick (open)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:01:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":1,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:01:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:01:00Z", "{\"finished\":false}")
 
 	// Second candlestick (high)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:01:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":2,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:01:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:01:00Z", "{\"finished\":false}")
 
 	// Second candlestick (low)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:01:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":0.5,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:01:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:01:00Z", "{\"finished\":false}")
 
 	// Second candlestick (close)
-	suite.checkAdvance(resp.Id, false)
+	suite.advance(stream, resp.Id)
 	suite.checkEvent(stream, event.TypeIsTick, "1970-01-01T00:01:00Z", "{\"pair_symbol\":\"ETH-DAI\",\"price\":1.5,\"exchange\":\"exchange\"}")
-	suite.checkEvent(stream, event.TypeIsEnd, "1970-01-01T00:01:00Z", "null")
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:01:00Z", "{\"finished\":false}")
 
-	suite.checkAdvance(resp.Id, true)
+	// End of backtest
+	suite.advance(stream, resp.Id)
+	suite.checkEvent(stream, event.TypeIsStatus, "1970-01-01T00:02:00Z", "{\"finished\":true}")
 }
 
-func (suite *ServiceSuite) advance(id uint64) *backtests.AdvanceBacktestResponse {
-	resp, err := suite.client.AdvanceBacktest(context.Background(), &backtests.AdvanceBacktestRequest{
+func (suite *ServiceSuite) advance(stream backtests.BacktestsService_ListenBacktestClient, id uint64) {
+	err := stream.Send(&backtests.BacktestEventRequest{
 		Id: id,
 	})
 	suite.Require().NoError(err)
-	return resp
-}
-
-func (suite *ServiceSuite) checkAdvance(id uint64, finished bool) {
-	resp := suite.advance(id)
-	suite.Require().Equal(finished, resp.Finished)
 }
 
 func (suite *ServiceSuite) checkEvent(stream backtests.BacktestsService_ListenBacktestClient, evtType event.Type, time, content string) {
@@ -211,6 +205,12 @@ func (suite *ServiceSuite) checkEvent(stream backtests.BacktestsService_ListenBa
 	suite.Require().Equal(evtType.String(), evt.Type)
 	suite.Require().Equal(time, evt.Time)
 	suite.Require().Equal(content, evt.Content)
+}
+
+func (suite *ServiceSuite) passEvent(stream backtests.BacktestsService_ListenBacktestClient, evtType event.Type) {
+	evt, err := stream.Recv()
+	suite.Require().NoError(err)
+	suite.Require().Equal(evtType.String(), evt.Type)
 }
 
 func (suite *ServiceSuite) TestBacktestOrders() {
@@ -253,8 +253,12 @@ func (suite *ServiceSuite) TestBacktestOrders() {
 	suite.Require().Equal(float32(999), accountsResp.Accounts["exchange"].Assets["DAI"])
 	suite.Require().Equal(float32(1), accountsResp.Accounts["exchange"].Assets["ETH"])
 
+	stream, err := suite.client.ListenBacktest(context.Background())
+	suite.Require().NoError(err)
 	for i := 0; i < 5; i++ {
-		suite.checkAdvance(resp.Id, false)
+		suite.advance(stream, resp.Id)
+		suite.passEvent(stream, event.TypeIsTick)
+		suite.passEvent(stream, event.TypeIsStatus)
 	}
 
 	_, err = suite.client.CreateBacktestOrder(context.Background(), &backtests.CreateBacktestOrderRequest{
