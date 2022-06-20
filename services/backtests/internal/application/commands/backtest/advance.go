@@ -10,6 +10,7 @@ import (
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/status"
 	"golang.org/x/xerrors"
 )
 
@@ -39,46 +40,50 @@ func NewAdvanceHandler(repository vdb.Port, ps pubsub.Port, csClient candlestick
 	}
 }
 
-func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) (finished bool, err error) {
-	err = h.repository.LockedBacktest(backtestId, func() error {
+func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) error {
+	return h.repository.LockedBacktest(backtestId, func() error {
+		// Get backtest info
 		bt, err := h.repository.ReadBacktest(ctx, backtestId)
 		if err != nil {
 			return xerrors.Errorf("cannot get backtest: %w", err)
 		}
 
-		bt.Advance()
-		if bt.Done() {
-			finished = true
-			return nil
+		// Advance backtest
+		finished := bt.Advance()
+
+		evts := make([]event.Event, 0, 1)
+		if !finished {
+			evts, err = h.readActualEvents(ctx, bt)
+			if err != nil {
+				return xerrors.Errorf("cannot read actual events: %w", err)
+			}
+			if len(evts) == 0 {
+				log.Println("WARNING: no event detected for", bt.CurrentCsTick.Time)
+				bt.SetCurrentTime(bt.EndTime)
+			} else if !evts[0].Time.Equal(bt.CurrentCsTick.Time) {
+				log.Println("WARNING: no event between", bt.CurrentCsTick.Time, "and", evts[0].Time)
+				bt.SetCurrentTime(evts[0].Time)
+			}
 		}
 
-		evts, err := h.readActualEvents(ctx, bt)
-		if err != nil {
-			return xerrors.Errorf("cannot read actual events: %w", err)
-		}
-		if len(evts) == 0 {
-			log.Println("WARNING: no event detected for", bt.CurrentCsTick.Time)
-			bt.SetCurrentTime(bt.EndTime)
-		} else if !evts[0].GetTime().Equal(bt.CurrentCsTick.Time) {
-			log.Println("WARNING: no event between", bt.CurrentCsTick.Time, "and", evts[0].GetTime())
-			bt.SetCurrentTime(evts[0].GetTime())
-		}
-
+		evts = append(evts, event.NewStatusEvent(bt.CurrentCsTick.Time, status.Status{
+			Finished: finished,
+		}))
 		h.broadcastEvents(ctx, backtestId, evts)
 
-		if err := h.repository.UpdateBacktest(ctx, bt); err != nil {
-			return xerrors.Errorf("cannot update backtest: %w", err)
+		if len(evts) > 1 {
+			if err := h.repository.UpdateBacktest(ctx, bt); err != nil {
+				return xerrors.Errorf("cannot update backtest: %w", err)
+			}
 		}
 
 		return nil
 	})
-
-	return finished, err
 }
 
-func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backtest) ([]event.Interface, error) {
-	evts := make([]event.Interface, len(bt.TickSubscribers))
-	for i, sub := range bt.TickSubscribers {
+func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backtest) ([]event.Event, error) {
+	evts := make([]event.Event, 0, len(bt.TickSubscribers))
+	for _, sub := range bt.TickSubscribers {
 		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticks.ReadCandlesticksRequest{
 			ExchangeName: sub.ExchangeName,
 			PairSymbol:   sub.PairSymbol,
@@ -99,20 +104,16 @@ func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backte
 		if err != nil {
 			return nil, xerrors.Errorf("turning candlestick into event: %w", err)
 		}
-		evts[i] = evt
+		evts = append(evts, evt)
 	}
 
-	t, evts := event.OnlyKeepEarliestSameTimeEvents(evts, bt.EndTime)
-	return append(evts, event.NewEndEvent(t)), nil
+	_, evts = event.OnlyKeepEarliestSameTimeEvents(evts, bt.EndTime)
+	return evts, nil
 }
 
-func (h AdvanceHandler) broadcastEvents(ctx context.Context, backtestId uint, evts []event.Interface) {
+func (h AdvanceHandler) broadcastEvents(ctx context.Context, backtestId uint, evts []event.Event) {
 	var count uint
 	for _, evt := range evts {
-		if evt == nil {
-			continue
-		}
-
 		if err := h.pubsub.Publish(ctx, backtestId, evt); err != nil {
 			log.Println("WARNING: error when publishing event", evt)
 			continue

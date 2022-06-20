@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0f\x62\x61\x63ktests.proto\x12\tbacktests\"h\n\x07\x41\x63\x63ount\x12.\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\x1e.backtests.Account.AssetsEntry\x1a-\n\x0b\x41ssetsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\"\xea\x01\n\x15\x43reateBacktestRequest\x12@\n\x08\x61\x63\x63ounts\x18\x01 \x03(\x0b\x32..backtests.CreateBacktestRequest.AccountsEntry\x12\x12\n\nstart_time\x18\x02 \x01(\t\x12\x10\n\x08\x65nd_time\x18\x03 \x01(\t\x12$\n\x1cseconds_between_price_events\x18\x04 \x01(\x04\x1a\x43\n\rAccountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.backtests.Account:\x02\x38\x01\"$\n\x16\x43reateBacktestResponse\x12\n\n\x02id\x18\x01 \x01(\x04\"Z\n SubscribeToBacktestEventsRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x15\n\rexchange_name\x18\x02 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x03 \x01(\t\"#\n!SubscribeToBacktestEventsResponse\"$\n\x16\x41\x64vanceBacktestRequest\x12\n\n\x02id\x18\x01 \x01(\x04\"+\n\x17\x41\x64vanceBacktestResponse\x12\x10\n\x08\x66inished\x18\x01 \x01(\x08\"#\n\x15ListenBacktestRequest\x12\n\n\x02id\x18\x01 \x01(\x04\"4\n\x05\x45vent\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\"\x8b\x01\n\x1a\x43reateBacktestOrderRequest\x12\x13\n\x0b\x62\x61\x63ktest_id\x18\x01 \x01(\x04\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x15\n\rexchange_name\x18\x03 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x04 \x01(\t\x12\x0c\n\x04side\x18\x05 \x01(\t\x12\x10\n\x08quantity\x18\x06 \x01(\x02\"\x1d\n\x1b\x43reateBacktestOrderResponse\"&\n\x0f\x41\x63\x63ountsRequest\x12\x13\n\x0b\x62\x61\x63ktest_id\x18\x01 \x01(\x04\"\x94\x01\n\x10\x41\x63\x63ountsResponse\x12;\n\x08\x61\x63\x63ounts\x18\x01 \x03(\x0b\x32).backtests.AccountsResponse.AccountsEntry\x1a\x43\n\rAccountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.backtests.Account:\x02\x38\x01\"$\n\rOrdersRequest\x12\x13\n\x0b\x62\x61\x63ktest_id\x18\x01 \x01(\x04\"~\n\x05Order\x12\x0c\n\x04time\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x15\n\rexchange_name\x18\x03 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x04 \x01(\t\x12\x0c\n\x04side\x18\x05 \x01(\t\x12\x10\n\x08quantity\x18\x06 \x01(\x02\x12\r\n\x05price\x18\x07 \x01(\x02\"2\n\x0eOrdersResponse\x12 \n\x06orders\x18\x01 \x03(\x0b\x32\x10.backtests.Order2\xfb\x04\n\x10\x42\x61\x63ktestsService\x12W\n\x0e\x43reateBacktest\x12 .backtests.CreateBacktestRequest\x1a!.backtests.CreateBacktestResponse\"\x00\x12x\n\x19SubscribeToBacktestEvents\x12+.backtests.SubscribeToBacktestEventsRequest\x1a,.backtests.SubscribeToBacktestEventsResponse\"\x00\x12H\n\x0eListenBacktest\x12 .backtests.ListenBacktestRequest\x1a\x10.backtests.Event\"\x00\x30\x01\x12Z\n\x0f\x41\x64vanceBacktest\x12!.backtests.AdvanceBacktestRequest\x1a\".backtests.AdvanceBacktestResponse\"\x00\x12\x66\n\x13\x43reateBacktestOrder\x12%.backtests.CreateBacktestOrderRequest\x1a&.backtests.CreateBacktestOrderResponse\"\x00\x12\x45\n\x08\x41\x63\x63ounts\x12\x1a.backtests.AccountsRequest\x1a\x1b.backtests.AccountsResponse\"\x00\x12?\n\x06Orders\x12\x18.backtests.OrdersRequest\x1a\x19.backtests.OrdersResponse\"\x00\x42\x19Z\x17/pkg/genproto/backtestsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0f\x62\x61\x63ktests.proto\x12\tbacktests\"h\n\x07\x41\x63\x63ount\x12.\n\x06\x61ssets\x18\x01 \x03(\x0b\x32\x1e.backtests.Account.AssetsEntry\x1a-\n\x0b\x41ssetsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\"\xea\x01\n\x15\x43reateBacktestRequest\x12@\n\x08\x61\x63\x63ounts\x18\x01 \x03(\x0b\x32..backtests.CreateBacktestRequest.AccountsEntry\x12\x12\n\nstart_time\x18\x02 \x01(\t\x12\x10\n\x08\x65nd_time\x18\x03 \x01(\t\x12$\n\x1cseconds_between_price_events\x18\x04 \x01(\x04\x1a\x43\n\rAccountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.backtests.Account:\x02\x38\x01\"$\n\x16\x43reateBacktestResponse\x12\n\n\x02id\x18\x01 \x01(\x04\"Z\n SubscribeToBacktestEventsRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x15\n\rexchange_name\x18\x02 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x03 \x01(\t\"#\n!SubscribeToBacktestEventsResponse\"\"\n\x14\x42\x61\x63ktestEventRequest\x12\n\n\x02id\x18\x01 \x01(\x04\"D\n\x15\x42\x61\x63ktestEventResponse\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\"\x8b\x01\n\x1a\x43reateBacktestOrderRequest\x12\x13\n\x0b\x62\x61\x63ktest_id\x18\x01 \x01(\x04\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x15\n\rexchange_name\x18\x03 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x04 \x01(\t\x12\x0c\n\x04side\x18\x05 \x01(\t\x12\x10\n\x08quantity\x18\x06 \x01(\x02\"\x1d\n\x1b\x43reateBacktestOrderResponse\"&\n\x0f\x41\x63\x63ountsRequest\x12\x13\n\x0b\x62\x61\x63ktest_id\x18\x01 \x01(\x04\"\x94\x01\n\x10\x41\x63\x63ountsResponse\x12;\n\x08\x61\x63\x63ounts\x18\x01 \x03(\x0b\x32).backtests.AccountsResponse.AccountsEntry\x1a\x43\n\rAccountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.backtests.Account:\x02\x38\x01\"$\n\rOrdersRequest\x12\x13\n\x0b\x62\x61\x63ktest_id\x18\x01 \x01(\x04\"~\n\x05Order\x12\x0c\n\x04time\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x15\n\rexchange_name\x18\x03 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x04 \x01(\t\x12\x0c\n\x04side\x18\x05 \x01(\t\x12\x10\n\x08quantity\x18\x06 \x01(\x02\x12\r\n\x05price\x18\x07 \x01(\x02\"2\n\x0eOrdersResponse\x12 \n\x06orders\x18\x01 \x03(\x0b\x32\x10.backtests.Order2\xb0\x04\n\x10\x42\x61\x63ktestsService\x12W\n\x0e\x43reateBacktest\x12 .backtests.CreateBacktestRequest\x1a!.backtests.CreateBacktestResponse\"\x00\x12x\n\x19SubscribeToBacktestEvents\x12+.backtests.SubscribeToBacktestEventsRequest\x1a,.backtests.SubscribeToBacktestEventsResponse\"\x00\x12Y\n\x0eListenBacktest\x12\x1f.backtests.BacktestEventRequest\x1a .backtests.BacktestEventResponse\"\x00(\x01\x30\x01\x12\x66\n\x13\x43reateBacktestOrder\x12%.backtests.CreateBacktestOrderRequest\x1a&.backtests.CreateBacktestOrderResponse\"\x00\x12\x45\n\x08\x41\x63\x63ounts\x12\x1a.backtests.AccountsRequest\x1a\x1b.backtests.AccountsResponse\"\x00\x12?\n\x06Orders\x12\x18.backtests.OrdersRequest\x1a\x19.backtests.OrdersResponse\"\x00\x42\x19Z\x17/pkg/genproto/backtestsb\x06proto3')
 
 
 
@@ -25,10 +25,8 @@ _CREATEBACKTESTREQUEST_ACCOUNTSENTRY = _CREATEBACKTESTREQUEST.nested_types_by_na
 _CREATEBACKTESTRESPONSE = DESCRIPTOR.message_types_by_name['CreateBacktestResponse']
 _SUBSCRIBETOBACKTESTEVENTSREQUEST = DESCRIPTOR.message_types_by_name['SubscribeToBacktestEventsRequest']
 _SUBSCRIBETOBACKTESTEVENTSRESPONSE = DESCRIPTOR.message_types_by_name['SubscribeToBacktestEventsResponse']
-_ADVANCEBACKTESTREQUEST = DESCRIPTOR.message_types_by_name['AdvanceBacktestRequest']
-_ADVANCEBACKTESTRESPONSE = DESCRIPTOR.message_types_by_name['AdvanceBacktestResponse']
-_LISTENBACKTESTREQUEST = DESCRIPTOR.message_types_by_name['ListenBacktestRequest']
-_EVENT = DESCRIPTOR.message_types_by_name['Event']
+_BACKTESTEVENTREQUEST = DESCRIPTOR.message_types_by_name['BacktestEventRequest']
+_BACKTESTEVENTRESPONSE = DESCRIPTOR.message_types_by_name['BacktestEventResponse']
 _CREATEBACKTESTORDERREQUEST = DESCRIPTOR.message_types_by_name['CreateBacktestOrderRequest']
 _CREATEBACKTESTORDERRESPONSE = DESCRIPTOR.message_types_by_name['CreateBacktestOrderResponse']
 _ACCOUNTSREQUEST = DESCRIPTOR.message_types_by_name['AccountsRequest']
@@ -88,33 +86,19 @@ SubscribeToBacktestEventsResponse = _reflection.GeneratedProtocolMessageType('Su
   })
 _sym_db.RegisterMessage(SubscribeToBacktestEventsResponse)
 
-AdvanceBacktestRequest = _reflection.GeneratedProtocolMessageType('AdvanceBacktestRequest', (_message.Message,), {
-  'DESCRIPTOR' : _ADVANCEBACKTESTREQUEST,
+BacktestEventRequest = _reflection.GeneratedProtocolMessageType('BacktestEventRequest', (_message.Message,), {
+  'DESCRIPTOR' : _BACKTESTEVENTREQUEST,
   '__module__' : 'backtests_pb2'
-  # @@protoc_insertion_point(class_scope:backtests.AdvanceBacktestRequest)
+  # @@protoc_insertion_point(class_scope:backtests.BacktestEventRequest)
   })
-_sym_db.RegisterMessage(AdvanceBacktestRequest)
+_sym_db.RegisterMessage(BacktestEventRequest)
 
-AdvanceBacktestResponse = _reflection.GeneratedProtocolMessageType('AdvanceBacktestResponse', (_message.Message,), {
-  'DESCRIPTOR' : _ADVANCEBACKTESTRESPONSE,
+BacktestEventResponse = _reflection.GeneratedProtocolMessageType('BacktestEventResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BACKTESTEVENTRESPONSE,
   '__module__' : 'backtests_pb2'
-  # @@protoc_insertion_point(class_scope:backtests.AdvanceBacktestResponse)
+  # @@protoc_insertion_point(class_scope:backtests.BacktestEventResponse)
   })
-_sym_db.RegisterMessage(AdvanceBacktestResponse)
-
-ListenBacktestRequest = _reflection.GeneratedProtocolMessageType('ListenBacktestRequest', (_message.Message,), {
-  'DESCRIPTOR' : _LISTENBACKTESTREQUEST,
-  '__module__' : 'backtests_pb2'
-  # @@protoc_insertion_point(class_scope:backtests.ListenBacktestRequest)
-  })
-_sym_db.RegisterMessage(ListenBacktestRequest)
-
-Event = _reflection.GeneratedProtocolMessageType('Event', (_message.Message,), {
-  'DESCRIPTOR' : _EVENT,
-  '__module__' : 'backtests_pb2'
-  # @@protoc_insertion_point(class_scope:backtests.Event)
-  })
-_sym_db.RegisterMessage(Event)
+_sym_db.RegisterMessage(BacktestEventResponse)
 
 CreateBacktestOrderRequest = _reflection.GeneratedProtocolMessageType('CreateBacktestOrderRequest', (_message.Message,), {
   'DESCRIPTOR' : _CREATEBACKTESTORDERREQUEST,
@@ -198,30 +182,26 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SUBSCRIBETOBACKTESTEVENTSREQUEST._serialized_end=501
   _SUBSCRIBETOBACKTESTEVENTSRESPONSE._serialized_start=503
   _SUBSCRIBETOBACKTESTEVENTSRESPONSE._serialized_end=538
-  _ADVANCEBACKTESTREQUEST._serialized_start=540
-  _ADVANCEBACKTESTREQUEST._serialized_end=576
-  _ADVANCEBACKTESTRESPONSE._serialized_start=578
-  _ADVANCEBACKTESTRESPONSE._serialized_end=621
-  _LISTENBACKTESTREQUEST._serialized_start=623
-  _LISTENBACKTESTREQUEST._serialized_end=658
-  _EVENT._serialized_start=660
-  _EVENT._serialized_end=712
-  _CREATEBACKTESTORDERREQUEST._serialized_start=715
-  _CREATEBACKTESTORDERREQUEST._serialized_end=854
-  _CREATEBACKTESTORDERRESPONSE._serialized_start=856
-  _CREATEBACKTESTORDERRESPONSE._serialized_end=885
-  _ACCOUNTSREQUEST._serialized_start=887
-  _ACCOUNTSREQUEST._serialized_end=925
-  _ACCOUNTSRESPONSE._serialized_start=928
-  _ACCOUNTSRESPONSE._serialized_end=1076
+  _BACKTESTEVENTREQUEST._serialized_start=540
+  _BACKTESTEVENTREQUEST._serialized_end=574
+  _BACKTESTEVENTRESPONSE._serialized_start=576
+  _BACKTESTEVENTRESPONSE._serialized_end=644
+  _CREATEBACKTESTORDERREQUEST._serialized_start=647
+  _CREATEBACKTESTORDERREQUEST._serialized_end=786
+  _CREATEBACKTESTORDERRESPONSE._serialized_start=788
+  _CREATEBACKTESTORDERRESPONSE._serialized_end=817
+  _ACCOUNTSREQUEST._serialized_start=819
+  _ACCOUNTSREQUEST._serialized_end=857
+  _ACCOUNTSRESPONSE._serialized_start=860
+  _ACCOUNTSRESPONSE._serialized_end=1008
   _ACCOUNTSRESPONSE_ACCOUNTSENTRY._serialized_start=304
   _ACCOUNTSRESPONSE_ACCOUNTSENTRY._serialized_end=371
-  _ORDERSREQUEST._serialized_start=1078
-  _ORDERSREQUEST._serialized_end=1114
-  _ORDER._serialized_start=1116
-  _ORDER._serialized_end=1242
-  _ORDERSRESPONSE._serialized_start=1244
-  _ORDERSRESPONSE._serialized_end=1294
-  _BACKTESTSSERVICE._serialized_start=1297
-  _BACKTESTSSERVICE._serialized_end=1932
+  _ORDERSREQUEST._serialized_start=1010
+  _ORDERSREQUEST._serialized_end=1046
+  _ORDER._serialized_start=1048
+  _ORDER._serialized_end=1174
+  _ORDERSRESPONSE._serialized_start=1176
+  _ORDERSRESPONSE._serialized_end=1226
+  _BACKTESTSSERVICE._serialized_start=1229
+  _BACKTESTSSERVICE._serialized_end=1789
 # @@protoc_insertion_point(module_scope)

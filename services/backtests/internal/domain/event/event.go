@@ -5,37 +5,10 @@ import (
 	"time"
 )
 
-type Type string
-
-const (
-	TypeIsTick Type = "tick"
-	TypeIsEnd  Type = "end"
-)
-
-func (t Type) String() string {
-	return string(t)
-}
-
-func (t Type) MarshalBinary() ([]byte, error) {
-	return []byte(t.String()), nil
-}
-
-func (t Type) UnmarshalBinary(data []byte) error {
-	t = Type(string(data))
-	return nil
-}
-
 type Event struct {
-	Type Type
-	Time time.Time
-}
-
-func (e Event) GetType() Type {
-	return e.Type
-}
-
-func (e Event) GetTime() time.Time {
-	return e.Time
+	Type    Type
+	Time    time.Time
+	Content interface{}
 }
 
 func (e Event) MarshalBinary() ([]byte, error) {
@@ -46,23 +19,15 @@ func (e *Event) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, e)
 }
 
-type Interface interface {
-	GetType() Type
-	GetTime() time.Time
-	GetContent() interface{}
-}
-
-func OnlyKeepEarliestSameTimeEvents(evts []Interface, endTime time.Time) (earliestTime time.Time, filtered []Interface) {
+func OnlyKeepEarliestSameTimeEvents(evts []Event, endTime time.Time) (earliestTime time.Time, filtered []Event) {
 	earliestTime = endTime
 	for _, e := range evts {
-		t := e.GetTime()
-
-		if earliestTime.After(t) {
-			earliestTime = t
-			filtered = make([]Interface, 0, len(evts))
+		if earliestTime.After(e.Time) {
+			earliestTime = e.Time
+			filtered = make([]Event, 0, len(evts))
 		}
 
-		if earliestTime.Equal(t) {
+		if earliestTime.Equal(e.Time) {
 			filtered = append(filtered, e)
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/status"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
 	"github.com/stretchr/testify/suite"
 )
@@ -43,6 +44,10 @@ func (suite *RedisPubSubSuite) TestOnePubOneSubObject() {
 		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
+	st := status.Status{
+		Finished: true,
+	}
+
 	ch, err := suite.client.Subscribe(ctx, backtestID)
 	as.NoError(err)
 
@@ -54,10 +59,10 @@ func (suite *RedisPubSubSuite) TestOnePubOneSubObject() {
 		as.FailNow("Timeout")
 	}
 
-	as.NoError(suite.client.Publish(ctx, backtestID, event.NewEndEvent(ts)))
+	as.NoError(suite.client.Publish(ctx, backtestID, event.NewStatusEvent(ts, st)))
 	select {
 	case recvEvent := <-ch:
-		suite.checkEnd(recvEvent, ts)
+		suite.checkEnd(recvEvent, ts, st)
 	case <-time.After(1 * time.Second):
 		as.FailNow("Timeout")
 	}
@@ -119,20 +124,22 @@ func (suite *RedisPubSubSuite) TestCheckClose() {
 	suite.False(open)
 }
 
-func (suite *RedisPubSubSuite) checkTick(evt event.Interface, t time.Time, ti tick.Tick) {
+func (suite *RedisPubSubSuite) checkTick(evt event.Event, t time.Time, ti tick.Tick) {
 	as := suite.Require()
 
-	as.Equal(event.TypeIsTick, evt.GetType())
-	rt, ok := evt.(event.TickEvent)
+	as.Equal(event.TypeIsTick, evt.Type)
+	as.Equal(t, evt.Time)
+	rt, ok := evt.Content.(tick.Tick)
 	as.True(ok)
-	as.Equal(ti, rt.Content)
+	as.Equal(ti, rt)
 }
 
-func (suite *RedisPubSubSuite) checkEnd(evt event.Interface, t time.Time) {
+func (suite *RedisPubSubSuite) checkEnd(evt event.Event, t time.Time, st status.Status) {
 	as := suite.Require()
 
-	as.Equal(event.TypeIsEnd, evt.GetType())
-	as.Equal(t, evt.GetTime())
-	_, ok := evt.(event.EndEvent)
+	as.Equal(event.TypeIsStatus, evt.Type)
+	as.Equal(t, evt.Time)
+	rt, ok := evt.Content.(status.Status)
 	as.True(ok)
+	as.Equal(st, rt)
 }

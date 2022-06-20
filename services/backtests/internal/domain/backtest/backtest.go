@@ -116,11 +116,11 @@ func (bt *Backtest) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, bt)
 }
 
-func (bt *Backtest) Advance() {
-	bt.advanceThroughTicks()
+func (bt *Backtest) Advance() (done bool) {
+	return bt.advanceThroughTicks()
 }
 
-func (bt *Backtest) advanceThroughTicks() {
+func (bt *Backtest) advanceThroughTicks() (done bool) {
 	switch bt.CurrentCsTick.PriceType {
 	case candlestick.PriceTypeIsOpen:
 		bt.CurrentCsTick.PriceType = candlestick.PriceTypeIsHigh
@@ -133,15 +133,17 @@ func (bt *Backtest) advanceThroughTicks() {
 	default:
 		bt.CurrentCsTick.PriceType = candlestick.PriceTypeIsOpen
 	}
+
+	return bt.Done()
+}
+
+func (bt Backtest) Done() bool {
+	return !bt.CurrentCsTick.Time.Before(bt.EndTime)
 }
 
 func (bt *Backtest) SetCurrentTime(ts time.Time) {
 	bt.CurrentCsTick.Time = ts
 	bt.CurrentCsTick.PriceType = candlestick.PriceTypeIsOpen
-}
-
-func (bt Backtest) Done() bool {
-	return !bt.CurrentCsTick.Time.Before(bt.EndTime)
 }
 
 func (bt *Backtest) CreateTickSubscription(exchangeName string, pairSymbol string) (event.Subscription, error) {
