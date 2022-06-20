@@ -19,7 +19,7 @@ function generate_golang {
 
 function generate_python {
   local readonly SERVICE_NAME=$1
-  local readonly OUTPUT_DIR=clients/python/cryptellation/services/genproto
+  local readonly OUTPUT_DIR=clients/python/cryptellation/genproto
 
   mkdir -p $OUTPUT_DIR
 

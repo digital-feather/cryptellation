@@ -6,8 +6,8 @@ import grpc
 from cryptellation.config import Config
 from cryptellation.models import Tick
 
-import cryptellation.services.genproto.ticks_pb2 as ticks
-import cryptellation.services.genproto.ticks_pb2_grpc as ticks_grpc
+import cryptellation._genproto.ticks_pb2 as ticks
+import cryptellation._genproto.ticks_pb2_grpc as ticks_grpc
 
 class Ticks(threading.Thread):
 

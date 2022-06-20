@@ -12,7 +12,7 @@ class Backtest(Backtester):
         self.unique_order = False
         self.target_time = datetime(2020, 7, 28, 10,
                                     15).replace(tzinfo=pytz.utc)
-        self.subscribe_ticks("binance", "BTC-USDC")
+        self.subscribe("binance", "BTC-USDC")
 
     def on_event(self, event: Event):
         if not self.unique_order and event.time == self.target_time:

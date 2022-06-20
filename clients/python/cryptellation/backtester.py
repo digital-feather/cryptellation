@@ -18,11 +18,11 @@ class Backtester(object):
         self._end_time = end_time
         self._backtests = Backtests()
         self._candlesticks = Candlesticks()
-        self._id = self._backtests.create_backtest(start=start_time,
+        self._backtest = self._backtests.create(start=start_time,
                                                    end=end_time,
                                                    accounts=accounts)
         self._actual_time = self._start_time
-        self._events = self._backtests.listen_events(self._id)
+        self._events = self._backtest.listen()
 
     def on_event(self, event: Event):
         pass
@@ -42,21 +42,22 @@ class Backtester(object):
 
         p.show()
 
-    def subscribe_ticks(self, exchange_name, pair_symbol):
-        self._backtests.subscribe_ticks(self._id, exchange_name, pair_symbol)
+    def subscribe(self, exchange_name, pair_symbol):
+        self._backtest.subscribe(exchange_name, pair_symbol)
 
     def actual_time(self) -> datetime:
         return self._actual_time
 
     def run(self):
-        while True:
-            if self._backtests.advance_backtest(self._id):
-                break
+        finished = False
+        while finished is False:
+            self._events.next()
 
             while True:
                 event = self._events.get()
 
-                if event.type == "end":
+                if event.type == "status":
+                    finished = event.content['finished']
                     self._actual_time = event.time
                     break
 
@@ -80,11 +81,11 @@ class Backtester(object):
 
     def order(self, type: str, exchange: str, pair: str, side: str,
               quantity: float):
-        self._backtests.new_order(self._id, type, exchange, pair, side,
+        self._backtest.order(type, exchange, pair, side,
                                   quantity)
 
     def accounts(self):
-        return self._backtests.accounts(self._id)
+        return self._backtest.accounts()
 
     def orders(self):
-        return self._backtests.orders(self._id)
+        return self._backtest.orders()

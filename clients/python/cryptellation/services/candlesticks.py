@@ -6,8 +6,8 @@ import pandas as pd
 from cryptellation.config import Config
 from cryptellation.models import Period
 
-import cryptellation.services.genproto.candlesticks_pb2 as candlesticks
-import cryptellation.services.genproto.candlesticks_pb2_grpc as candlesticks_grpc
+import cryptellation._genproto.candlesticks_pb2 as candlesticks
+import cryptellation._genproto.candlesticks_pb2_grpc as candlesticks_grpc
 
 
 class Candlesticks(object):
