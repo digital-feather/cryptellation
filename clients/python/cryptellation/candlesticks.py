@@ -4,14 +4,13 @@ import pytz
 import pandas as pd
 
 from cryptellation.config import Config
-from cryptellation.models import Period
+from cryptellation.period import Period
 
 import cryptellation._genproto.candlesticks_pb2 as candlesticks
 import cryptellation._genproto.candlesticks_pb2_grpc as candlesticks_grpc
 
 
 class Candlesticks(object):
-
     def __init__(self):
         self._config = Config()
         self._channel = grpc.insecure_channel(self._config.candlesticks_url)
@@ -39,15 +38,15 @@ class Candlesticks(object):
                 start=start.isoformat(),
                 end=end.isoformat(),
                 limit=limit,
-            )).candlesticks
+            )
+        ).candlesticks
 
         list = {}
         for c in cs:
             list[c.time] = [c.open, c.high, c.low, c.close, c.volume]
 
         df = pd.DataFrame.from_dict(
-            list,
-            orient='index',
-            columns=['open', 'high', 'low', 'close', 'volume'])
-        df.index.names = ['time']
+            list, orient="index", columns=["open", "high", "low", "close", "volume"]
+        )
+        df.index.names = ["time"]
         return df
