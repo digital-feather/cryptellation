@@ -84,6 +84,7 @@ func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.N
 func (g GrpcController) ListenBacktest(req *backtests.ListenBacktestRequest, srv backtests.BacktestsService_ListenBacktestServer) error {
 	ctx := srv.Context()
 
+	log.Println("register")
 	eventsChanRecv, err := g.application.Queries.Backtest.ListenEvents.Handle(ctx, req.Id)
 	if err != nil {
 		return err
@@ -130,6 +131,7 @@ func (g GrpcController) SubscribeToBacktestEvents(ctx context.Context, req *back
 
 func (g GrpcController) AdvanceBacktest(ctx context.Context, req *backtests.AdvanceBacktestRequest) (*backtests.AdvanceBacktestResponse, error) {
 	finished, err := g.application.Commands.Backtest.Advance.Handle(ctx, uint(req.Id))
+	log.Println("advance")
 	return &backtests.AdvanceBacktestResponse{
 		Finished: finished,
 	}, err

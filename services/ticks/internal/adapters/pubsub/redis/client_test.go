@@ -31,45 +31,50 @@ func (suite *RedisPubSubSuite) BeforeTest(suiteName, testName string) {
 
 func (suite *RedisPubSubSuite) TestOnePubOneSubObject() {
 	as := suite.Require()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	pairSymbol := "symbol1"
 	t := tick.Tick{
 		Time:       time.Unix(0, 0).UTC(),
-		PairSymbol: "BTC-USDC",
-		Price:      40000,
+		PairSymbol: pairSymbol,
+		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
-	sub, err := suite.client.Subscribe(context.TODO(), "BTC-USDC")
+	ch, err := suite.client.Subscribe(ctx, pairSymbol)
 	as.NoError(err)
-	ch := sub.Channel()
 
-	as.NoError(suite.client.Publish(context.TODO(), t))
+	as.NoError(suite.client.Publish(ctx, t))
 	select {
 	case recvTick := <-ch:
 		as.Equal(t, recvTick)
 	case <-time.After(1 * time.Second):
 		as.FailNow("Timeout")
 	}
-
-	as.NoError(sub.Close())
 }
 
 func (suite *RedisPubSubSuite) TestOnePubTwoSub() {
 	as := suite.Require()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	pairSymbol := "symbol2"
 	t := tick.Tick{
 		Time:       time.Unix(0, 0).UTC(),
-		PairSymbol: "BTC-USDC",
-		Price:      40000,
+		PairSymbol: pairSymbol,
+		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
 
-	sub1, err := suite.client.Subscribe(context.TODO(), "BTC-USDC")
+	ch1, err := suite.client.Subscribe(ctx, pairSymbol)
 	as.NoError(err)
-	ch1 := sub1.Channel()
 
-	sub2, err := suite.client.Subscribe(context.TODO(), "BTC-USDC")
+	ch2, err := suite.client.Subscribe(ctx, pairSymbol)
 	as.NoError(err)
-	ch2 := sub2.Channel()
 
-	as.NoError(suite.client.Publish(context.TODO(), t))
+	as.NoError(suite.client.Publish(ctx, t))
 
 	for i := 0; i < 2; i++ {
 		select {
@@ -81,34 +86,26 @@ func (suite *RedisPubSubSuite) TestOnePubTwoSub() {
 			as.FailNow("Timeout")
 		}
 	}
-
-	as.NoError(sub1.Close())
-	as.NoError(sub2.Close())
 }
 
 func (suite *RedisPubSubSuite) TestCheckClose() {
 	as := suite.Require()
+
+	pairSymbol := "symbol3"
 	t := tick.Tick{
 		Time:       time.Unix(0, 0).UTC(),
-		PairSymbol: "BTC-USDC",
-		Price:      40000,
+		PairSymbol: pairSymbol,
+		Price:      float64(time.Now().UnixNano()),
 		Exchange:   "exchange",
 	}
 
-	sub, err := suite.client.Subscribe(context.TODO(), "BTC-USDC")
+	ctx, cancel := context.WithCancel(context.Background())
+	ch, err := suite.client.Subscribe(ctx, pairSymbol)
 	as.NoError(err)
-	ch := sub.Channel()
 
-	as.NoError(sub.Close())
+	cancel()
+	as.NoError(suite.client.Publish(context.Background(), t))
 
 	_, open := <-ch
 	suite.False(open)
-
-	ch2 := sub.Channel()
-	_, open = <-ch2
-	suite.False(open)
-
-	as.Error(sub.Close())
-
-	as.NoError(suite.client.Publish(context.TODO(), t))
 }

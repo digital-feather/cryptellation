@@ -20,16 +20,17 @@ func NewGrpcController(application app.Application) GrpcController {
 func (g GrpcController) ListenSymbol(req *ticks.ListenSymbolRequest, srv ticks.TicksService_ListenSymbolServer) error {
 	ctx := srv.Context()
 
-	err := g.application.Commands.RegisterSymbolListener.Handle(ctx, req.Exchange, req.PairSymbol)
-	if err != nil {
-		return err
-	}
-	defer g.application.Commands.UnregisterSymbolListener.Handle(context.Background(), req.Exchange, req.PairSymbol)
-
+	// Start listening before registration to avoid missing ticks
 	ticksChanRecv, err := g.application.Queries.ListenSymbol.Handle(ctx, req.Exchange, req.PairSymbol)
 	if err != nil {
 		return err
 	}
+
+	err = g.application.Commands.RegisterSymbolListener.Handle(ctx, req.Exchange, req.PairSymbol)
+	if err != nil {
+		return err
+	}
+	defer g.application.Commands.UnregisterSymbolListener.Handle(context.Background(), req.Exchange, req.PairSymbol)
 
 	for {
 		// exit if context is done
