@@ -26,7 +26,7 @@ type RedisVdbSuite struct {
 	db *DB
 }
 
-func (suite *RedisVdbSuite) BeforeTest(suiteName, testName string) {
+func (suite *RedisVdbSuite) SetupTest() {
 	db, err := New()
 	suite.Require().NoError(err)
 	suite.db = db
@@ -139,12 +139,15 @@ func (suite *RedisVdbSuite) TestLock() {
 		}), fmt.Sprintf("Lock/Unlock attempt #%d", i+1))
 	}
 
-	go suite.db.LockedBacktest(bt.ID, func() error {
-		bt.Accounts["exchange"].Balances["ETH"] = 2000
-		time.Sleep(200 * time.Millisecond)
-		suite.Require().NoError(suite.db.UpdateBacktest(context.TODO(), bt))
-		return nil
-	})
+	go func() {
+		err := suite.db.LockedBacktest(bt.ID, func() error {
+			bt.Accounts["exchange"].Balances["ETH"] = 2000
+			time.Sleep(200 * time.Millisecond)
+			suite.Require().NoError(suite.db.UpdateBacktest(context.TODO(), bt))
+			return nil
+		})
+		suite.Require().NoError(err)
+	}()
 	time.Sleep(time.Millisecond)
 
 	suite.Require().NoError(suite.db.LockedBacktest(bt.ID, func() error {

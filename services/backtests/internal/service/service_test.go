@@ -33,10 +33,10 @@ type ServiceSuite struct {
 	app       application.Application
 	vdb       vdb.Port
 	client    backtests.BacktestsServiceClient
-	closeTest func()
+	closeTest func() error
 }
 
-func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
+func (suite *ServiceSuite) SetupSuite() {
 	defer tests.TempEnvVar("CRYPTELLATION_BACKTESTS_GRPC_URL", ":9004")()
 
 	a, closeApplication, err := NewMockedApplication()
@@ -44,10 +44,13 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_BACKTESTS_GRPC_URL")
-	go server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		backtests.RegisterBacktestsServiceServer(server, svc)
-	})
+	go func() {
+		err := server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+			svc := controllers.NewGrpcController(a)
+			backtests.RegisterBacktestsServiceServer(server, svc)
+		})
+		suite.NoError(err)
+	}()
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -58,9 +61,10 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.Require().NoError(err)
 	suite.client = client
 
-	suite.closeTest = func() {
-		closeClient()
+	suite.closeTest = func() error {
+		err := closeClient()
 		closeApplication()
+		return err
 	}
 
 	vdb, err := redis.New()
@@ -68,8 +72,9 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.vdb = vdb
 }
 
-func (suite *ServiceSuite) AfterTest(suiteName, testName string) {
-	suite.closeTest()
+func (suite *ServiceSuite) TearDownSuite() {
+	err := suite.closeTest()
+	suite.Require().NoError(err)
 }
 
 func (suite *ServiceSuite) TestCreateBacktest() {
@@ -121,6 +126,7 @@ func (suite *ServiceSuite) TestBacktestSubscribeToEvents() {
 	suite.Require().NoError(err)
 
 	recvBT, err := suite.vdb.ReadBacktest(context.Background(), uint(resp.Id))
+	suite.Require().NoError(err)
 	suite.Require().Len(recvBT.TickSubscribers, 1)
 	suite.Require().Equal("exchange", recvBT.TickSubscribers[0].ExchangeName)
 	suite.Require().Equal("ETH-DAI", recvBT.TickSubscribers[0].PairSymbol)

@@ -32,10 +32,10 @@ type ServiceSuite struct {
 	app       application.Application
 	vdb       vdb.Port
 	client    ticks.TicksServiceClient
-	closeTest func()
+	closeTest func() error
 }
 
-func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
+func (suite *ServiceSuite) SetupTest() {
 	defer tests.TempEnvVar("CRYPTELLATION_TICKS_GRPC_URL", ":9005")()
 
 	a, closeApplication, err := NewMockedApplication()
@@ -43,10 +43,13 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_TICKS_GRPC_URL")
-	go server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		ticks.RegisterTicksServiceServer(server, svc)
-	})
+	go func() {
+		err := server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+			svc := controllers.NewGrpcController(a)
+			ticks.RegisterTicksServiceServer(server, svc)
+		})
+		suite.Require().NoError(err)
+	}()
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -57,9 +60,10 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.Require().NoError(err)
 	suite.client = client
 
-	suite.closeTest = func() {
-		closeClient()
+	suite.closeTest = func() error {
+		err = closeClient()
 		closeApplication()
+		return err
 	}
 
 	vdb, err := redis.New()
@@ -68,7 +72,8 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (suite *ServiceSuite) AfterTest(suiteName, testName string) {
-	suite.closeTest()
+	err := suite.closeTest()
+	suite.NoError(err)
 }
 
 func (suite *ServiceSuite) TestListenSymbol() {

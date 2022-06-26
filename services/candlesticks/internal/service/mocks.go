@@ -35,15 +35,17 @@ func (m *CandlesticksService) Do(ctx context.Context) (*candlestick.List, error)
 		Period:       m.Period(),
 	})
 
-	for i := m.start.Unix(); i < 60*1000; i++ {
+	for i := m.start.Unix(); i < 60*1000; i += 60 {
 		if time.Unix(i, 0).After(m.end) {
 			break
 		}
 
-		cl.Set(time.Unix(i, 0), candlestick.Candlestick{
+		if err := cl.Set(time.Unix(i, 0), candlestick.Candlestick{
 			Open:  float64(i),
 			Close: 1234,
-		})
+		}); err != nil {
+			return nil, err
+		}
 	}
 
 	return cl, nil

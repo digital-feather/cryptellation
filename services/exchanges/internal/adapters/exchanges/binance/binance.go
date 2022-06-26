@@ -9,7 +9,6 @@ import (
 	"github.com/digital-feather/cryptellation/internal/adapters/binance"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/exchanges"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
-	"golang.org/x/xerrors"
 )
 
 type Service struct {
@@ -20,10 +19,11 @@ type Service struct {
 func New() (*Service, error) {
 	var c binance.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading binance config: %w", err)
+		return nil, fmt.Errorf("loading binance config: %w", err)
 	}
 
 	return &Service{
+		config: c,
 		client: client.NewClient(
 			c.ApiKey,
 			c.SecretKey),

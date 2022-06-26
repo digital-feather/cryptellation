@@ -1,10 +1,9 @@
 package period
 
 import (
+	"errors"
 	"testing"
 	"time"
-
-	"golang.org/x/xerrors"
 )
 
 func TestPeriodDuration(t *testing.T) {
@@ -84,7 +83,7 @@ func TestValidateSymbol(t *testing.T) {
 	}
 
 	wrong := Symbol("unknown")
-	if !xerrors.Is(wrong.Validate(), ErrInvalidPeriod) {
+	if !errors.Is(wrong.Validate(), ErrInvalidPeriod) {
 		t.Errorf("Wrong symbol should be %q but is %q", ErrInvalidPeriod, wrong.Validate())
 	}
 }

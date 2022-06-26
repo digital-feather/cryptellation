@@ -2,12 +2,12 @@ package cockroach
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/digital-feather/cryptellation/internal/adapters/cockroachdb"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
-	"golang.org/x/xerrors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,12 +20,12 @@ type DB struct {
 func New() (*DB, error) {
 	var c cockroachdb.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading cockroachdb config: %w", err)
+		return nil, fmt.Errorf("loading cockroachdb config: %w", err)
 	}
 
 	client, err := gorm.Open(postgres.Open(c.URL()), cockroachdb.DefaultGormConfig)
 	if err != nil {
-		return nil, xerrors.Errorf("opening cockroachdb connection: %w", err)
+		return nil, fmt.Errorf("opening cockroachdb connection: %w", err)
 	}
 
 	db := &DB{
@@ -84,7 +84,7 @@ func (d *DB) UpdateCandlesticks(ctx context.Context, cs *candlestick.List) error
 			Updates(ce)
 
 		if tx.Error != nil {
-			return xerrors.Errorf("updating candlestick %q: %w", ce.Time, tx.Error)
+			return fmt.Errorf("updating candlestick %q: %w", ce.Time, tx.Error)
 		} else if tx.RowsAffected == 0 {
 			return db.ErrNotFound
 		}
@@ -98,19 +98,14 @@ func (d *DB) DeleteCandlesticks(ctx context.Context, cs *candlestick.List) error
 	return d.client.WithContext(ctx).Delete(&listCE).Error
 }
 
-func Reset() error {
-	db, err := New()
-	if err != nil {
-		return xerrors.Errorf("creating connection for reset: %w", err)
-	}
-
+func (d *DB) Reset() error {
 	entities := []interface{}{
 		&Candlestick{},
 	}
 
 	for _, entity := range entities {
-		if err := db.client.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(entity).Error; err != nil {
-			return xerrors.Errorf("emptying %T table: %w", entity, err)
+		if err := d.client.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(entity).Error; err != nil {
+			return fmt.Errorf("emptying %T table: %w", entity, err)
 		}
 	}
 

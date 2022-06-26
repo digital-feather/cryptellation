@@ -25,9 +25,10 @@ func (suite *CandlesticksSuite) TestAreMissing() {
 	})
 
 	for i := int64(0); i < 10; i++ {
-		cl.Set(time.Unix(60*i, 0), Candlestick{
+		err := cl.Set(time.Unix(60*i, 0), Candlestick{
 			Open: float64(i),
 		})
+		suite.Require().NoError(err)
 	}
 
 	// When asking if there is missing candlesticks
@@ -50,9 +51,10 @@ func (suite *CandlesticksSuite) TestAreMissingWithOneMissing() {
 			continue
 		}
 
-		cl.Set(time.Unix(60*i, 0), Candlestick{
+		err := cl.Set(time.Unix(60*i, 0), Candlestick{
 			Open: float64(i),
 		})
+		suite.Require().NoError(err)
 	}
 
 	// When asking if there is missing candlesticks
@@ -75,9 +77,10 @@ func (suite *CandlesticksSuite) TestAreMissingWithOneMissingAndLimit() {
 			continue
 		}
 
-		cl.Set(time.Unix(60*i, 0), Candlestick{
+		err := cl.Set(time.Unix(60*i, 0), Candlestick{
 			Open: float64(i),
 		})
+		suite.Require().NoError(err)
 	}
 
 	// When asking if there is missing candlesticks

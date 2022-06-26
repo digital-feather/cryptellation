@@ -64,14 +64,14 @@ func FromModelListToEntityList(list *candlestick.List) []Candlestick {
 }
 
 func FromEntityListToModelList(entities []Candlestick) (*candlestick.List, error) {
-	if entities == nil || len(entities) == 0 {
+	if len(entities) == 0 {
 		return nil, xerrors.New("no entities provided")
 	}
 
 	periodSymbol := entities[0].PeriodSymbol
 	per, err := period.FromString(periodSymbol)
 	if err != nil {
-		return nil, xerrors.Errorf("from candlestick entity to list: %w", err)
+		return nil, fmt.Errorf("from candlestick entity to list: %w", err)
 	}
 
 	list := candlestick.NewList(candlestick.ListID{
@@ -96,7 +96,7 @@ func FromEntityListToModelList(entities []Candlestick) (*candlestick.List, error
 			return nil, xerrors.New(txt)
 		}
 
-		list.Set(e.Time, candlestick.Candlestick{
+		err := list.Set(e.Time, candlestick.Candlestick{
 			Open:       e.Open,
 			High:       e.High,
 			Low:        e.Low,
@@ -104,6 +104,9 @@ func FromEntityListToModelList(entities []Candlestick) (*candlestick.List, error
 			Volume:     e.Volume,
 			Uncomplete: e.Uncomplete,
 		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return list, nil

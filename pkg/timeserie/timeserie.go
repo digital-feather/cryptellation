@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-const (
-	keyFormat = time.RFC3339Nano
-)
-
 var (
 	ErrTimeStampAlreadyExists error = errors.New("timestamp-already-exists")
 )
@@ -157,7 +153,7 @@ func (ts TimeSerie) Last() (time.Time, interface{}, bool) {
 func (ts TimeSerie) Extract(start, end time.Time) *TimeSerie {
 	ets := New()
 
-	ts.Loop(func(t time.Time, obj interface{}) (bool, error) {
+	_ = ts.Loop(func(t time.Time, obj interface{}) (bool, error) {
 		if t.Before(start) {
 			return false, nil
 		}
@@ -181,7 +177,7 @@ func (ts TimeSerie) FirstN(limit uint) *TimeSerie {
 	}
 
 	var count uint
-	ts.Loop(func(t time.Time, obj interface{}) (bool, error) {
+	_ = ts.Loop(func(t time.Time, obj interface{}) (bool, error) {
 		ets.Set(t, obj)
 		count++
 		return count >= limit, nil
