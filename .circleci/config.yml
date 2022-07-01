@@ -1,0 +1,13 @@
+version: 2.1
+jobs:
+  lint:
+    docker:
+      - image: golangci/golangci-lint:latest-alpine
+    steps:
+      - checkout
+      - run: golangci-lint run
+
+workflows:
+  pre-tests:
+    jobs:
+      - lint
