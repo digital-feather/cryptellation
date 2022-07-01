@@ -1,11 +1,12 @@
 package binance
 
 import (
+	"fmt"
+
 	client "github.com/adshao/go-binance/v2"
 	"github.com/digital-feather/cryptellation/internal/adapters/binance"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/exchanges"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
-	"golang.org/x/xerrors"
 )
 
 const Name = "binance"
@@ -18,10 +19,11 @@ type Service struct {
 func New() (*Service, error) {
 	var c binance.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading binance config: %w", err)
+		return nil, fmt.Errorf("loading binance config: %w", err)
 	}
 
 	return &Service{
+		config: c,
 		client: client.NewClient(
 			c.ApiKey,
 			c.SecretKey),

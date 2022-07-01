@@ -2,13 +2,13 @@ package cmdBacktest
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
-	"golang.org/x/xerrors"
 )
 
 type CreateOrderHandler struct {
@@ -53,13 +53,13 @@ func (p CreateOrderPayload) ToOrder() order.Order {
 func (h CreateOrderHandler) Handle(ctx context.Context, payload CreateOrderPayload) error {
 	ord := payload.ToOrder()
 	if err := ord.Validate(); err != nil {
-		return xerrors.Errorf("invalid order: %w", err)
+		return fmt.Errorf("invalid order: %w", err)
 	}
 
 	return h.repository.LockedBacktest(payload.BacktestId, func() error {
 		bt, err := h.repository.ReadBacktest(ctx, payload.BacktestId)
 		if err != nil {
-			return xerrors.Errorf("cannot get backtest: %w", err)
+			return fmt.Errorf("cannot get backtest: %w", err)
 		}
 
 		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticks.ReadCandlesticksRequest{
@@ -71,17 +71,17 @@ func (h CreateOrderHandler) Handle(ctx context.Context, payload CreateOrderPaylo
 			Limit:        0,
 		})
 		if err != nil {
-			return xerrors.Errorf("could not get candlesticks from service: %w", err)
+			return fmt.Errorf("could not get candlesticks from service: %w", err)
 		} else if len(resp.Candlesticks) == 0 {
 			return backtest.ErrNoDataForOrderValidation
 		}
 
-		if err := bt.AddOrder(ord, *resp.Candlesticks[0]); err != nil {
+		if err := bt.AddOrder(ord, resp.Candlesticks[0]); err != nil {
 			return err
 		}
 
 		if err := h.repository.UpdateBacktest(ctx, bt); err != nil {
-			return xerrors.Errorf("cannot update backtest: %w", err)
+			return fmt.Errorf("cannot update backtest: %w", err)
 		}
 
 		return nil

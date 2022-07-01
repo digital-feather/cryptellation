@@ -115,7 +115,7 @@ func (l *List) ReplaceUncomplete(l2 List) error {
 func (l *List) HasUncomplete() bool {
 	hasUncomplete := false
 
-	l.Loop(func(t time.Time, cs Candlestick) (bool, error) {
+	_ = l.Loop(func(t time.Time, cs Candlestick) (bool, error) {
 		if cs.Uncomplete {
 			hasUncomplete = true
 			return true, nil
@@ -178,7 +178,7 @@ func MergeListIntoOneCandlestick(csl *List, per period.Symbol) (time.Time, Candl
 	tsFirst, mcs, _ := csl.First()
 	mts := per.RoundTime(tsFirst)
 
-	csl.Loop(func(t time.Time, cs Candlestick) (bool, error) {
+	_ = csl.Loop(func(t time.Time, cs Candlestick) (bool, error) {
 		if !per.RoundTime(t).Equal(mts) {
 			return true, nil
 		}
@@ -205,7 +205,7 @@ func MergeListIntoOneCandlestick(csl *List, per period.Symbol) (time.Time, Candl
 func (l List) String() string {
 	txt := fmt.Sprintf("# %s\n", l.id.String())
 
-	l.Loop(func(t time.Time, cs Candlestick) (bool, error) {
+	_ = l.Loop(func(t time.Time, cs Candlestick) (bool, error) {
 		uncomplete := ""
 		if cs.Uncomplete {
 			uncomplete = "uncomplete"

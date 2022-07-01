@@ -25,7 +25,7 @@ func RunGRPCServerOnAddr(addr string, registerServer func(server *grpc.Server)) 
 
 	listen, err := net.Listen("tcp", addr)
 	if err != nil {
-		return xerrors.Errorf("grpc listening error: %w", err)
+		return fmt.Errorf("grpc listening error: %w", err)
 	}
 
 	log.Println("Starting: gRPC Listener")

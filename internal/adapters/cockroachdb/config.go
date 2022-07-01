@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 
-	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -60,15 +59,15 @@ func (c Config) URL() string {
 
 func (c Config) Validate() error {
 	if c.User == "" {
-		return xerrors.Errorf("reading user from env (%q): %w", c.User, ErrInvalidConfig)
+		return fmt.Errorf("reading user from env (%q): %w", c.User, ErrInvalidConfig)
 	}
 
 	if c.Host == "" {
-		return xerrors.Errorf("reading host from env (%q): %w", c.Host, ErrInvalidConfig)
+		return fmt.Errorf("reading host from env (%q): %w", c.Host, ErrInvalidConfig)
 	}
 
 	if c.Port == 0 {
-		return xerrors.Errorf("reading port from env (%q): %w", c.Port, ErrInvalidConfig)
+		return fmt.Errorf("reading port from env (%q): %w", c.Port, ErrInvalidConfig)
 	}
 
 	return nil

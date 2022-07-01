@@ -1,12 +1,12 @@
 package event
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/candlestick"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
-	"golang.org/x/xerrors"
 )
 
 func NewTickEvent(t time.Time, content tick.Tick) Event {
@@ -20,11 +20,11 @@ func NewTickEvent(t time.Time, content tick.Tick) Event {
 func TickEventFromCandlestick(
 	exchange, pairSymbol string,
 	currentPriceType candlestick.PriceType,
-	c candlesticks.Candlestick,
+	c *candlesticks.Candlestick,
 ) (Event, error) {
 	t, err := time.Parse(time.RFC3339, c.Time)
 	if err != nil {
-		return Event{}, xerrors.Errorf("error when parsing time from candlestick: %w", err)
+		return Event{}, fmt.Errorf("error when parsing time from candlestick: %w", err)
 	}
 
 	price := candlestick.PriceByType(

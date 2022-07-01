@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/digital-feather/cryptellation/internal/genproto/ticks"
@@ -30,8 +31,19 @@ func (g GrpcController) ListenSymbol(req *ticks.ListenSymbolRequest, srv ticks.T
 	if err != nil {
 		return err
 	}
-	defer g.application.Commands.UnregisterSymbolListener.Handle(context.Background(), req.Exchange, req.PairSymbol)
 
+	loopErr := loopOverNewTicks(ctx, srv, ticksChanRecv)
+	unregisterErr := g.application.Commands.UnregisterSymbolListener.Handle(context.Background(), req.Exchange, req.PairSymbol)
+
+	if loopErr == nil {
+		return unregisterErr
+	}
+
+	log.Println(unregisterErr)
+	return loopErr
+}
+
+func loopOverNewTicks(ctx context.Context, srv ticks.TicksService_ListenSymbolServer, ticksChanRecv <-chan tick.Tick) error {
 	for {
 		// exit if context is done
 		// or continue

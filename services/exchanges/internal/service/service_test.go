@@ -18,6 +18,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+const (
+	testDatabase = "exchanges"
+)
+
 func TestServiceSuite(t *testing.T) {
 	if os.Getenv("COCKROACHDB_HOST") == "" {
 		t.Skip()
@@ -29,12 +33,13 @@ func TestServiceSuite(t *testing.T) {
 type ServiceSuite struct {
 	suite.Suite
 	app       application.Application
+	db        *cockroach.DB
 	client    exchanges.ExchangesServiceClient
-	closeTest func()
+	closeTest func() error
 }
 
-func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
-	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "exchanges")()
+func (suite *ServiceSuite) SetupSuite() {
+	defer tests.TempEnvVar("COCKROACHDB_DATABASE", testDatabase)()
 	defer tests.TempEnvVar("CRYPTELLATION_EXCHANGES_GRPC_URL", ":9003")()
 
 	a, err := newMockApplication()
@@ -42,10 +47,13 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_EXCHANGES_GRPC_URL")
-	go server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		exchanges.RegisterExchangesServiceServer(server, svc)
-	})
+	go func() {
+		err := server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+			svc := controllers.NewGrpcController(a)
+			exchanges.RegisterExchangesServiceServer(server, svc)
+		})
+		suite.Require().NoError(err)
+	}()
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -56,15 +64,24 @@ func (suite *ServiceSuite) BeforeTest(suiteName, testName string) {
 	suite.Require().NoError(err)
 	suite.client = client
 
-	suite.closeTest = func() {
-		closeClient()
+	suite.closeTest = func() error {
+		return closeClient()
 	}
-
-	suite.Require().NoError(cockroach.Reset())
 }
 
-func (suite *ServiceSuite) AfterTest(suiteName, testName string) {
-	suite.closeTest()
+func (suite *ServiceSuite) SetupTest() {
+	defer tests.TempEnvVar("COCKROACHDB_DATABASE", testDatabase)()
+
+	db, err := cockroach.New()
+	suite.Require().NoError(err)
+	suite.Require().NoError(db.Reset())
+
+	suite.db = db
+}
+
+func (suite *ServiceSuite) TearDownSuite() {
+	err := suite.closeTest()
+	suite.Require().NoError(err)
 }
 
 func (suite *ServiceSuite) TestReadExchanges() {

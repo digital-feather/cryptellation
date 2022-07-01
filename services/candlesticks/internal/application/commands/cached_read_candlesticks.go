@@ -34,7 +34,7 @@ func NewCachedReadCandlesticksHandler(
 		panic("nil repository")
 	}
 
-	if services == nil || len(services) == 0 {
+	if len(services) == 0 {
 		panic("nil services")
 	}
 

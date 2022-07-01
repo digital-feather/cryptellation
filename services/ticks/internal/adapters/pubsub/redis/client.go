@@ -10,7 +10,6 @@ import (
 	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
 	"github.com/go-redis/redis/v8"
-	"golang.org/x/xerrors"
 )
 
 const (
@@ -24,7 +23,7 @@ type Client struct {
 func New() (*Client, error) {
 	var c config.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading redis config: %w", err)
+		return nil, fmt.Errorf("loading redis config: %w", err)
 	}
 
 	client := redis.NewClient(&redis.Options{
@@ -62,7 +61,7 @@ func (c *Client) Publish(ctx context.Context, t tick.Tick) error {
 func (c *Client) Subscribe(ctx context.Context, symbol string) (<-chan tick.Tick, error) {
 	ch := make(chan tick.Tick)
 	go c.redisToChannelEvents(ctx, symbol, ch)
-	time.Sleep(time.Millisecond) // Wait 1 millisecond to avoid missing messages
+	time.Sleep(10 * time.Millisecond) // Wait 1 millisecond to avoid missing messages
 	return ch, nil
 }
 

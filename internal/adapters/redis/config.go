@@ -2,9 +2,8 @@ package redis
 
 import (
 	"errors"
+	"fmt"
 	"os"
-
-	"golang.org/x/xerrors"
 )
 
 var (
@@ -25,7 +24,7 @@ func (c *Config) Load() *Config {
 
 func (c Config) Validate() error {
 	if c.Address == "" {
-		return xerrors.Errorf("reading address from env (%q): %w", c.Address, ErrInvalidConfig)
+		return fmt.Errorf("reading address from env (%q): %w", c.Address, ErrInvalidConfig)
 	}
 
 	return nil

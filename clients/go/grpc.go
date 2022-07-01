@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/digital-feather/cryptellation/internal/genproto/backtests"
@@ -9,6 +10,7 @@ import (
 	"github.com/digital-feather/cryptellation/internal/genproto/ticks"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func NewExchangesGrpcClient() (client exchanges.ExchangesServiceClient, close func() error, err error) {
@@ -19,7 +21,7 @@ func NewExchangesGrpcClient() (client exchanges.ExchangesServiceClient, close fu
 
 	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
 	if err != nil {
-		return nil, func() error { return nil }, xerrors.Errorf("dialing exchanges grpc server: %w", err)
+		return nil, func() error { return nil }, fmt.Errorf("dialing exchanges grpc server: %w", err)
 	}
 
 	return exchanges.NewExchangesServiceClient(conn), conn.Close, nil
@@ -33,7 +35,7 @@ func NewCandlesticksGrpcClient() (client candlesticks.CandlesticksServiceClient,
 
 	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
 	if err != nil {
-		return nil, func() error { return nil }, xerrors.Errorf("dialing candlesticks grpc server: %w", err)
+		return nil, func() error { return nil }, fmt.Errorf("dialing candlesticks grpc server: %w", err)
 	}
 
 	return candlesticks.NewCandlesticksServiceClient(conn), conn.Close, nil
@@ -47,7 +49,7 @@ func NewBacktestsGrpcClient() (client backtests.BacktestsServiceClient, close fu
 
 	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
 	if err != nil {
-		return nil, func() error { return nil }, xerrors.Errorf("dialing backtests grpc server: %w", err)
+		return nil, func() error { return nil }, fmt.Errorf("dialing backtests grpc server: %w", err)
 	}
 
 	return backtests.NewBacktestsServiceClient(conn), conn.Close, nil
@@ -61,12 +63,12 @@ func NewTicksGrpcClient() (client ticks.TicksServiceClient, close func() error, 
 
 	conn, err := grpc.Dial(grpcAddr, grpcDialOpts(grpcAddr)...)
 	if err != nil {
-		return nil, func() error { return nil }, xerrors.Errorf("dialing ticks grpc server: %w", err)
+		return nil, func() error { return nil }, fmt.Errorf("dialing ticks grpc server: %w", err)
 	}
 
 	return ticks.NewTicksServiceClient(conn), conn.Close, nil
 }
 
 func grpcDialOpts(grpcAddr string) []grpc.DialOption {
-	return []grpc.DialOption{grpc.WithInsecure()}
+	return []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 }

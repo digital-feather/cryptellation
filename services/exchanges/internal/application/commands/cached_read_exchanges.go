@@ -24,7 +24,7 @@ func NewCachedReadExchangesHandler(
 		panic("nil repository")
 	}
 
-	if services == nil || len(services) == 0 {
+	if len(services) == 0 {
 		panic("nil services")
 	}
 
@@ -41,12 +41,12 @@ func (reh CachedReadExchangesHandler) Handle(
 ) ([]exchange.Exchange, error) {
 	dbExchanges, err := reh.repository.ReadExchanges(ctx, names...)
 	if err != nil {
-		return nil, xerrors.Errorf("handling exchanges from db reading: %w", err)
+		return nil, fmt.Errorf("handling exchanges from db reading: %w", err)
 	}
 
 	toSync, err := exchange.GetExpiredExchangesNames(names, dbExchanges, expirationDuration)
 	if err != nil {
-		return nil, xerrors.Errorf("determining exchanges to synchronize: %w", err)
+		return nil, fmt.Errorf("determining exchanges to synchronize: %w", err)
 	}
 
 	synced, err := reh.getExchangeFromServices(ctx, toSync...)

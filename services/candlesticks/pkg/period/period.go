@@ -2,9 +2,8 @@ package period
 
 import (
 	"errors"
+	"fmt"
 	"time"
-
-	"golang.org/x/xerrors"
 )
 
 var (
@@ -82,7 +81,7 @@ func FromString(symbol string) (Symbol, error) {
 func FromDuration(d time.Duration) (Symbol, error) {
 	s, ok := durationToSymbol[d]
 	if !ok {
-		return "", xerrors.Errorf("getting symbol from duration (%s): %w", d, ErrInvalidPeriod)
+		return "", fmt.Errorf("getting symbol from duration (%s): %w", d, ErrInvalidPeriod)
 	}
 
 	return s, nil
@@ -91,7 +90,7 @@ func FromDuration(d time.Duration) (Symbol, error) {
 func (s Symbol) Validate() error {
 	_, ok := symbolToDuration[s]
 	if !ok {
-		return xerrors.Errorf("parsing period from name (%s): %w", ErrInvalidPeriod)
+		return fmt.Errorf("parsing period from name (%s): %w", s, ErrInvalidPeriod)
 	}
 
 	return nil
@@ -121,7 +120,7 @@ func FromSeconds(i int64) (Symbol, error) {
 		}
 	}
 
-	return Symbol(""), xerrors.Errorf("parsing period from seconds (%s): %w", ErrInvalidPeriod)
+	return Symbol(""), fmt.Errorf("parsing period from seconds (%d): %w", i, ErrInvalidPeriod)
 }
 
 func (s Symbol) CountBetweenTimes(start, end time.Time) int64 {

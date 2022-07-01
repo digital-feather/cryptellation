@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/pubsub"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
-	"golang.org/x/xerrors"
 )
 
 type RegisterSymbolListenerHandler struct {
@@ -57,12 +57,12 @@ func (h RegisterSymbolListenerHandler) Handle(ctx context.Context, exchange, pai
 func (h RegisterSymbolListenerHandler) launchListener(exchange, pairSymbol string) error {
 	exch, exists := h.exchanges[exchange]
 	if !exists {
-		return xerrors.Errorf("exchange %q doesn't exists", exchange)
+		return fmt.Errorf("exchange %q doesn't exists", exchange)
 	}
 
 	ticksChan, stopChan, err := exch.ListenSymbol(pairSymbol)
 	if err != nil {
-		return xerrors.Errorf("listening to symbol: %w", err)
+		return fmt.Errorf("listening to symbol: %w", err)
 	}
 
 	go newListener(newListenerPayload{
@@ -100,7 +100,11 @@ func newListener(payload newListenerPayload) {
 		}
 		lastPrice = t.Price
 
-		payload.ps.Publish(ctx, t)
+		err := payload.ps.Publish(ctx, t)
+		if err != nil {
+			log.Println("Publish error:", err)
+			continue
+		}
 
 		if nextCheckTime.Before(time.Now()) {
 			count, err := payload.db.GetSymbolListenerCount(ctx, payload.exchange, payload.pairSymbol)

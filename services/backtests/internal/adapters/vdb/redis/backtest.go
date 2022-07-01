@@ -3,8 +3,8 @@ package redis
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"log"
 
 	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
@@ -12,7 +12,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
-	"golang.org/x/xerrors"
 )
 
 const (
@@ -37,7 +36,7 @@ type DB struct {
 func New() (*DB, error) {
 	var c config.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading redis config: %w", err)
+		return nil, fmt.Errorf("loading redis config: %w", err)
 	}
 
 	client := redis.NewClient(&redis.Options{
@@ -100,12 +99,15 @@ func (db *DB) LockedBacktest(id uint, fn vdb.LockedBacktestCallback) error {
 
 	var err error
 	defer func() {
-		recover()
+		if r := recover(); r != nil {
+			log.Println("Recovered in f", r)
+		}
+
 		ok, localErr := mutex.Unlock()
 		if localErr != nil {
 			err = localErr
 		} else if !ok {
-			err = errors.New("Unlock failed")
+			err = fmt.Errorf("unlock failed for backtest %d", id)
 		}
 	}()
 

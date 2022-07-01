@@ -10,17 +10,17 @@ import (
 	queriesBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/queries/backtest"
 )
 
-func NewApplication() (app.Application, func(), error) {
+func NewApplication() (app.Application, func() error, error) {
 	client, closeClient, err := client.NewCandlesticksGrpcClient()
 	if err != nil {
-		return app.Application{}, func() {}, err
+		return app.Application{}, func() error { return nil }, err
 	}
 
 	app, closeApp, err := newApplication(client)
 
-	return app, func() {
+	return app, func() error {
 		closeApp()
-		closeClient()
+		return closeClient()
 	}, err
 }
 

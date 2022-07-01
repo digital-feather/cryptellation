@@ -24,14 +24,14 @@ type CockroachDatabaseSuite struct {
 	db *DB
 }
 
-func (suite *CockroachDatabaseSuite) BeforeTest(suiteName, testName string) {
+func (suite *CockroachDatabaseSuite) SetupTest() {
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "exchanges")()
 
 	db, err := New()
 	suite.Require().NoError(err)
-	suite.db = db
+	suite.Require().NoError(db.Reset())
 
-	suite.Require().NoError(Reset())
+	suite.db = db
 }
 
 func (suite *CockroachDatabaseSuite) TestNewWithURIError() {
@@ -221,7 +221,7 @@ func (suite *CockroachDatabaseSuite) TestReset() {
 
 	// When we reset the DB
 	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "exchanges")()
-	as.NoError(Reset())
+	as.NoError(suite.db.Reset())
 
 	// Then there is no exchange left
 	exchanges := []Exchange{}

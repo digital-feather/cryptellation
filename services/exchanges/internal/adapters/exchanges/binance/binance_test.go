@@ -22,7 +22,7 @@ type BinanceSuite struct {
 	service *Service
 }
 
-func (suite *BinanceSuite) BeforeTest(suiteName, testName string) {
+func (suite *BinanceSuite) SetupTest() {
 	service, err := New()
 	suite.Require().NoError(err)
 	suite.service = service

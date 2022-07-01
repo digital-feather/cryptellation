@@ -23,7 +23,7 @@ type RedisVdbSuite struct {
 	db *DB
 }
 
-func (suite *RedisVdbSuite) BeforeTest(suiteName, testName string) {
+func (suite *RedisVdbSuite) SetupTest() {
 	db, err := New()
 	suite.Require().NoError(err)
 	suite.db = db

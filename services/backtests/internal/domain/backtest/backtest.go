@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
@@ -13,7 +14,6 @@ import (
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
-	"golang.org/x/xerrors"
 )
 
 var (
@@ -68,7 +68,7 @@ func (payload NewPayload) Validate() error {
 
 	for exchangeName, a := range payload.Accounts {
 		if exchangeName == "" {
-			return xerrors.Errorf("error with exchange %q in new backtest payload: %w", exchangeName, ErrInvalidExchange)
+			return fmt.Errorf("error with exchange %q in new backtest payload: %w", exchangeName, ErrInvalidExchange)
 		}
 
 		if err := a.Validate(); err != nil {
@@ -91,7 +91,7 @@ func New(ctx context.Context, payload NewPayload) (Backtest, error) {
 
 	per, err := period.FromDuration(*payload.DurationBetweenEvents)
 	if err != nil {
-		return Backtest{}, xerrors.Errorf("invalid duration between events: %w", err)
+		return Backtest{}, fmt.Errorf("invalid duration between events: %w", err)
 	}
 
 	return Backtest{
@@ -163,15 +163,15 @@ func (bt *Backtest) CreateTickSubscription(exchangeName string, pairSymbol strin
 	return s, nil
 }
 
-func (bt *Backtest) AddOrder(ord order.Order, cs candlesticks.Candlestick) error {
+func (bt *Backtest) AddOrder(ord order.Order, cs *candlesticks.Candlestick) error {
 	exchangeAccount, ok := bt.Accounts[ord.ExchangeName]
 	if !ok {
-		return xerrors.Errorf("error with orders exchange %q: %w", ord.ExchangeName, ErrInvalidExchange)
+		return fmt.Errorf("error with orders exchange %q: %w", ord.ExchangeName, ErrInvalidExchange)
 	}
 
 	baseSymbol, quoteSymbol, err := utils.ParsePairSymbol(ord.PairSymbol)
 	if err != nil {
-		return xerrors.Errorf("error when parsing order pair symbol: %w", err)
+		return fmt.Errorf("error when parsing order pair symbol: %w", err)
 	}
 
 	var price float64

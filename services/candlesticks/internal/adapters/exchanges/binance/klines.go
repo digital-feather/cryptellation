@@ -88,8 +88,9 @@ func KLinesToCandlesticks(pair string, period period.Symbol, kl []*binance.Kline
 			return nil, err
 		}
 
-		cs.Set(t, c)
-		// TODO: Log warning in case of failure
+		if err := cs.Set(t, c); err != nil {
+			return nil, err
+		}
 	}
 
 	return cs, nil

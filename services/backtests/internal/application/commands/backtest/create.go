@@ -2,10 +2,10 @@ package cmdBacktest
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
-	"golang.org/x/xerrors"
 )
 
 type CreateHandler struct {
@@ -25,12 +25,12 @@ func NewCreateHandler(repository vdb.Port) CreateHandler {
 func (h CreateHandler) Handle(ctx context.Context, req backtest.NewPayload) (id uint, err error) {
 	bt, err := backtest.New(ctx, req)
 	if err != nil {
-		return 0, xerrors.Errorf("creating a new backtest from request: %w", err)
+		return 0, fmt.Errorf("creating a new backtest from request: %w", err)
 	}
 
 	err = h.repository.CreateBacktest(ctx, &bt)
 	if err != nil {
-		return 0, xerrors.Errorf("adding backtest to vdb: %w", err)
+		return 0, fmt.Errorf("adding backtest to vdb: %w", err)
 	}
 
 	return bt.ID, nil

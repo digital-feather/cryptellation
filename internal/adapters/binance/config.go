@@ -2,9 +2,8 @@ package binance
 
 import (
 	"errors"
+	"fmt"
 	"os"
-
-	"golang.org/x/xerrors"
 )
 
 var (
@@ -25,11 +24,11 @@ func (c *Config) Load() *Config {
 
 func (c Config) Validate() error {
 	if c.ApiKey == "" {
-		return xerrors.Errorf("reading api key from env (%q): %w", c.ApiKey, ErrInvalidConfig)
+		return fmt.Errorf("reading api key from env (%q): %w", c.ApiKey, ErrInvalidConfig)
 	}
 
 	if c.SecretKey == "" {
-		return xerrors.Errorf("reading secret key from env (%q): %w", c.SecretKey, ErrInvalidConfig)
+		return fmt.Errorf("reading secret key from env (%q): %w", c.SecretKey, ErrInvalidConfig)
 	}
 
 	return nil

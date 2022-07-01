@@ -25,7 +25,7 @@ type RedisPubSubSuite struct {
 	client *Client
 }
 
-func (suite *RedisPubSubSuite) BeforeTest(suiteName, testName string) {
+func (suite *RedisPubSubSuite) SetupTest() {
 	client, err := New()
 	suite.Require().NoError(err)
 	suite.client = client

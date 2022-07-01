@@ -2,6 +2,7 @@ package cmdBacktest
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/status"
-	"golang.org/x/xerrors"
 )
 
 type AdvanceHandler struct {
@@ -45,7 +45,7 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) error {
 		// Get backtest info
 		bt, err := h.repository.ReadBacktest(ctx, backtestId)
 		if err != nil {
-			return xerrors.Errorf("cannot get backtest: %w", err)
+			return fmt.Errorf("cannot get backtest: %w", err)
 		}
 
 		// Advance backtest
@@ -55,7 +55,7 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) error {
 		if !finished {
 			evts, err = h.readActualEvents(ctx, bt)
 			if err != nil {
-				return xerrors.Errorf("cannot read actual events: %w", err)
+				return fmt.Errorf("cannot read actual events: %w", err)
 			}
 			if len(evts) == 0 {
 				log.Println("WARNING: no event detected for", bt.CurrentCsTick.Time)
@@ -73,7 +73,7 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) error {
 
 		if len(evts) > 1 {
 			if err := h.repository.UpdateBacktest(ctx, bt); err != nil {
-				return xerrors.Errorf("cannot update backtest: %w", err)
+				return fmt.Errorf("cannot update backtest: %w", err)
 			}
 		}
 
@@ -93,16 +93,16 @@ func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backte
 			Limit:        1,
 		})
 		if err != nil {
-			return nil, xerrors.Errorf("could not get candlesticks from service: %w", err)
+			return nil, fmt.Errorf("could not get candlesticks from service: %w", err)
 		}
 
 		if len(resp.Candlesticks) == 0 {
 			continue
 		}
 
-		evt, err := event.TickEventFromCandlestick(sub.ExchangeName, sub.PairSymbol, bt.CurrentCsTick.PriceType, *resp.Candlesticks[0])
+		evt, err := event.TickEventFromCandlestick(sub.ExchangeName, sub.PairSymbol, bt.CurrentCsTick.PriceType, resp.Candlesticks[0])
 		if err != nil {
-			return nil, xerrors.Errorf("turning candlestick into event: %w", err)
+			return nil, fmt.Errorf("turning candlestick into event: %w", err)
 		}
 		evts = append(evts, evt)
 	}

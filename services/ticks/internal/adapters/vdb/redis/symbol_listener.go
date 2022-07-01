@@ -6,24 +6,14 @@ import (
 	"strconv"
 
 	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
-	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
-	"golang.org/x/xerrors"
 )
 
 const (
 	redisKeySymbolListenerPrefix = "ticks-listeners-count"
 	redisKeySymbolListener       = redisKeySymbolListenerPrefix + "-%s-%s"
-)
-
-var (
-	lockOptions = []redsync.Option{
-		redsync.WithExpiry(vdb.Expiration),
-		redsync.WithRetryDelay(vdb.RetryDelay),
-		redsync.WithTries(vdb.Tries),
-	}
 )
 
 type DB struct {
@@ -34,7 +24,7 @@ type DB struct {
 func New() (*DB, error) {
 	var c config.Config
 	if err := c.Load().Validate(); err != nil {
-		return nil, xerrors.Errorf("loading redis config: %w", err)
+		return nil, fmt.Errorf("loading redis config: %w", err)
 	}
 
 	client := redis.NewClient(&redis.Options{

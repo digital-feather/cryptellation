@@ -48,7 +48,8 @@ func (suite *CandlestickListSuite) TestMergeTimeSeries() {
 	ts.Set(time.Unix(0, 0), cs)
 	suite.Require().Equal(1, ts.Len())
 
-	l.MergeTimeSeries(*ts, nil)
+	err := l.MergeTimeSeries(*ts, nil)
+	suite.Require().NoError(err)
 	suite.Require().Equal(1, l.Len())
 	cs2, exists := l.Get(time.Unix(0, 0))
 	suite.Require().True(exists)
@@ -87,10 +88,12 @@ func (suite *CandlestickListSuite) TestMerge() {
 		Low:   0.5,
 		Close: 1.5,
 	}
-	recvCSList.Set(time.Unix(0, 0), cs)
+	err := recvCSList.Set(time.Unix(0, 0), cs)
+	suite.Require().NoError(err)
 	suite.Require().Equal(1, recvCSList.Len())
 
-	l.Merge(*recvCSList, nil)
+	err = l.Merge(*recvCSList, nil)
+	suite.Require().NoError(err)
 	suite.Require().Equal(1, l.Len())
 	cs2, exists := l.Get(time.Unix(0, 0))
 	suite.Require().True(exists)
@@ -109,7 +112,8 @@ func (suite *CandlestickListSuite) TestDelete() {
 		Low:   0.5,
 		Close: 1.5,
 	}
-	l.Set(time.Unix(0, 0), cs)
+	err := l.Set(time.Unix(0, 0), cs)
+	suite.Require().NoError(err)
 	suite.Require().Equal(1, l.Len())
 
 	l.Delete(time.Unix(0, 0))
@@ -260,7 +264,9 @@ func (suite *CandlestickListSuite) TestExtract() {
 			Low:   0,
 			Close: 0,
 		}
-		l.Set(time.Unix(60*i, 0), cs)
+
+		err := l.Set(time.Unix(60*i, 0), cs)
+		suite.Require().NoError(err)
 	}
 
 	nl := l.Extract(time.Unix(60, 0), time.Unix(120, 0), 0)
@@ -292,7 +298,9 @@ func (suite *CandlestickListSuite) TestFirstN() {
 			Low:   0,
 			Close: 0,
 		}
-		l.Set(time.Unix(60*i, 0), cs)
+
+		err := l.Set(time.Unix(60*i, 0), cs)
+		suite.Require().NoError(err)
 	}
 
 	nl := l.FirstN(2)
