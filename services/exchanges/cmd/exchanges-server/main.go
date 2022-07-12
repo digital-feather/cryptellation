@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/digital-feather/cryptellation/internal/genproto/exchanges"
-	"github.com/digital-feather/cryptellation/internal/server"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/exchanges"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/service"
 	"google.golang.org/grpc"
@@ -18,7 +18,7 @@ func run() int {
 		return 255
 	}
 
-	err = server.RunGRPCServer(func(server *grpc.Server) {
+	err = grpcUtils.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(application)
 		exchanges.RegisterExchangesServiceServer(server, svc)
 	})

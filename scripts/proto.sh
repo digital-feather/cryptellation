@@ -3,7 +3,7 @@ set -e
 
 function generate_golang {
   local readonly SERVICE_NAME=$1
-  local readonly OUTPUT_DIR=internal/genproto/$SERVICE_NAME
+  local readonly OUTPUT_DIR=internal/controllers/grpc/genproto/$SERVICE_NAME
 
   mkdir -p $OUTPUT_DIR
 
@@ -19,7 +19,7 @@ function generate_golang {
 
 function generate_python {
   local readonly SERVICE_NAME=$1
-  local readonly OUTPUT_DIR=clients/python/cryptellation/genproto
+  local readonly OUTPUT_DIR=clients/python/cryptellation/_genproto
 
   mkdir -p $OUTPUT_DIR
 
@@ -30,7 +30,7 @@ function generate_python {
     --grpc_python_out=$OUTPUT_DIR \
     "api/protobuf/$SERVICE_NAME.proto"
 
-    sed -i 's/^import .*_pb2 as/from . \0/' clients/python/cryptellation/services/genproto/*pb2_grpc.py
+    sed -i 's/^import .*_pb2 as/from . \0/' clients/python/cryptellation/_genproto/*pb2_grpc.py
 }
 
 for SERVICE_NAME in "$@"; do
