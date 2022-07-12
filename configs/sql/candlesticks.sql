@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS candlesticks;
 
-CREATE TABLE IF NOT EXISTS candlesticks
+CREATE TABLE IF NOT EXISTS candlesticks.candlesticks
 (
     exchange_name TEXT NOT NULL,
     pair_symbol TEXT NOT NULL,
@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS candlesticks
     volume NUMERIC NOT NULL,
     uncomplete BOOLEAN NOT NULL,
     PRIMARY KEY (exchange_name, pair_symbol, period_symbol, time)
-)
+);

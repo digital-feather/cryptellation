@@ -2,6 +2,6 @@
 
 set -eo pipefail
 
-/docker/setup-db.sh
+/docker/wait-required-services.sh
 
 reflex -s -r '(\.go$|go\.mod)' -- $@

@@ -10,16 +10,10 @@ if [ ! -z ${COCKROACHDB_HOST+x} ]; then
   export PGUSER=$COCKROACHDB_USER
   export PGDATABASE=defaultdb
 
-  until psql -c '\q'; do
-    >&2 echo "CockroachDB is unavailable - sleeping"
+  until psql -c '\q' &> /dev/null; do
+    echo "CockroachDB is unavailable - sleeping"
     sleep 1
   done
 
-  for f in configs/sql/*.sql; do
-    filename=$(basename -- "$f")
-    export PGDATABASE="${filename%.*}"
 
-    echo "# Loading '$PGDATABASE' database from $f..."
-    PGOPTIONS='--client-min-messages=error' psql -f $f
-  done
 fi
