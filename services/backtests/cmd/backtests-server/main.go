@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/digital-feather/cryptellation/internal/genproto/backtests"
-	"github.com/digital-feather/cryptellation/internal/server"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/backtests"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/service"
 	"google.golang.org/grpc"
@@ -23,7 +23,7 @@ func run() int {
 		}
 	}()
 
-	err = server.RunGRPCServer(func(server *grpc.Server) {
+	err = grpcUtils.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(application)
 		backtests.RegisterBacktestsServiceServer(server, svc)
 	})

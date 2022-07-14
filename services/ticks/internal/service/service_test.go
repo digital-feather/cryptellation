@@ -8,8 +8,8 @@ import (
 	"time"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	"github.com/digital-feather/cryptellation/internal/genproto/ticks"
-	"github.com/digital-feather/cryptellation/internal/server"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/ticks"
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb/redis"
@@ -44,7 +44,7 @@ func (suite *ServiceSuite) SetupTest() {
 
 	rpcUrl := os.Getenv("CRYPTELLATION_TICKS_GRPC_URL")
 	go func() {
-		err := server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 			svc := controllers.NewGrpcController(a)
 			ticks.RegisterTicksServiceServer(server, svc)
 		})

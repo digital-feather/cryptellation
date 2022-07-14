@@ -15,6 +15,8 @@ services:
                 hard: 65536
         command: start-single-node --insecure
         restart: unless-stopped
+        volumes:
+            - ../../configs/sql:/docker-entrypoint-initdb.d
     redis:
         container_name: cryptellation-tests-redis
         image: redis:alpine
@@ -24,17 +26,17 @@ services:
     tests:
         container_name: cryptellation-tests
         build:
-            context: ..
+            context: ../..
             dockerfile: build/dev/Dockerfile
         depends_on:
             - cockroachdb
             - redis
         image: cryptellation-testing
         env_file:
-            - ../configs/env/.env
+            - ../../configs/env/.env
         volumes:
-            - ..:/code
-        command: [ "go", "test", "-p", "1", "-timeout=10s", "-coverprofile=/dev/null", "./..." ]
+            - ../..:/code
+        entrypoint: /code/tests/integration/entrypoint.sh
         networks:
             - cryptellation-tests-network
 

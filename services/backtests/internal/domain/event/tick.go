@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/candlestick"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
 )

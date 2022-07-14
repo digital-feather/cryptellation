@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/digital-feather/cryptellation/internal/genproto/ticks"
-	"github.com/digital-feather/cryptellation/internal/server"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/ticks"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/service"
 	"google.golang.org/grpc"
@@ -19,7 +19,7 @@ func run() int {
 	}
 	defer closeFunc()
 
-	err = server.RunGRPCServer(func(server *grpc.Server) {
+	err = grpcUtils.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(application)
 		ticks.RegisterTicksServiceServer(server, svc)
 	})

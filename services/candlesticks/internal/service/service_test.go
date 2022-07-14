@@ -8,8 +8,8 @@ import (
 	"time"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	"github.com/digital-feather/cryptellation/internal/genproto/candlesticks"
-	"github.com/digital-feather/cryptellation/internal/server"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db/cockroach"
@@ -51,7 +51,7 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	rpcUrl := os.Getenv("CRYPTELLATION_CANDLESTICKS_GRPC_URL")
 	go func() {
-		err := server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 			svc := controllers.NewGrpcController(a)
 			candlesticks.RegisterCandlesticksServiceServer(server, svc)
 		})

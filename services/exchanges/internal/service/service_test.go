@@ -8,8 +8,8 @@ import (
 	"time"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	"github.com/digital-feather/cryptellation/internal/genproto/exchanges"
-	"github.com/digital-feather/cryptellation/internal/server"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/exchanges"
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db/cockroach"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/application"
@@ -48,7 +48,7 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	rpcUrl := os.Getenv("CRYPTELLATION_EXCHANGES_GRPC_URL")
 	go func() {
-		err := server.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 			svc := controllers.NewGrpcController(a)
 			exchanges.RegisterExchangesServiceServer(server, svc)
 		})
