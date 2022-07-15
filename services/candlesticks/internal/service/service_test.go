@@ -13,7 +13,6 @@ import (
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db/cockroach"
-	"github.com/digital-feather/cryptellation/services/candlesticks/internal/application"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
@@ -35,7 +34,6 @@ func TestServiceSuite(t *testing.T) {
 
 type ServiceSuite struct {
 	suite.Suite
-	app       application.Application
 	db        db.Port
 	client    candlesticks.CandlesticksServiceClient
 	closeTest func() error
@@ -47,16 +45,13 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	a, err := newMockApplication()
 	suite.Require().NoError(err)
-	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_CANDLESTICKS_GRPC_URL")
-	go func() {
-		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-			svc := controllers.NewGrpcController(a)
-			candlesticks.RegisterCandlesticksServiceServer(server, svc)
-		})
-		suite.Require().NoError(err)
-	}()
+	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		svc := controllers.NewGrpcController(a)
+		candlesticks.RegisterCandlesticksServiceServer(server, svc)
+	})
+	suite.Require().NoError(err)
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -68,6 +63,7 @@ func (suite *ServiceSuite) SetupSuite() {
 	suite.client = client
 
 	suite.closeTest = func() error {
+		go grpcServer.Stop() // TODO: remove goroutine
 		return closeClient()
 	}
 }

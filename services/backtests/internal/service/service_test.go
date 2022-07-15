@@ -13,7 +13,6 @@ import (
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb/redis"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/application"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"github.com/stretchr/testify/suite"
@@ -30,7 +29,6 @@ func TestServiceSuite(t *testing.T) {
 
 type ServiceSuite struct {
 	suite.Suite
-	app       application.Application
 	vdb       vdb.Port
 	client    backtests.BacktestsServiceClient
 	closeTest func() error
@@ -41,16 +39,13 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	a, closeApplication, err := NewMockedApplication()
 	suite.Require().NoError(err)
-	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_BACKTESTS_GRPC_URL")
-	go func() {
-		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-			svc := controllers.NewGrpcController(a)
-			backtests.RegisterBacktestsServiceServer(server, svc)
-		})
-		suite.NoError(err)
-	}()
+	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		svc := controllers.NewGrpcController(a)
+		backtests.RegisterBacktestsServiceServer(server, svc)
+	})
+	suite.NoError(err)
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -63,6 +58,7 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	suite.closeTest = func() error {
 		err := closeClient()
+		go grpcServer.Stop() // TODO: remove goroutine
 		closeApplication()
 		return err
 	}

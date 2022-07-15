@@ -12,6 +12,9 @@ services:
               soft: 65536
               hard: 65536
       command: start-single-node --insecure
+      restart: unless-stopped
+      volumes:
+          - ./configs/sql:/docker-entrypoint-initdb.d
   redis:
       image: redis:alpine
       hostname: redis

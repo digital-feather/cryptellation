@@ -13,7 +13,6 @@ import (
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb/redis"
-	"github.com/digital-feather/cryptellation/services/ticks/internal/application"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -29,7 +28,6 @@ func TestServiceSuite(t *testing.T) {
 
 type ServiceSuite struct {
 	suite.Suite
-	app       application.Application
 	vdb       vdb.Port
 	client    ticks.TicksServiceClient
 	closeTest func() error
@@ -40,16 +38,13 @@ func (suite *ServiceSuite) SetupTest() {
 
 	a, closeApplication, err := NewMockedApplication()
 	suite.Require().NoError(err)
-	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_TICKS_GRPC_URL")
-	go func() {
-		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-			svc := controllers.NewGrpcController(a)
-			ticks.RegisterTicksServiceServer(server, svc)
-		})
-		suite.Require().NoError(err)
-	}()
+	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		svc := controllers.NewGrpcController(a)
+		ticks.RegisterTicksServiceServer(server, svc)
+	})
+	suite.Require().NoError(err)
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -62,6 +57,7 @@ func (suite *ServiceSuite) SetupTest() {
 
 	suite.closeTest = func() error {
 		err = closeClient()
+		go grpcServer.Stop() // TODO: remove goroutine
 		closeApplication()
 		return err
 	}
