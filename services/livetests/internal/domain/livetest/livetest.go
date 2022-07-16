@@ -7,15 +7,18 @@ import (
 	"fmt"
 
 	"github.com/digital-feather/cryptellation/services/livetests/internal/domain/account"
+	"github.com/digital-feather/cryptellation/services/livetests/internal/domain/event"
 )
 
 var (
-	ErrInvalidExchange = errors.New("invalid-exchange")
+	ErrTickSubscriptionAlreadyExists = errors.New("tick-subscription-already-exists")
+	ErrInvalidExchange               = errors.New("invalid-exchange")
 )
 
 type Livetest struct {
-	ID       uint
-	Accounts map[string]account.Account
+	ID              uint
+	Accounts        map[string]account.Account
+	TickSubscribers []event.Subscription
 }
 
 type NewPayload struct {
@@ -46,7 +49,8 @@ func New(ctx context.Context, payload NewPayload) (Livetest, error) {
 	}
 
 	return Livetest{
-		Accounts: payload.Accounts,
+		Accounts:        payload.Accounts,
+		TickSubscribers: make([]event.Subscription, 0),
 	}, nil
 }
 
@@ -56,4 +60,21 @@ func (bt Livetest) MarshalBinary() ([]byte, error) {
 
 func (bt *Livetest) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, bt)
+}
+
+func (bt *Livetest) CreateTickSubscription(exchangeName string, pairSymbol string) (event.Subscription, error) {
+	for _, ts := range bt.TickSubscribers {
+		if ts.ExchangeName == exchangeName && ts.PairSymbol == pairSymbol {
+			return event.Subscription{}, ErrTickSubscriptionAlreadyExists
+		}
+	}
+
+	s := event.Subscription{
+		ID:           len(bt.TickSubscribers),
+		ExchangeName: exchangeName,
+		PairSymbol:   pairSymbol,
+	}
+	bt.TickSubscribers = append(bt.TickSubscribers, s)
+
+	return s, nil
 }

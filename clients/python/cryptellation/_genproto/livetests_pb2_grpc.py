@@ -19,12 +19,23 @@ class LivetestsServiceStub(object):
                 request_serializer=livetests__pb2.CreateLivetestRequest.SerializeToString,
                 response_deserializer=livetests__pb2.CreateLivetestResponse.FromString,
                 )
+        self.SubscribeToLivetestEvents = channel.unary_unary(
+                '/livetests.LivetestsService/SubscribeToLivetestEvents',
+                request_serializer=livetests__pb2.SubscribeToLivetestEventsRequest.SerializeToString,
+                response_deserializer=livetests__pb2.SubscribeToLivetestEventsResponse.FromString,
+                )
 
 
 class LivetestsServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def CreateLivetest(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeToLivetestEvents(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +48,11 @@ def add_LivetestsServiceServicer_to_server(servicer, server):
                     servicer.CreateLivetest,
                     request_deserializer=livetests__pb2.CreateLivetestRequest.FromString,
                     response_serializer=livetests__pb2.CreateLivetestResponse.SerializeToString,
+            ),
+            'SubscribeToLivetestEvents': grpc.unary_unary_rpc_method_handler(
+                    servicer.SubscribeToLivetestEvents,
+                    request_deserializer=livetests__pb2.SubscribeToLivetestEventsRequest.FromString,
+                    response_serializer=livetests__pb2.SubscribeToLivetestEventsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +78,22 @@ class LivetestsService(object):
         return grpc.experimental.unary_unary(request, target, '/livetests.LivetestsService/CreateLivetest',
             livetests__pb2.CreateLivetestRequest.SerializeToString,
             livetests__pb2.CreateLivetestResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubscribeToLivetestEvents(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/livetests.LivetestsService/SubscribeToLivetestEvents',
+            livetests__pb2.SubscribeToLivetestEventsRequest.SerializeToString,
+            livetests__pb2.SubscribeToLivetestEventsResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

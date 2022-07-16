@@ -6,6 +6,7 @@ package livetests;
 
 service LivetestsService {
     rpc CreateLivetest(CreateLivetestRequest) returns (CreateLivetestResponse) {}
+    rpc SubscribeToLivetestEvents(SubscribeToLivetestEventsRequest) returns (SubscribeToLivetestEventsResponse){}
 }
 
 message Account {
@@ -18,4 +19,13 @@ message CreateLivetestRequest {
 
 message CreateLivetestResponse {
     uint64 id = 1;
+}
+
+message SubscribeToLivetestEventsRequest {
+    uint64 id = 1;
+    string exchange_name = 2;
+    string pair_symbol = 3;
+}
+
+message SubscribeToLivetestEventsResponse{
 }

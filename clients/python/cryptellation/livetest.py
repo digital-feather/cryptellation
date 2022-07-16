@@ -28,5 +28,14 @@ class Livetest(object):
             )
         ).id
 
+    def subscribe(self, exchange_name, pair_symbol):
+        self._stub.SubscribeToLivetestEvents(
+            livetests.SubscribeToLivetestEventsRequest(
+                id=self._id,
+                exchange_name=exchange_name,
+                pair_symbol=pair_symbol,
+            )
+        )
+
 if __name__ == "__main__":
     t = Livetest()

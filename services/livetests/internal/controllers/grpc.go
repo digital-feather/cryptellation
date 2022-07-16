@@ -50,3 +50,8 @@ func fromCreateLivetestRequest(req *livetests.CreateLivetestRequest) (livetest.N
 		Accounts: acc,
 	}, nil
 }
+
+func (g GrpcController) SubscribeToLivetestEvents(ctx context.Context, req *livetests.SubscribeToLivetestEventsRequest) (*livetests.SubscribeToLivetestEventsResponse, error) {
+	err := g.application.Commands.Livetest.SubscribeToEvents.Handle(ctx, uint(req.Id), req.ExchangeName, req.PairSymbol)
+	return &livetests.SubscribeToLivetestEventsResponse{}, err
+}

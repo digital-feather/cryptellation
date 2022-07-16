@@ -10,7 +10,8 @@ type Application struct {
 }
 
 type LivetestCommands struct {
-	Create cmdLivetest.CreateHandler
+	Create            cmdLivetest.CreateHandler
+	SubscribeToEvents cmdLivetest.SubscribeToEventsHandler
 }
 
 type Commands struct {

@@ -91,3 +91,31 @@ func (suite *ServiceSuite) TestCreateLivetest() {
 	suite.Require().Len(recvBT.Accounts["exchange"].Balances, 1)
 	suite.Require().Equal(1000.0, recvBT.Accounts["exchange"].Balances["DAI"])
 }
+
+func (suite *ServiceSuite) TestLivetestSubscribeToEvents() {
+	req := livetests.CreateLivetestRequest{
+		Accounts: map[string]*livetests.Account{
+			"exchange": {
+				Assets: map[string]float32{
+					"DAI": 1000,
+				},
+			},
+		},
+	}
+
+	resp, err := suite.client.CreateLivetest(context.Background(), &req)
+	suite.Require().NoError(err)
+
+	_, err = suite.client.SubscribeToLivetestEvents(context.Background(), &livetests.SubscribeToLivetestEventsRequest{
+		Id:           resp.Id,
+		ExchangeName: "exchange",
+		PairSymbol:   "ETH-DAI",
+	})
+	suite.Require().NoError(err)
+
+	recvBT, err := suite.vdb.ReadLivetest(context.Background(), uint(resp.Id))
+	suite.Require().NoError(err)
+	suite.Require().Len(recvBT.TickSubscribers, 1)
+	suite.Require().Equal("exchange", recvBT.TickSubscribers[0].ExchangeName)
+	suite.Require().Equal("ETH-DAI", recvBT.TickSubscribers[0].PairSymbol)
+}

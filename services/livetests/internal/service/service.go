@@ -26,7 +26,8 @@ func newApplication() (app.Application, func(), error) {
 	return app.Application{
 		Commands: app.Commands{
 			Livetest: app.LivetestCommands{
-				Create: cmdLivetest.NewCreateHandler(repository),
+				Create:            cmdLivetest.NewCreateHandler(repository),
+				SubscribeToEvents: cmdLivetest.NewSubscribeToEventsHandler(repository),
 			},
 		},
 		Queries: app.Queries{
