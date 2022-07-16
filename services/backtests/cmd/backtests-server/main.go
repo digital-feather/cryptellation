@@ -2,36 +2,61 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
 	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/backtests"
+	"github.com/digital-feather/cryptellation/internal/controllers/http/health"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/service"
 	"google.golang.org/grpc"
 )
 
 func run() int {
-	application, closeFunc, err := service.NewApplication()
+	// Init health server
+	h := health.New()
+	go h.Serve()
+
+	// Listen interruptions
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	// Init application
+	app, closeApp, err := service.NewApplication()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", fmt.Errorf("creating application: %w", err))
 		return 255
 	}
-	defer func() {
-		if err := closeFunc(); err != nil {
-			fmt.Fprintf(os.Stderr, "An error occured when %+v\n", fmt.Errorf("closing application: %w", err))
-		}
-	}()
+	defer closeApp()
 
-	err = grpcUtils.RunGRPCServer(func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(application)
+	// Init grpc server
+	srv, err := grpcUtils.RunGRPCServer(func(server *grpc.Server) {
+		svc := controllers.NewGrpcController(app)
 		backtests.RegisterBacktestsServiceServer(server, svc)
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", fmt.Errorf("running application: %w", err))
 		return 255
 	}
+	defer srv.GracefulStop()
 
+	// Service marked as ready
+	log.Println("Service is ready")
+	h.Ready(true)
+
+	// Wait for interrupt
+	killSignal := <-interrupt
+	switch killSignal {
+	case os.Interrupt:
+		log.Print("Got SIGINT...")
+	case syscall.SIGTERM:
+		log.Print("Got SIGTERM...")
+	}
+
+	log.Print("service is shutting down...")
 	return 0
 }
 

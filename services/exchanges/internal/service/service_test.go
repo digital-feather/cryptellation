@@ -12,7 +12,6 @@ import (
 	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/exchanges"
 	"github.com/digital-feather/cryptellation/internal/tests"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db/cockroach"
-	"github.com/digital-feather/cryptellation/services/exchanges/internal/application"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/controllers"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -32,7 +31,6 @@ func TestServiceSuite(t *testing.T) {
 
 type ServiceSuite struct {
 	suite.Suite
-	app       application.Application
 	db        *cockroach.DB
 	client    exchanges.ExchangesServiceClient
 	closeTest func() error
@@ -44,16 +42,13 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	a, err := newMockApplication()
 	suite.Require().NoError(err)
-	suite.app = a
 
 	rpcUrl := os.Getenv("CRYPTELLATION_EXCHANGES_GRPC_URL")
-	go func() {
-		err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-			svc := controllers.NewGrpcController(a)
-			exchanges.RegisterExchangesServiceServer(server, svc)
-		})
-		suite.Require().NoError(err)
-	}()
+	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
+		svc := controllers.NewGrpcController(a)
+		exchanges.RegisterExchangesServiceServer(server, svc)
+	})
+	suite.Require().NoError(err)
 
 	ok := tests.WaitForPort(rpcUrl)
 	if !ok {
@@ -65,6 +60,7 @@ func (suite *ServiceSuite) SetupSuite() {
 	suite.client = client
 
 	suite.closeTest = func() error {
+		go grpcServer.Stop() // TODO: remove goroutine
 		return closeClient()
 	}
 }

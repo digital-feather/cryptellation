@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+
 	client "github.com/digital-feather/cryptellation/clients/go"
 	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
 	pubsubRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub/redis"
@@ -10,17 +12,19 @@ import (
 	queriesBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/queries/backtest"
 )
 
-func NewApplication() (app.Application, func() error, error) {
-	client, closeClient, err := client.NewCandlesticksGrpcClient()
+func NewApplication() (app.Application, func(), error) {
+	csClient, closeCsClient, err := client.NewCandlesticksGrpcClient()
 	if err != nil {
-		return app.Application{}, func() error { return nil }, err
+		return app.Application{}, func() {}, err
 	}
 
-	app, closeApp, err := newApplication(client)
+	app, closeApp, err := newApplication(csClient)
 
-	return app, func() error {
+	return app, func() {
 		closeApp()
-		return closeClient()
+		if err := closeCsClient(); err != nil {
+			log.Println("error when closing candlestick client:", err)
+		}
 	}, err
 }
 
