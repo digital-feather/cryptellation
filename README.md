@@ -1,5 +1,3 @@
 # Cryptellation
 
-Cryptellation is a scalable cryptocurrency trading system.
-
-> TODO
+Cryptellation is a scalable cryptocurrency investment system.
