@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "/pkg/genproto/livetests";
+
+package livetests;
+
+service LivetestsService {
+    rpc CreateLivetest(CreateLivetestRequest) returns (CreateLivetestResponse) {}
+}
+
+message Account {
+    map<string, float> assets = 1;
+}
+
+message CreateLivetestRequest {
+    map<string, Account> accounts = 1;
+}
+
+message CreateLivetestResponse {
+    uint64 id = 1;
+}

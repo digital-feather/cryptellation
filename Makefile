@@ -31,11 +31,11 @@ proto: proto/golang proto/python ## Generate protobuf server/clients code
 
 proto/golang:
 	@echo -e "\e[94m[Generating Golang protobuf code]\e[0m"
-	@./scripts/proto/golang.sh backtests candlesticks exchanges ticks
+	@./scripts/proto/golang.sh backtests candlesticks exchanges livetests ticks
 
 proto/python:
 	@echo -e "\e[94m[Generating Python protobuf code]\e[0m"
-	@./scripts/proto/python.sh backtests candlesticks exchanges ticks
+	@./scripts/proto/python.sh backtests candlesticks exchanges livetests ticks
 
 lint: lint/golang ## Lint the server and clients code
 

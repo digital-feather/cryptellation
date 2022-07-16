@@ -99,5 +99,24 @@ services:
     networks:
       - cryptellation-network
     command: [ "go", "run", "./services/ticks/cmd/ticks-server/main.go" ]
+  livetests:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - .:/code
+      - /root/.cache/go-build
+    working_dir: /code
+    ports:
+      - 127.0.0.1:9006:9006
+    env_file:
+      - configs/env/.env
+    environment:
+      - SERVICE_PORT=9006
+    depends_on:
+      - redis
+    networks:
+      - cryptellation-network
+    command: [ "go", "run", "./services/livetests/cmd/livetests-server/main.go" ]
 networks:
     cryptellation-network:
