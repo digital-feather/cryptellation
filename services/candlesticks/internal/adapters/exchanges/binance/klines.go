@@ -5,7 +5,7 @@ import (
 	"time"
 
 	binance "github.com/adshao/go-binance/v2"
-	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
 )
 

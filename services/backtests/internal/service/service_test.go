@@ -8,13 +8,13 @@ import (
 	"time"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/backtests"
-	"github.com/digital-feather/cryptellation/internal/tests"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/backtests"
+	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb/redis"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 )

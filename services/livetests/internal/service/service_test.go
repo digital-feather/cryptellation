@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/livetests"
-	"github.com/digital-feather/cryptellation/internal/tests"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/livetests"
+	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/adapters/vdb/redis"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers"

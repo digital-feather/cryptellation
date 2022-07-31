@@ -24,6 +24,11 @@ class LivetestsServiceStub(object):
                 request_serializer=livetests__pb2.SubscribeToLivetestEventsRequest.SerializeToString,
                 response_deserializer=livetests__pb2.SubscribeToLivetestEventsResponse.FromString,
                 )
+        self.ListenLivetest = channel.stream_stream(
+                '/livetests.LivetestsService/ListenLivetest',
+                request_serializer=livetests__pb2.LivetestEventRequest.SerializeToString,
+                response_deserializer=livetests__pb2.LivetestEventResponse.FromString,
+                )
 
 
 class LivetestsServiceServicer(object):
@@ -41,6 +46,12 @@ class LivetestsServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListenLivetest(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LivetestsServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -53,6 +64,11 @@ def add_LivetestsServiceServicer_to_server(servicer, server):
                     servicer.SubscribeToLivetestEvents,
                     request_deserializer=livetests__pb2.SubscribeToLivetestEventsRequest.FromString,
                     response_serializer=livetests__pb2.SubscribeToLivetestEventsResponse.SerializeToString,
+            ),
+            'ListenLivetest': grpc.stream_stream_rpc_method_handler(
+                    servicer.ListenLivetest,
+                    request_deserializer=livetests__pb2.LivetestEventRequest.FromString,
+                    response_serializer=livetests__pb2.LivetestEventResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,5 +111,22 @@ class LivetestsService(object):
         return grpc.experimental.unary_unary(request, target, '/livetests.LivetestsService/SubscribeToLivetestEvents',
             livetests__pb2.SubscribeToLivetestEventsRequest.SerializeToString,
             livetests__pb2.SubscribeToLivetestEventsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ListenLivetest(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(request_iterator, target, '/livetests.LivetestsService/ListenLivetest',
+            livetests__pb2.LivetestEventRequest.SerializeToString,
+            livetests__pb2.LivetestEventResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

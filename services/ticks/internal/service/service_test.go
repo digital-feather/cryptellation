@@ -8,9 +8,9 @@ import (
 	"time"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/ticks"
-	"github.com/digital-feather/cryptellation/internal/tests"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/ticks"
+	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb/redis"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers"

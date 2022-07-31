@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
 )
 
 type ListenEventsHandler struct {

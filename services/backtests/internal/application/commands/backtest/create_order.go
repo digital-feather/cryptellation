@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"

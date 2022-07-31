@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/ticks"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/ticks"
 	app "github.com/digital-feather/cryptellation/services/ticks/internal/application"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
 )

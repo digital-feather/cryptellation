@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/tests"
+	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"github.com/stretchr/testify/suite"
 )

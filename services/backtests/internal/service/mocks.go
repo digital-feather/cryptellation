@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	"google.golang.org/grpc"
 )
 

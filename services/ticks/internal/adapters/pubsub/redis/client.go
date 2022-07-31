@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
+	config "github.com/digital-feather/cryptellation/internal/go/adapters/redis"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
 	"github.com/go-redis/redis/v8"
 )

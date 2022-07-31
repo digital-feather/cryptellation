@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/exchanges"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/exchanges"
 	app "github.com/digital-feather/cryptellation/services/exchanges/internal/application"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"google.golang.org/grpc/codes"

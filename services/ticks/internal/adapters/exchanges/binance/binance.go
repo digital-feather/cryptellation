@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/digital-feather/cryptellation/pkg/utils"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/pairs"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
 
 	client "github.com/adshao/go-binance/v2"
@@ -57,6 +57,6 @@ func (s *Service) ListenSymbol(symbol string) (chan tick.Tick, chan struct{}, er
 }
 
 func toBinanceSymbol(symbol string) (string, error) {
-	base, quote, err := utils.ParsePairSymbol(symbol)
+	base, quote, err := pairs.ParsePairSymbol(symbol)
 	return fmt.Sprintf("%s%s", base, quote), err
 }

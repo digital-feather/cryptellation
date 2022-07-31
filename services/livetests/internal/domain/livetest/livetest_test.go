@@ -3,7 +3,7 @@ package livetest
 import (
 	"testing"
 
-	"github.com/digital-feather/cryptellation/services/livetests/internal/domain/account"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/account"
 	"github.com/stretchr/testify/suite"
 )
 

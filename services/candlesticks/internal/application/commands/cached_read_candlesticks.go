@@ -7,7 +7,8 @@ import (
 
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/exchanges"
-	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlesticks"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
 	"golang.org/x/xerrors"
 )
@@ -45,7 +46,7 @@ func NewCachedReadCandlesticksHandler(
 }
 
 func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload CachedReadCandlesticksPayload) (*candlestick.List, error) {
-	start, end := candlestick.ProcessRequestedStartEndTimes(payload.Period, payload.Start, payload.End)
+	start, end := candlesticks.ProcessRequestedStartEndTimes(payload.Period, payload.Start, payload.End)
 
 	id := candlestick.ListID{
 		ExchangeName: payload.ExchangeName,
@@ -58,11 +59,11 @@ func (reh CachedReadCandlesticksHandler) Handle(ctx context.Context, payload Cac
 		return nil, err
 	}
 
-	if !candlestick.AreMissing(cl, start, end, payload.Limit) {
+	if !candlesticks.AreMissing(cl, start, end, payload.Limit) {
 		return cl, nil
 	}
 
-	downloadStart, downloadEnd := candlestick.GetDownloadStartEndTimes(cl, start, end)
+	downloadStart, downloadEnd := candlesticks.GetDownloadStartEndTimes(cl, start, end)
 	if err := reh.download(ctx, cl, downloadStart, downloadEnd, payload.Limit); err != nil {
 		return nil, err
 	}

@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
-	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/status"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/tick"
+	config "github.com/digital-feather/cryptellation/internal/go/adapters/redis"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/status"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/tick"
 	"github.com/go-redis/redis/v8"
 )
 

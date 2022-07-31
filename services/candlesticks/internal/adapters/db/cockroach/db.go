@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/adapters/cockroachdb"
+	"github.com/digital-feather/cryptellation/internal/go/adapters/cockroachdb"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
-	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

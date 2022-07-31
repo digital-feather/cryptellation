@@ -3,7 +3,7 @@ set -e
 
 function generate {
   local readonly SERVICE_NAME=$1
-  local readonly OUTPUT_DIR=internal/controllers/grpc/genproto/$SERVICE_NAME
+  local readonly OUTPUT_DIR=common/go/controllers/grpc/genproto/$SERVICE_NAME
 
   mkdir -p $OUTPUT_DIR
 

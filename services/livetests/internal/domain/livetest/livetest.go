@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/digital-feather/cryptellation/services/livetests/internal/domain/account"
-	"github.com/digital-feather/cryptellation/services/livetests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/account"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
 )
 
 var (

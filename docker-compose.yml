@@ -23,7 +23,7 @@ services:
   exchanges:
     build:
       context: .
-      dockerfile: build/dev/Dockerfile
+      dockerfile: services/exchanges/Dockerfile
     volumes:
       - .:/code
       - /root/.cache/go-build
@@ -39,11 +39,10 @@ services:
       - cockroachdb
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/exchanges/cmd/exchanges-server/main.go" ]
   candlesticks:
     build:
       context: .
-      dockerfile: build/dev/Dockerfile
+      dockerfile: services/candlesticks/Dockerfile
     volumes:
       - .:/code
       - /root/.cache/go-build
@@ -59,11 +58,10 @@ services:
       - cockroachdb
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/candlesticks/cmd/candlesticks-server/main.go" ]
   backtests:
     build:
       context: .
-      dockerfile: build/dev/Dockerfile
+      dockerfile: services/backtests/Dockerfile
     volumes:
       - .:/code
       - /root/.cache/go-build
@@ -79,11 +77,10 @@ services:
       - candlesticks
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/backtests/cmd/backtests-server/main.go" ]
   ticks:
     build:
       context: .
-      dockerfile: build/dev/Dockerfile
+      dockerfile: services/ticks/Dockerfile
     volumes:
       - .:/code
       - /root/.cache/go-build
@@ -98,11 +95,10 @@ services:
       - redis
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/ticks/cmd/ticks-server/main.go" ]
   livetests:
     build:
       context: .
-      dockerfile: build/dev/Dockerfile
+      dockerfile: services/livetests/Dockerfile
     volumes:
       - .:/code
       - /root/.cache/go-build
@@ -117,6 +113,5 @@ services:
       - redis
     networks:
       - cryptellation-network
-    command: [ "go", "run", "./services/livetests/cmd/livetests-server/main.go" ]
 networks:
     cryptellation-network:

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/backtests"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/backtests"
 	app "github.com/digital-feather/cryptellation/services/backtests/internal/application"
 	cmdBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/commands/backtest"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/account"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/account"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
 )
 
 type GrpcController struct {

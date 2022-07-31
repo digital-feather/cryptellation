@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	config "github.com/digital-feather/cryptellation/internal/adapters/redis"
+	config "github.com/digital-feather/cryptellation/internal/go/adapters/redis"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"

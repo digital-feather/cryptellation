@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	grpcUtils "github.com/digital-feather/cryptellation/internal/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/livetests"
-	"github.com/digital-feather/cryptellation/internal/controllers/http/health"
+	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/livetests"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/http/health"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/service"
 	"google.golang.org/grpc"

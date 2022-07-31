@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
 	"golang.org/x/xerrors"
 )

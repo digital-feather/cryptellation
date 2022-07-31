@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/digital-feather/cryptellation/internal/adapters/cockroachdb"
+	"github.com/digital-feather/cryptellation/internal/go/adapters/cockroachdb"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"gorm.io/driver/postgres"

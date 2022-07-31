@@ -4,7 +4,7 @@ import (
 	"log"
 
 	client "github.com/digital-feather/cryptellation/clients/go"
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	pubsubRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub/redis"
 	vdbRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb/redis"
 	app "github.com/digital-feather/cryptellation/services/backtests/internal/application"

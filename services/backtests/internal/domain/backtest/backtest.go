@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/controllers/grpc/genproto/candlesticks"
-	"github.com/digital-feather/cryptellation/pkg/utils"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/account"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/candlestick"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/event"
+	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/account"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/pairs"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
 )
 
@@ -169,7 +169,7 @@ func (bt *Backtest) AddOrder(ord order.Order, cs *candlesticks.Candlestick) erro
 		return fmt.Errorf("error with orders exchange %q: %w", ord.ExchangeName, ErrInvalidExchange)
 	}
 
-	baseSymbol, quoteSymbol, err := utils.ParsePairSymbol(ord.PairSymbol)
+	baseSymbol, quoteSymbol, err := pairs.ParsePairSymbol(ord.PairSymbol)
 	if err != nil {
 		return fmt.Errorf("error when parsing order pair symbol: %w", err)
 	}
