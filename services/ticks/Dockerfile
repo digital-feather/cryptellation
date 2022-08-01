@@ -2,13 +2,8 @@ FROM golang:alpine
 
 WORKDIR /app
 
-# Dependencies
-COPY clients/go ./clients/go
-COPY internal/go ./internal/go
-COPY services/candlesticks ./services/candlesticks/
-
 # Code
-COPY services/ticks ./services/ticks/
+COPY / .
 
 # Build from code
 WORKDIR /app/services/ticks
@@ -20,12 +15,10 @@ FROM alpine
 
 # Install required running dependencies
 RUN apk update \
-    && apk add bash \
-    && apk add postgresql-client
+    && apk add bash
 
 # Install running files
 COPY services/ticks/entrypoint.sh .
-COPY scripts/runtime /scripts/
 COPY --from=0 /app/services/ticks/ticks-server /usr/local/bin
 
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]

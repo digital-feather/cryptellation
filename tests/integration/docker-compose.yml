@@ -16,7 +16,8 @@ services:
         command: start-single-node --insecure
         restart: unless-stopped
         volumes:
-            - ../../configs/sql:/docker-entrypoint-initdb.d
+            - ../../services/candlesticks/configs/candlesticks.sql:/docker-entrypoint-initdb.d/candlesticks.sql
+            - ../../services/exchanges/configs/exchanges.sql:/docker-entrypoint-initdb.d/exchanges.sql
     redis:
         container_name: cryptellation-tests-redis
         image: redis:alpine
@@ -33,7 +34,7 @@ services:
             - redis
         image: cryptellation-testing
         env_file:
-            - ../../configs/env/.env
+            - ../../.env
         volumes:
             - ../..:/code
         entrypoint: /code/tests/integration/entrypoint.sh

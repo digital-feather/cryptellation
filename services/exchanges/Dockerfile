@@ -2,12 +2,8 @@ FROM golang:alpine
 
 WORKDIR /app
 
-# Dependencies
-COPY clients/go ./clients/go
-COPY internal/go ./internal/go
-
 # Code
-COPY services/exchanges ./services/exchanges/
+COPY / .
 
 # Build from code
 WORKDIR /app/services/exchanges
@@ -24,7 +20,7 @@ RUN apk update \
 
 # Install running files
 COPY services/exchanges/entrypoint.sh .
-COPY scripts/runtime /scripts/
+COPY services/exchanges/scripts /scripts/
 COPY --from=0 /app/services/exchanges/exchanges-server /usr/local/bin
 
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]

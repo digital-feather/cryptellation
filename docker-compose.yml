@@ -14,7 +14,8 @@ services:
       command: start-single-node --insecure
       restart: unless-stopped
       volumes:
-          - ./configs/sql:/docker-entrypoint-initdb.d
+            - ./services/candlesticks/configs/candlesticks.sql:/docker-entrypoint-initdb.d/candlesticks.sql
+            - ./services/exchanges/configs/exchanges.sql:/docker-entrypoint-initdb.d/exchanges.sql
   redis:
       image: redis:alpine
       hostname: redis
@@ -31,7 +32,7 @@ services:
     ports:
       - 127.0.0.1:9002:9002
     env_file:
-      - configs/env/.env
+      - .env
     environment:
       - COCKROACHDB_DATABASE=exchanges
       - SERVICE_PORT=9002
@@ -50,7 +51,7 @@ services:
     ports:
       - 127.0.0.1:9003:9003
     env_file:
-      - configs/env/.env
+      - .env
     environment:
       - COCKROACHDB_DATABASE=candlesticks
       - SERVICE_PORT=9003
@@ -69,7 +70,7 @@ services:
     ports:
       - 127.0.0.1:9004:9004
     env_file:
-      - configs/env/.env
+      - .env
     environment:
       - SERVICE_PORT=9004
     depends_on:
@@ -88,7 +89,7 @@ services:
     ports:
       - 127.0.0.1:9005:9005
     env_file:
-      - configs/env/.env
+      - .env
     environment:
       - SERVICE_PORT=9005
     depends_on:
@@ -106,7 +107,7 @@ services:
     ports:
       - 127.0.0.1:9006:9006
     env_file:
-      - configs/env/.env
+      - .env
     environment:
       - SERVICE_PORT=9006
     depends_on:

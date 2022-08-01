@@ -2,13 +2,8 @@ FROM golang:alpine
 
 WORKDIR /app
 
-# Dependencies
-COPY clients/go ./clients/go
-COPY internal/go ./internal/go
-COPY services/candlesticks ./services/candlesticks/
-
 # Code
-COPY services/backtests ./services/backtests/
+COPY / .
 
 # Build from code
 WORKDIR /app/services/backtests
@@ -20,12 +15,10 @@ FROM alpine
 
 # Install required running dependencies
 RUN apk update \
-    && apk add bash \
-    && apk add postgresql-client
+    && apk add bash
 
 # Install running files
 COPY services/backtests/entrypoint.sh .
-COPY scripts/runtime /scripts/
 COPY --from=0 /app/services/backtests/backtests-server /usr/local/bin
 
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]

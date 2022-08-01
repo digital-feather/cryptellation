@@ -2,12 +2,8 @@ FROM golang:alpine
 
 WORKDIR /app
 
-# Dependencies
-COPY clients/go ./clients/go
-COPY internal/go ./internal/go
-
 # Code
-COPY services/candlesticks ./services/candlesticks/
+COPY / .
 
 # Build from code
 WORKDIR /app/services/candlesticks
@@ -24,7 +20,7 @@ RUN apk update \
 
 # Install running files
 COPY services/candlesticks/entrypoint.sh .
-COPY scripts/runtime /scripts/
+COPY services/candlesticks/scripts /scripts/
 COPY --from=0 /app/services/candlesticks/candlesticks-server /usr/local/bin
 
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]

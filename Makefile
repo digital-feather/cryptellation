@@ -31,17 +31,17 @@ proto: proto/golang proto/python ## Generate protobuf server/clients code
 
 proto/golang:
 	@echo -e "\e[94m[Generating Golang protobuf code]\e[0m"
-	@./scripts/proto/golang.sh backtests candlesticks exchanges livetests ticks
+	@./.make/proto/golang.sh backtests candlesticks exchanges livetests ticks
 
 proto/python:
 	@echo -e "\e[94m[Generating Python protobuf code]\e[0m"
-	@./scripts/proto/python.sh backtests candlesticks exchanges livetests ticks
+	@./.make/proto/python.sh backtests candlesticks exchanges livetests ticks
 
 lint: lint/golang ## Lint the server and clients code
 
 lint/golang:
 	@echo -e "\e[94m[Linting Golang code]\e[0m"
-	@./scripts/lint/golang.sh
+	@./.make/lint/golang.sh
 
 help: ## Display this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_\/-]+:.*?## / {printf "\033[34m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | \
