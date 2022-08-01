@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x63\x61ndlesticks.proto\x12\x0c\x63\x61ndlesticks\"c\n\x0b\x43\x61ndlestick\x12\x0c\n\x04time\x18\x01 \x01(\t\x12\x0c\n\x04open\x18\x02 \x01(\x02\x12\x0c\n\x04high\x18\x03 \x01(\x02\x12\x0b\n\x03low\x18\x04 \x01(\x02\x12\r\n\x05\x63lose\x18\x05 \x01(\x02\x12\x0e\n\x06volume\x18\x06 \x01(\x02\"\x87\x01\n\x17ReadCandlesticksRequest\x12\x15\n\rexchange_name\x18\x01 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x02 \x01(\t\x12\x15\n\rperiod_symbol\x18\x03 \x01(\t\x12\r\n\x05start\x18\x04 \x01(\t\x12\x0b\n\x03\x65nd\x18\x05 \x01(\t\x12\r\n\x05limit\x18\x06 \x01(\x03\"K\n\x18ReadCandlesticksResponse\x12/\n\x0c\x63\x61ndlesticks\x18\x01 \x03(\x0b\x32\x19.candlesticks.Candlestick2z\n\x13\x43\x61ndlesticksService\x12\x63\n\x10ReadCandlesticks\x12%.candlesticks.ReadCandlesticksRequest\x1a&.candlesticks.ReadCandlesticksResponse\"\x00\x42\x1cZ\x1a/pkg/genproto/candlesticksb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x63\x61ndlesticks.proto\x12\x0c\x63\x61ndlesticks\"c\n\x0b\x43\x61ndlestick\x12\x0c\n\x04time\x18\x01 \x01(\t\x12\x0c\n\x04open\x18\x02 \x01(\x02\x12\x0c\n\x04high\x18\x03 \x01(\x02\x12\x0b\n\x03low\x18\x04 \x01(\x02\x12\r\n\x05\x63lose\x18\x05 \x01(\x02\x12\x0e\n\x06volume\x18\x06 \x01(\x02\"\x87\x01\n\x17ReadCandlesticksRequest\x12\x15\n\rexchange_name\x18\x01 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x02 \x01(\t\x12\x15\n\rperiod_symbol\x18\x03 \x01(\t\x12\r\n\x05start\x18\x04 \x01(\t\x12\x0b\n\x03\x65nd\x18\x05 \x01(\t\x12\r\n\x05limit\x18\x06 \x01(\x03\"K\n\x18ReadCandlesticksResponse\x12/\n\x0c\x63\x61ndlesticks\x18\x01 \x03(\x0b\x32\x19.candlesticks.Candlestick2z\n\x13\x43\x61ndlesticksService\x12\x63\n\x10ReadCandlesticks\x12%.candlesticks.ReadCandlesticksRequest\x1a&.candlesticks.ReadCandlesticksResponse\"\x00\x42\'Z%/services/candlesticks/pkg/grpc/protob\x06proto3')
 
 
 
@@ -46,7 +46,7 @@ _CANDLESTICKSSERVICE = DESCRIPTOR.services_by_name['CandlesticksService']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'Z\032/pkg/genproto/candlesticks'
+  DESCRIPTOR._serialized_options = b'Z%/services/candlesticks/pkg/grpc/proto'
   _CANDLESTICK._serialized_start=36
   _CANDLESTICK._serialized_end=135
   _READCANDLESTICKSREQUEST._serialized_start=138

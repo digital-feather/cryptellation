@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
+	candlesticksProto "github.com/digital-feather/cryptellation/services/candlesticks/pkg/client/proto"
 	"google.golang.org/grpc"
 )
 
@@ -13,16 +13,16 @@ type MockedCandlesticksClient struct {
 
 func (m MockedCandlesticksClient) ReadCandlesticks(
 	ctx context.Context,
-	in *candlesticks.ReadCandlesticksRequest,
+	in *candlesticksProto.ReadCandlesticksRequest,
 	opts ...grpc.CallOption,
-) (*candlesticks.ReadCandlesticksResponse, error) {
+) (*candlesticksProto.ReadCandlesticksResponse, error) {
 	start, err := time.Parse(time.RFC3339, in.Start)
 	if err != nil {
 		return nil, err
 	}
 
-	return &candlesticks.ReadCandlesticksResponse{
-		Candlesticks: []*candlesticks.Candlestick{
+	return &candlesticksProto.ReadCandlesticksResponse{
+		Candlesticks: []*candlesticksProto.Candlestick{
 			{
 				Time:   start.Format(time.RFC3339),
 				Open:   1,

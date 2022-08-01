@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	client "github.com/digital-feather/cryptellation/clients/go"
 	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/exchanges"
 	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db/cockroach"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/exchanges/pkg/client"
+	"github.com/digital-feather/cryptellation/services/exchanges/pkg/client/proto"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 )
@@ -32,7 +32,7 @@ func TestServiceSuite(t *testing.T) {
 type ServiceSuite struct {
 	suite.Suite
 	db        *cockroach.DB
-	client    exchanges.ExchangesServiceClient
+	client    proto.ExchangesServiceClient
 	closeTest func() error
 }
 
@@ -46,7 +46,7 @@ func (suite *ServiceSuite) SetupSuite() {
 	rpcUrl := os.Getenv("CRYPTELLATION_EXCHANGES_GRPC_URL")
 	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(a)
-		exchanges.RegisterExchangesServiceServer(server, svc)
+		proto.RegisterExchangesServiceServer(server, svc)
 	})
 	suite.Require().NoError(err)
 
@@ -55,7 +55,7 @@ func (suite *ServiceSuite) SetupSuite() {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
 
-	client, closeClient, err := client.NewExchangesGrpcClient()
+	client, closeClient, err := client.Newclient()
 	suite.Require().NoError(err)
 	suite.client = client
 
@@ -82,7 +82,7 @@ func (suite *ServiceSuite) TearDownSuite() {
 
 func (suite *ServiceSuite) TestReadExchanges() {
 	// When requesting an exchange for the first time
-	resp, err := suite.client.ReadExchanges(context.Background(), &exchanges.ReadExchangesRequest{
+	resp, err := suite.client.ReadExchanges(context.Background(), &proto.ReadExchangesRequest{
 		Names: []string{
 			"mock_exchange",
 		},
@@ -102,7 +102,7 @@ func (suite *ServiceSuite) TestReadExchanges() {
 	suite.Require().WithinDuration(time.Now().UTC(), t, 2*time.Second)
 
 	// When the second request is made
-	resp, err = suite.client.ReadExchanges(context.Background(), &exchanges.ReadExchangesRequest{
+	resp, err = suite.client.ReadExchanges(context.Background(), &proto.ReadExchangesRequest{
 		Names: []string{
 			"mock_exchange",
 		},

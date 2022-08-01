@@ -6,13 +6,13 @@ import (
 	"os"
 	"testing"
 
-	client "github.com/digital-feather/cryptellation/clients/go"
 	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/livetests"
 	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/adapters/vdb/redis"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/livetests/pkg/client"
+	"github.com/digital-feather/cryptellation/services/livetests/pkg/client/proto"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 )
@@ -28,7 +28,7 @@ func TestServiceSuite(t *testing.T) {
 type ServiceSuite struct {
 	suite.Suite
 	vdb       vdb.Port
-	client    livetests.LivetestsServiceClient
+	client    proto.LivetestsServiceClient
 	closeTest func() error
 }
 
@@ -41,7 +41,7 @@ func (suite *ServiceSuite) SetupSuite() {
 	rpcUrl := os.Getenv("CRYPTELLATION_LIVETESTS_GRPC_URL")
 	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(a)
-		livetests.RegisterLivetestsServiceServer(server, svc)
+		proto.RegisterLivetestsServiceServer(server, svc)
 	})
 	suite.NoError(err)
 
@@ -50,7 +50,7 @@ func (suite *ServiceSuite) SetupSuite() {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
 
-	client, closeClient, err := client.NewLivetestsGrpcClient()
+	client, closeClient, err := client.Newclient()
 	suite.Require().NoError(err)
 	suite.client = client
 
@@ -72,8 +72,8 @@ func (suite *ServiceSuite) TearDownSuite() {
 }
 
 func (suite *ServiceSuite) TestCreateLivetest() {
-	req := livetests.CreateLivetestRequest{
-		Accounts: map[string]*livetests.Account{
+	req := proto.CreateLivetestRequest{
+		Accounts: map[string]*proto.Account{
 			"exchange": {
 				Assets: map[string]float32{
 					"DAI": 1000,
@@ -93,8 +93,8 @@ func (suite *ServiceSuite) TestCreateLivetest() {
 }
 
 func (suite *ServiceSuite) TestLivetestSubscribeToEvents() {
-	req := livetests.CreateLivetestRequest{
-		Accounts: map[string]*livetests.Account{
+	req := proto.CreateLivetestRequest{
+		Accounts: map[string]*proto.Account{
 			"exchange": {
 				Assets: map[string]float32{
 					"DAI": 1000,
@@ -106,7 +106,7 @@ func (suite *ServiceSuite) TestLivetestSubscribeToEvents() {
 	resp, err := suite.client.CreateLivetest(context.Background(), &req)
 	suite.Require().NoError(err)
 
-	_, err = suite.client.SubscribeToLivetestEvents(context.Background(), &livetests.SubscribeToLivetestEventsRequest{
+	_, err = suite.client.SubscribeToLivetestEvents(context.Background(), &proto.SubscribeToLivetestEventsRequest{
 		Id:           resp.Id,
 		ExchangeName: "exchange",
 		PairSymbol:   "ETH-DAI",

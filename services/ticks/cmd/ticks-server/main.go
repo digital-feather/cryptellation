@@ -8,10 +8,10 @@ import (
 	"syscall"
 
 	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/ticks"
 	"github.com/digital-feather/cryptellation/internal/go/controllers/http/health"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/service"
+	"github.com/digital-feather/cryptellation/services/ticks/pkg/client/proto"
 	"google.golang.org/grpc"
 )
 
@@ -35,7 +35,7 @@ func run() int {
 	// Init grpc server
 	srv, err := grpcUtils.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(app)
-		ticks.RegisterTicksServiceServer(server, svc)
+		proto.RegisterTicksServiceServer(server, svc)
 		h.Ready(true)
 	})
 	if err != nil {

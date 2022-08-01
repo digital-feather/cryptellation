@@ -8,8 +8,8 @@ import (
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/exchanges"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/domain/candlesticks"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/period"
 	"golang.org/x/xerrors"
 )
 

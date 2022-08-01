@@ -8,10 +8,10 @@ import (
 	"syscall"
 
 	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/backtests"
 	"github.com/digital-feather/cryptellation/internal/go/controllers/http/health"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/service"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/client/proto"
 	"google.golang.org/grpc"
 )
 
@@ -35,7 +35,7 @@ func run() int {
 	// Init grpc server
 	srv, err := grpcUtils.RunGRPCServer(func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(app)
-		backtests.RegisterBacktestsServiceServer(server, svc)
+		proto.RegisterBacktestsServiceServer(server, svc)
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", fmt.Errorf("running application: %w", err))

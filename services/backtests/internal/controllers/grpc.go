@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/backtests"
 	app "github.com/digital-feather/cryptellation/services/backtests/internal/application"
 	cmdBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/commands/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/account"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/client/proto"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/account"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/event"
 )
 
 type GrpcController struct {
@@ -23,7 +23,7 @@ func NewGrpcController(application app.Application) GrpcController {
 	return GrpcController{application: application}
 }
 
-func (g GrpcController) CreateBacktest(ctx context.Context, req *backtests.CreateBacktestRequest) (*backtests.CreateBacktestResponse, error) {
+func (g GrpcController) CreateBacktest(ctx context.Context, req *proto.CreateBacktestRequest) (*proto.CreateBacktestResponse, error) {
 	newPayload, err := fromCreateBacktestRequest(req)
 	if err != nil {
 		return nil, err
@@ -34,12 +34,12 @@ func (g GrpcController) CreateBacktest(ctx context.Context, req *backtests.Creat
 		return nil, err
 	}
 
-	return &backtests.CreateBacktestResponse{
+	return &proto.CreateBacktestResponse{
 		Id: uint64(id),
 	}, nil
 }
 
-func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.NewPayload, error) {
+func fromCreateBacktestRequest(req *proto.CreateBacktestRequest) (backtest.NewPayload, error) {
 	st, err := time.Parse(time.RFC3339, req.StartTime)
 	if err != nil {
 		return backtest.NewPayload{}, fmt.Errorf("error when parsing start_time: %w", err)
@@ -80,7 +80,7 @@ func fromCreateBacktestRequest(req *backtests.CreateBacktestRequest) (backtest.N
 	}, nil
 }
 
-func (g GrpcController) ListenBacktest(srv backtests.BacktestsService_ListenBacktestServer) error {
+func (g GrpcController) ListenBacktest(srv proto.BacktestsService_ListenBacktestServer) error {
 	var eventChan <-chan event.Event
 	var err error
 
@@ -123,7 +123,7 @@ func (g GrpcController) ListenBacktest(srv backtests.BacktestsService_ListenBack
 	}
 }
 
-func listenEventRequests(srv backtests.BacktestsService_ListenBacktestServer) <-chan uint64 {
+func listenEventRequests(srv proto.BacktestsService_ListenBacktestServer) <-chan uint64 {
 	requests := make(chan uint64)
 
 	go func() {
@@ -142,25 +142,25 @@ func listenEventRequests(srv backtests.BacktestsService_ListenBacktestServer) <-
 	return requests
 }
 
-func sendEventResponse(srv backtests.BacktestsService_ListenBacktestServer, evt event.Event) error {
+func sendEventResponse(srv proto.BacktestsService_ListenBacktestServer, evt event.Event) error {
 	content, err := json.Marshal(evt.Content)
 	if err != nil {
 		return fmt.Errorf("marshaling event content: %w", err)
 	}
 
-	return srv.Send(&backtests.BacktestEventResponse{
+	return srv.Send(&proto.BacktestEventResponse{
 		Type:    evt.Type.String(),
 		Time:    evt.Time.Format(time.RFC3339),
 		Content: string(content),
 	})
 }
 
-func (g GrpcController) SubscribeToBacktestEvents(ctx context.Context, req *backtests.SubscribeToBacktestEventsRequest) (*backtests.SubscribeToBacktestEventsResponse, error) {
+func (g GrpcController) SubscribeToBacktestEvents(ctx context.Context, req *proto.SubscribeToBacktestEventsRequest) (*proto.SubscribeToBacktestEventsResponse, error) {
 	err := g.application.Commands.Backtest.SubscribeToEvents.Handle(ctx, uint(req.Id), req.ExchangeName, req.PairSymbol)
-	return &backtests.SubscribeToBacktestEventsResponse{}, err
+	return &proto.SubscribeToBacktestEventsResponse{}, err
 }
 
-func (g GrpcController) CreateBacktestOrder(ctx context.Context, req *backtests.CreateBacktestOrderRequest) (*backtests.CreateBacktestOrderResponse, error) {
+func (g GrpcController) CreateBacktestOrder(ctx context.Context, req *proto.CreateBacktestOrderRequest) (*proto.CreateBacktestOrderResponse, error) {
 	payload := cmdBacktest.CreateOrderPayload{
 		BacktestId:   uint(req.BacktestId),
 		Type:         order.Type(req.Type),
@@ -171,17 +171,17 @@ func (g GrpcController) CreateBacktestOrder(ctx context.Context, req *backtests.
 	}
 
 	err := g.application.Commands.Backtest.CreateOrder.Handle(ctx, payload)
-	return &backtests.CreateBacktestOrderResponse{}, err
+	return &proto.CreateBacktestOrderResponse{}, err
 }
 
-func (g GrpcController) Accounts(ctx context.Context, req *backtests.AccountsRequest) (*backtests.AccountsResponse, error) {
+func (g GrpcController) Accounts(ctx context.Context, req *proto.AccountsRequest) (*proto.AccountsResponse, error) {
 	accounts, err := g.application.Queries.Backtest.GetAccounts.Handle(ctx, uint(req.BacktestId))
 	if err != nil {
 		return nil, err
 	}
 
-	resp := backtests.AccountsResponse{
-		Accounts: make(map[string]*backtests.Account, len(accounts)),
+	resp := proto.AccountsResponse{
+		Accounts: make(map[string]*proto.Account, len(accounts)),
 	}
 
 	for exch, acc := range accounts {
@@ -191,32 +191,32 @@ func (g GrpcController) Accounts(ctx context.Context, req *backtests.AccountsReq
 	return &resp, nil
 }
 
-func toGrpcAccount(exchange string, account account.Account) *backtests.Account {
+func toGrpcAccount(exchange string, account account.Account) *proto.Account {
 	assets := make(map[string]float32, len(account.Balances))
 	for asset, qty := range account.Balances {
 		assets[asset] = float32(qty)
 	}
 
-	return &backtests.Account{
+	return &proto.Account{
 		Assets: assets,
 	}
 }
 
-func (g GrpcController) Orders(ctx context.Context, req *backtests.OrdersRequest) (*backtests.OrdersResponse, error) {
+func (g GrpcController) Orders(ctx context.Context, req *proto.OrdersRequest) (*proto.OrdersResponse, error) {
 	orders, err := g.application.Queries.Backtest.GetOrders.Handle(ctx, uint(req.BacktestId))
 	if err != nil {
 		return nil, err
 	}
 
-	return &backtests.OrdersResponse{
+	return &proto.OrdersResponse{
 		Orders: toGrpcOrders(orders),
 	}, nil
 }
 
-func toGrpcOrders(orders []order.Order) []*backtests.Order {
-	formattedOrders := make([]*backtests.Order, len(orders))
+func toGrpcOrders(orders []order.Order) []*proto.Order {
+	formattedOrders := make([]*proto.Order, len(orders))
 	for i, o := range orders {
-		formattedOrders[i] = &backtests.Order{
+		formattedOrders[i] = &proto.Order{
 			Time:         o.Time.Format(time.RFC3339),
 			Type:         o.Type.String(),
 			ExchangeName: o.ExchangeName,

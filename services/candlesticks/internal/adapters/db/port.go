@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
 )
 
 type Port interface {

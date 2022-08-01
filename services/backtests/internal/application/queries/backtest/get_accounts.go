@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/account"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/account"
 )
 
 type GetAccounts struct {

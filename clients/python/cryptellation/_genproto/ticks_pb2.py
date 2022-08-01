@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bticks.proto\x12\x05ticks\"<\n\x13ListenSymbolRequest\x12\x10\n\x08\x65xchange\x18\x01 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x02 \x01(\t\"J\n\x04Tick\x12\x0c\n\x04time\x18\x01 \x01(\t\x12\x10\n\x08\x65xchange\x18\x02 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x03 \x01(\t\x12\r\n\x05price\x18\x04 \x01(\x02\x32K\n\x0cTicksService\x12;\n\x0cListenSymbol\x12\x1a.ticks.ListenSymbolRequest\x1a\x0b.ticks.Tick\"\x00\x30\x01\x42\x15Z\x13/pkg/genproto/ticksb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bticks.proto\x12\x05ticks\"<\n\x13ListenSymbolRequest\x12\x10\n\x08\x65xchange\x18\x01 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x02 \x01(\t\"J\n\x04Tick\x12\x0c\n\x04time\x18\x01 \x01(\t\x12\x10\n\x08\x65xchange\x18\x02 \x01(\t\x12\x13\n\x0bpair_symbol\x18\x03 \x01(\t\x12\r\n\x05price\x18\x04 \x01(\x02\x32K\n\x0cTicksService\x12;\n\x0cListenSymbol\x12\x1a.ticks.ListenSymbolRequest\x1a\x0b.ticks.Tick\"\x00\x30\x01\x42 Z\x1e/services/ticks/pkg/grpc/protob\x06proto3')
 
 
 
@@ -38,7 +38,7 @@ _TICKSSERVICE = DESCRIPTOR.services_by_name['TicksService']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'Z\023/pkg/genproto/ticks'
+  DESCRIPTOR._serialized_options = b'Z\036/services/ticks/pkg/grpc/proto'
   _LISTENSYMBOLREQUEST._serialized_start=22
   _LISTENSYMBOLREQUEST._serialized_end=82
   _TICK._serialized_start=84

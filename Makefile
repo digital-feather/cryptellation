@@ -1,8 +1,6 @@
 .PHONY: all
 .DEFAULT_GOAL := help
 
-GO_PACKAGES=$(shell find . -name "*.mod" | sed -e 's/go\.mod/.../')
-
 clean: ## Clean remaining containers
 	@echo -e "\e[94m[Cleaning remaining containers]\e[0m"
 	@docker-compose -f tests/integration/docker-compose.yml down
@@ -12,7 +10,7 @@ test: clean test/unit test/integration test/end-to-end ## Run all tests
 
 test/unit: ## Run unit tests only
 	@echo -e "\e[94m[Running unit tests]\e[0m"
-	@go test $(shell go list ${GO_PACKAGES} | grep -v -e /adapters -e /service$$ ) -coverprofile cover.out
+	@go test $(shell go list ./... | grep -v -e /adapters -e /service$$ ) -coverprofile cover.out
 	@echo -e "\e[94m[Displaying results]\e[0m"
 	@go tool cover -func cover.out
 	@rm cover.out

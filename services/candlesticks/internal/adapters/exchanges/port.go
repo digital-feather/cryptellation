@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/period"
 )
 
 type Port interface {

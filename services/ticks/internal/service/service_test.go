@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	client "github.com/digital-feather/cryptellation/clients/go"
 	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/ticks"
 	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb/redis"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/ticks/pkg/client"
+	"github.com/digital-feather/cryptellation/services/ticks/pkg/client/proto"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 )
@@ -29,7 +29,7 @@ func TestServiceSuite(t *testing.T) {
 type ServiceSuite struct {
 	suite.Suite
 	vdb       vdb.Port
-	client    ticks.TicksServiceClient
+	client    proto.TicksServiceClient
 	closeTest func() error
 }
 
@@ -42,7 +42,7 @@ func (suite *ServiceSuite) SetupTest() {
 	rpcUrl := os.Getenv("CRYPTELLATION_TICKS_GRPC_URL")
 	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(a)
-		ticks.RegisterTicksServiceServer(server, svc)
+		proto.RegisterTicksServiceServer(server, svc)
 	})
 	suite.Require().NoError(err)
 
@@ -51,7 +51,7 @@ func (suite *ServiceSuite) SetupTest() {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
 
-	client, closeClient, err := client.NewTicksGrpcClient()
+	client, closeClient, err := client.Newclient()
 	suite.Require().NoError(err)
 	suite.client = client
 
@@ -74,7 +74,7 @@ func (suite *ServiceSuite) AfterTest(suiteName, testName string) {
 
 func (suite *ServiceSuite) TestListenSymbol() {
 	stream, err := suite.client.ListenSymbol(context.Background(),
-		&ticks.ListenSymbolRequest{
+		&proto.ListenSymbolRequest{
 			Exchange:   "mock_exchange",
 			PairSymbol: "SYMBOL",
 		})

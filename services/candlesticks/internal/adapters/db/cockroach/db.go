@@ -7,7 +7,7 @@ import (
 
 	"github.com/digital-feather/cryptellation/internal/go/adapters/cockroachdb"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

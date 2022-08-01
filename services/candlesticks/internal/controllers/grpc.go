@@ -5,11 +5,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	app "github.com/digital-feather/cryptellation/services/candlesticks/internal/application"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/application/commands"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/client/proto"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/period"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -22,7 +22,7 @@ func NewGrpcController(application app.Application) GrpcController {
 	return GrpcController{application: application}
 }
 
-func (g GrpcController) ReadCandlesticks(ctx context.Context, req *candlesticks.ReadCandlesticksRequest) (*candlesticks.ReadCandlesticksResponse, error) {
+func (g GrpcController) ReadCandlesticks(ctx context.Context, req *proto.ReadCandlesticksRequest) (*proto.ReadCandlesticksResponse, error) {
 	payload, err := fromReadCandlesticksRequest(req)
 	if err != nil {
 		return nil, err
@@ -34,12 +34,12 @@ func (g GrpcController) ReadCandlesticks(ctx context.Context, req *candlesticks.
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &candlesticks.ReadCandlesticksResponse{
+	return &proto.ReadCandlesticksResponse{
 		Candlesticks: toGrpcCandlesticks(list),
 	}, nil
 }
 
-func fromReadCandlesticksRequest(req *candlesticks.ReadCandlesticksRequest) (commands.CachedReadCandlesticksPayload, error) {
+func fromReadCandlesticksRequest(req *proto.ReadCandlesticksRequest) (commands.CachedReadCandlesticksPayload, error) {
 	per, err := period.FromString(req.PeriodSymbol)
 	if err != nil {
 		return commands.CachedReadCandlesticksPayload{}, err
@@ -71,10 +71,10 @@ func fromReadCandlesticksRequest(req *candlesticks.ReadCandlesticksRequest) (com
 	return payload, nil
 }
 
-func toGrpcCandlesticks(cl *candlestick.List) []*candlesticks.Candlestick {
-	gcandlesticks := make([]*candlesticks.Candlestick, 0, cl.Len())
+func toGrpcCandlesticks(cl *candlestick.List) []*proto.Candlestick {
+	gcandlesticks := make([]*proto.Candlestick, 0, cl.Len())
 	_ = cl.Loop(func(t time.Time, cs candlestick.Candlestick) (bool, error) {
-		gcandlesticks = append(gcandlesticks, &candlesticks.Candlestick{
+		gcandlesticks = append(gcandlesticks, &proto.Candlestick{
 			Time:   t.Format(time.RFC3339Nano),
 			Open:   float32(cs.Open),
 			High:   float32(cs.High),

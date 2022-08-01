@@ -6,21 +6,21 @@ import (
 	"log"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/status"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/status"
+	candlesticksProto "github.com/digital-feather/cryptellation/services/candlesticks/pkg/client/proto"
 )
 
 type AdvanceHandler struct {
 	repository vdb.Port
 	pubsub     pubsub.Port
-	csClient   candlesticks.CandlesticksServiceClient
+	csClient   candlesticksProto.CandlesticksServiceClient
 }
 
-func NewAdvanceHandler(repository vdb.Port, ps pubsub.Port, csClient candlesticks.CandlesticksServiceClient) AdvanceHandler {
+func NewAdvanceHandler(repository vdb.Port, ps pubsub.Port, csClient candlesticksProto.CandlesticksServiceClient) AdvanceHandler {
 	if repository == nil {
 		panic("nil repository")
 	}
@@ -84,7 +84,7 @@ func (h AdvanceHandler) Handle(ctx context.Context, backtestId uint) error {
 func (h AdvanceHandler) readActualEvents(ctx context.Context, bt backtest.Backtest) ([]event.Event, error) {
 	evts := make([]event.Event, 0, len(bt.TickSubscribers))
 	for _, sub := range bt.TickSubscribers {
-		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticks.ReadCandlesticksRequest{
+		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticksProto.ReadCandlesticksRequest{
 			ExchangeName: sub.ExchangeName,
 			PairSymbol:   sub.PairSymbol,
 			PeriodSymbol: bt.PeriodBetweenEvents.String(),

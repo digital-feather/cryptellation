@@ -3,7 +3,7 @@ package pubsub
 import (
 	"context"
 
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/event"
 )
 
 type Port interface {

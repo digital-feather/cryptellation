@@ -3,17 +3,17 @@ package service
 import (
 	"log"
 
-	client "github.com/digital-feather/cryptellation/clients/go"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	pubsubRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/pubsub/redis"
 	vdbRedis "github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb/redis"
 	app "github.com/digital-feather/cryptellation/services/backtests/internal/application"
 	cmdBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/commands/backtest"
 	queriesBacktest "github.com/digital-feather/cryptellation/services/backtests/internal/application/queries/backtest"
+	candlesticksGrpc "github.com/digital-feather/cryptellation/services/candlesticks/pkg/client"
+	candlesticksProto "github.com/digital-feather/cryptellation/services/candlesticks/pkg/client/proto"
 )
 
 func NewApplication() (app.Application, func(), error) {
-	csClient, closeCsClient, err := client.NewCandlesticksGrpcClient()
+	csClient, closeCsClient, err := candlesticksGrpc.Newclient()
 	if err != nil {
 		return app.Application{}, func() {}, err
 	}
@@ -32,7 +32,7 @@ func NewMockedApplication() (app.Application, func(), error) {
 	return newApplication(MockedCandlesticksClient{})
 }
 
-func newApplication(client candlesticks.CandlesticksServiceClient) (app.Application, func(), error) {
+func newApplication(client candlesticksProto.CandlesticksServiceClient) (app.Application, func(), error) {
 	repository, err := vdbRedis.New()
 	if err != nil {
 		return app.Application{}, func() {}, err

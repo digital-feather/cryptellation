@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/pairs"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/pairs"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
 
 	client "github.com/adshao/go-binance/v2"

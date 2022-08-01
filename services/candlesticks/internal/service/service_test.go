@@ -7,15 +7,15 @@ import (
 	"testing"
 	"time"
 
-	client "github.com/digital-feather/cryptellation/clients/go"
 	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/adapters/db/cockroach"
 	"github.com/digital-feather/cryptellation/services/candlesticks/internal/controllers"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/candlestick"
-	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/period"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/client"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/client/proto"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
+	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/period"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 )
@@ -35,7 +35,7 @@ func TestServiceSuite(t *testing.T) {
 type ServiceSuite struct {
 	suite.Suite
 	db        db.Port
-	client    candlesticks.CandlesticksServiceClient
+	client    proto.CandlesticksServiceClient
 	closeTest func() error
 }
 
@@ -49,7 +49,7 @@ func (suite *ServiceSuite) SetupSuite() {
 	rpcUrl := os.Getenv("CRYPTELLATION_CANDLESTICKS_GRPC_URL")
 	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
 		svc := controllers.NewGrpcController(a)
-		candlesticks.RegisterCandlesticksServiceServer(server, svc)
+		proto.RegisterCandlesticksServiceServer(server, svc)
 	})
 	suite.Require().NoError(err)
 
@@ -58,7 +58,7 @@ func (suite *ServiceSuite) SetupSuite() {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
 
-	client, closeClient, err := client.NewCandlesticksGrpcClient()
+	client, closeClient, err := client.Newclient()
 	suite.Require().NoError(err)
 	suite.client = client
 
@@ -88,7 +88,7 @@ func (suite *ServiceSuite) TestGetCandlesticksAllExistWithNoneInDB() {
 	// Provided before
 
 	// When a request is made
-	resp, err := suite.client.ReadCandlesticks(context.Background(), &candlesticks.ReadCandlesticksRequest{
+	resp, err := suite.client.ReadCandlesticks(context.Background(), &proto.ReadCandlesticksRequest{
 		ExchangeName: "mock_exchange",
 		PairSymbol:   "ETH-USDC",
 		PeriodSymbol: period.M1.String(),
@@ -110,7 +110,7 @@ func (suite *ServiceSuite) TestGetCandlesticksAllInexistantWithNoneInDB() {
 	// Provided before
 
 	// When a request is made
-	resp, err := suite.client.ReadCandlesticks(context.Background(), &candlesticks.ReadCandlesticksRequest{
+	resp, err := suite.client.ReadCandlesticks(context.Background(), &proto.ReadCandlesticksRequest{
 		ExchangeName: "mock_exchange",
 		PairSymbol:   "ETH-USDC",
 		PeriodSymbol: period.M1.String(),
@@ -143,7 +143,7 @@ func (suite *ServiceSuite) TestGetCandlesticksFromDBAndService() {
 	suite.Require().NoError(suite.db.CreateCandlesticks(context.Background(), cl))
 
 	// When a request is made
-	resp, err := suite.client.ReadCandlesticks(context.Background(), &candlesticks.ReadCandlesticksRequest{
+	resp, err := suite.client.ReadCandlesticks(context.Background(), &proto.ReadCandlesticksRequest{
 		ExchangeName: "mock_exchange",
 		PairSymbol:   "ETH-USDC",
 		PeriodSymbol: period.M1.String(),
@@ -190,7 +190,7 @@ func (suite *ServiceSuite) TestGetCandlesticksFromDBAndServiceWithUncomplete() {
 	suite.Require().NoError(suite.db.CreateCandlesticks(context.Background(), cl))
 
 	// When a request is made
-	resp, err := suite.client.ReadCandlesticks(context.Background(), &candlesticks.ReadCandlesticksRequest{
+	resp, err := suite.client.ReadCandlesticks(context.Background(), &proto.ReadCandlesticksRequest{
 		ExchangeName: "mock_exchange",
 		PairSymbol:   "ETH-USDC",
 		PeriodSymbol: period.M1.String(),

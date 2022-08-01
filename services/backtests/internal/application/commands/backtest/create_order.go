@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/candlesticks"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/backtest"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/domain/order"
+	candlesticksProto "github.com/digital-feather/cryptellation/services/candlesticks/pkg/client/proto"
 )
 
 type CreateOrderHandler struct {
 	repository vdb.Port
-	csClient   candlesticks.CandlesticksServiceClient
+	csClient   candlesticksProto.CandlesticksServiceClient
 }
 
-func NewCreateOrderHandler(repository vdb.Port, csClient candlesticks.CandlesticksServiceClient) CreateOrderHandler {
+func NewCreateOrderHandler(repository vdb.Port, csClient candlesticksProto.CandlesticksServiceClient) CreateOrderHandler {
 	if repository == nil {
 		panic("nil repository")
 	}
@@ -62,7 +62,7 @@ func (h CreateOrderHandler) Handle(ctx context.Context, payload CreateOrderPaylo
 			return fmt.Errorf("cannot get backtest: %w", err)
 		}
 
-		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticks.ReadCandlesticksRequest{
+		resp, err := h.csClient.ReadCandlesticks(ctx, &candlesticksProto.ReadCandlesticksRequest{
 			ExchangeName: payload.ExchangeName,
 			PairSymbol:   payload.PairSymbol,
 			PeriodSymbol: bt.PeriodBetweenEvents.String(),

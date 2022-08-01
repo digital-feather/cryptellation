@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "/services/ticks/pkg/grpc/proto";
+
+package ticks;
+
+service TicksService {
+    rpc ListenSymbol(ListenSymbolRequest) returns (stream Tick) {}
+}
+
+message ListenSymbolRequest {
+    string exchange = 1;
+    string pair_symbol = 2;
+}
+
+message Tick {
+    string time = 1;
+    string exchange = 2;
+    string pair_symbol = 3;
+    float price = 4;
+}

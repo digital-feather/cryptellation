@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/controllers/grpc/genproto/ticks"
 	app "github.com/digital-feather/cryptellation/services/ticks/internal/application"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/domain/tick"
+	"github.com/digital-feather/cryptellation/services/ticks/pkg/client/proto"
 )
 
 type GrpcController struct {
@@ -18,7 +18,7 @@ func NewGrpcController(application app.Application) GrpcController {
 	return GrpcController{application: application}
 }
 
-func (g GrpcController) ListenSymbol(req *ticks.ListenSymbolRequest, srv ticks.TicksService_ListenSymbolServer) error {
+func (g GrpcController) ListenSymbol(req *proto.ListenSymbolRequest, srv proto.TicksService_ListenSymbolServer) error {
 	ctx := srv.Context()
 
 	// Start listening before registration to avoid missing ticks
@@ -43,7 +43,7 @@ func (g GrpcController) ListenSymbol(req *ticks.ListenSymbolRequest, srv ticks.T
 	return loopErr
 }
 
-func loopOverNewTicks(ctx context.Context, srv ticks.TicksService_ListenSymbolServer, ticksChanRecv <-chan tick.Tick) error {
+func loopOverNewTicks(ctx context.Context, srv proto.TicksService_ListenSymbolServer, ticksChanRecv <-chan tick.Tick) error {
 	for {
 		// exit if context is done
 		// or continue
@@ -64,8 +64,8 @@ func loopOverNewTicks(ctx context.Context, srv ticks.TicksService_ListenSymbolSe
 	}
 }
 
-func toGrpcTick(t tick.Tick) *ticks.Tick {
-	return &ticks.Tick{
+func toGrpcTick(t tick.Tick) *proto.Tick {
+	return &proto.Tick{
 		Time:       t.Time.Format(time.RFC3339Nano),
 		Exchange:   t.Exchange,
 		PairSymbol: t.PairSymbol,

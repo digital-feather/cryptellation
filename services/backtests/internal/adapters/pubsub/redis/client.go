@@ -8,9 +8,9 @@ import (
 	"time"
 
 	config "github.com/digital-feather/cryptellation/internal/go/adapters/redis"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/event"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/status"
-	"github.com/digital-feather/cryptellation/services/backtests/pkg/tick"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/event"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/status"
+	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/tick"
 	"github.com/go-redis/redis/v8"
 )
 
