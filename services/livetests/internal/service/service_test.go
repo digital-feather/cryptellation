@@ -3,18 +3,17 @@ package service
 import (
 	"context"
 	"log"
+	"net"
 	"os"
 	"testing"
+	"time"
 
-	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/adapters/vdb/redis"
-	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers/grpc"
 	"github.com/digital-feather/cryptellation/services/livetests/pkg/client"
 	"github.com/digital-feather/cryptellation/services/livetests/pkg/client/proto"
 	"github.com/stretchr/testify/suite"
-	"google.golang.org/grpc"
 )
 
 func TestServiceSuite(t *testing.T) {
@@ -33,19 +32,16 @@ type ServiceSuite struct {
 }
 
 func (suite *ServiceSuite) SetupSuite() {
-	defer tests.TempEnvVar("CRYPTELLATION_LIVETESTS_GRPC_URL", ":9006")()
+	defer tmpEnvVar("CRYPTELLATION_LIVETESTS_GRPC_URL", ":9006")()
 
 	a, closeApplication, err := NewMockedApplication()
 	suite.Require().NoError(err)
 
 	rpcUrl := os.Getenv("CRYPTELLATION_LIVETESTS_GRPC_URL")
-	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		proto.RegisterLivetestsServiceServer(server, svc)
-	})
-	suite.NoError(err)
+	grpcController := grpc.New(a)
+	suite.NoError(grpcController.RunOnAddr(rpcUrl))
 
-	ok := tests.WaitForPort(rpcUrl)
+	ok := waitForPort(rpcUrl)
 	if !ok {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
@@ -56,7 +52,7 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	suite.closeTest = func() error {
 		err := closeClient()
-		go grpcServer.Stop() // TODO: remove goroutine
+		go grpcController.Stop() // TODO: remove goroutine
 		closeApplication()
 		return err
 	}
@@ -118,4 +114,39 @@ func (suite *ServiceSuite) TestLivetestSubscribeToEvents() {
 	suite.Require().Len(recvBT.TickSubscribers, 1)
 	suite.Require().Equal("exchange", recvBT.TickSubscribers[0].ExchangeName)
 	suite.Require().Equal("ETH-DAI", recvBT.TickSubscribers[0].PairSymbol)
+}
+
+func tmpEnvVar(key, value string) (reset func()) {
+	originalValue := os.Getenv(key)
+	os.Setenv(key, value)
+	return func() {
+		os.Setenv(key, originalValue)
+	}
+}
+
+func waitForPort(address string) bool {
+	waitChan := make(chan struct{})
+
+	go func() {
+		for {
+			conn, err := net.DialTimeout("tcp", address, time.Second)
+			if err != nil {
+				time.Sleep(10 * time.Millisecond)
+				continue
+			}
+
+			if conn != nil {
+				waitChan <- struct{}{}
+				return
+			}
+		}
+	}()
+
+	timeout := time.After(5 * time.Second)
+	select {
+	case <-waitChan:
+		return true
+	case <-timeout:
+		return false
+	}
 }

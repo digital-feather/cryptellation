@@ -3,19 +3,17 @@ package service
 import (
 	"context"
 	"log"
+	"net"
 	"os"
 	"testing"
 	"time"
 
-	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/ticks/internal/adapters/vdb/redis"
-	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/ticks/internal/controllers/grpc"
 	"github.com/digital-feather/cryptellation/services/ticks/pkg/client"
 	"github.com/digital-feather/cryptellation/services/ticks/pkg/client/proto"
 	"github.com/stretchr/testify/suite"
-	"google.golang.org/grpc"
 )
 
 func TestServiceSuite(t *testing.T) {
@@ -34,19 +32,16 @@ type ServiceSuite struct {
 }
 
 func (suite *ServiceSuite) SetupTest() {
-	defer tests.TempEnvVar("CRYPTELLATION_TICKS_GRPC_URL", ":9005")()
+	defer tmpEnvVar("CRYPTELLATION_TICKS_GRPC_URL", ":9005")()
 
 	a, closeApplication, err := NewMockedApplication()
 	suite.Require().NoError(err)
 
 	rpcUrl := os.Getenv("CRYPTELLATION_TICKS_GRPC_URL")
-	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		proto.RegisterTicksServiceServer(server, svc)
-	})
-	suite.Require().NoError(err)
+	grpcController := grpc.New(a)
+	suite.NoError(grpcController.RunOnAddr(rpcUrl))
 
-	ok := tests.WaitForPort(rpcUrl)
+	ok := waitForPort(rpcUrl)
 	if !ok {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
@@ -57,7 +52,7 @@ func (suite *ServiceSuite) SetupTest() {
 
 	suite.closeTest = func() error {
 		err = closeClient()
-		go grpcServer.Stop() // TODO: remove goroutine
+		go grpcController.Stop() // TODO: remove goroutine
 		closeApplication()
 		return err
 	}
@@ -89,5 +84,40 @@ func (suite *ServiceSuite) TestListenSymbol() {
 		ti, err := time.Parse(time.RFC3339Nano, t.Time)
 		suite.Require().NoError(err)
 		suite.Require().WithinDuration(time.Unix(i, 0), ti, time.Microsecond)
+	}
+}
+
+func tmpEnvVar(key, value string) (reset func()) {
+	originalValue := os.Getenv(key)
+	os.Setenv(key, value)
+	return func() {
+		os.Setenv(key, originalValue)
+	}
+}
+
+func waitForPort(address string) bool {
+	waitChan := make(chan struct{})
+
+	go func() {
+		for {
+			conn, err := net.DialTimeout("tcp", address, time.Second)
+			if err != nil {
+				time.Sleep(10 * time.Millisecond)
+				continue
+			}
+
+			if conn != nil {
+				waitChan <- struct{}{}
+				return
+			}
+		}
+	}()
+
+	timeout := time.After(5 * time.Second)
+	select {
+	case <-waitChan:
+		return true
+	case <-timeout:
+		return false
 	}
 }

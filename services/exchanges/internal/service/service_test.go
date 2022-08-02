@@ -3,18 +3,16 @@ package service
 import (
 	"context"
 	"log"
+	"net"
 	"os"
 	"testing"
 	"time"
 
-	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db/cockroach"
-	"github.com/digital-feather/cryptellation/services/exchanges/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/exchanges/internal/controllers/grpc"
 	"github.com/digital-feather/cryptellation/services/exchanges/pkg/client"
 	"github.com/digital-feather/cryptellation/services/exchanges/pkg/client/proto"
 	"github.com/stretchr/testify/suite"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -37,20 +35,17 @@ type ServiceSuite struct {
 }
 
 func (suite *ServiceSuite) SetupSuite() {
-	defer tests.TempEnvVar("COCKROACHDB_DATABASE", testDatabase)()
-	defer tests.TempEnvVar("CRYPTELLATION_EXCHANGES_GRPC_URL", ":9003")()
+	defer tmpEnvVar("COCKROACHDB_DATABASE", testDatabase)()
+	defer tmpEnvVar("CRYPTELLATION_EXCHANGES_GRPC_URL", ":9003")()
 
 	a, err := newMockApplication()
 	suite.Require().NoError(err)
 
 	rpcUrl := os.Getenv("CRYPTELLATION_EXCHANGES_GRPC_URL")
-	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		proto.RegisterExchangesServiceServer(server, svc)
-	})
-	suite.Require().NoError(err)
+	grpcController := grpc.New(a)
+	suite.NoError(grpcController.RunOnAddr(rpcUrl))
 
-	ok := tests.WaitForPort(rpcUrl)
+	ok := waitForPort(rpcUrl)
 	if !ok {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
@@ -60,13 +55,13 @@ func (suite *ServiceSuite) SetupSuite() {
 	suite.client = client
 
 	suite.closeTest = func() error {
-		go grpcServer.Stop() // TODO: remove goroutine
+		go grpcController.Stop() // TODO: remove goroutine
 		return closeClient()
 	}
 }
 
 func (suite *ServiceSuite) SetupTest() {
-	defer tests.TempEnvVar("COCKROACHDB_DATABASE", testDatabase)()
+	defer tmpEnvVar("COCKROACHDB_DATABASE", testDatabase)()
 
 	db, err := cockroach.New()
 	suite.Require().NoError(err)
@@ -114,4 +109,39 @@ func (suite *ServiceSuite) TestReadExchanges() {
 	// And the last sync time is the same as previous
 	suite.Require().Len(resp.Exchanges, 1)
 	suite.Require().Equal(firstTime, resp.Exchanges[0].LastSyncTime)
+}
+
+func tmpEnvVar(key, value string) (reset func()) {
+	originalValue := os.Getenv(key)
+	os.Setenv(key, value)
+	return func() {
+		os.Setenv(key, originalValue)
+	}
+}
+
+func waitForPort(address string) bool {
+	waitChan := make(chan struct{})
+
+	go func() {
+		for {
+			conn, err := net.DialTimeout("tcp", address, time.Second)
+			if err != nil {
+				time.Sleep(10 * time.Millisecond)
+				continue
+			}
+
+			if conn != nil {
+				waitChan <- struct{}{}
+				return
+			}
+		}
+	}()
+
+	timeout := time.After(5 * time.Second)
+	select {
+	case <-waitChan:
+		return true
+	case <-timeout:
+		return false
+	}
 }

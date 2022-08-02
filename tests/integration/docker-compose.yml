@@ -28,7 +28,7 @@ services:
         container_name: cryptellation-tests
         build:
             context: ../..
-            dockerfile: build/dev/Dockerfile
+            dockerfile: tests/integration/Dockerfile
         depends_on:
             - cockroachdb
             - redis

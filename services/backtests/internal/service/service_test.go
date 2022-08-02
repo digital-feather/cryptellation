@@ -3,20 +3,18 @@ package service
 import (
 	"context"
 	"log"
+	"net"
 	"os"
 	"testing"
 	"time"
 
-	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb"
 	"github.com/digital-feather/cryptellation/services/backtests/internal/adapters/vdb/redis"
-	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/backtests/internal/controllers/grpc"
 	"github.com/digital-feather/cryptellation/services/backtests/pkg/client"
 	"github.com/digital-feather/cryptellation/services/backtests/pkg/client/proto"
 	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/event"
 	"github.com/stretchr/testify/suite"
-	"google.golang.org/grpc"
 )
 
 func TestServiceSuite(t *testing.T) {
@@ -35,19 +33,16 @@ type ServiceSuite struct {
 }
 
 func (suite *ServiceSuite) SetupSuite() {
-	defer tests.TempEnvVar("CRYPTELLATION_BACKTESTS_GRPC_URL", ":9004")()
+	defer tmpEnvVar("CRYPTELLATION_BACKTESTS_GRPC_URL", ":9004")()
 
 	a, closeApplication, err := NewMockedApplication()
 	suite.Require().NoError(err)
 
 	rpcUrl := os.Getenv("CRYPTELLATION_BACKTESTS_GRPC_URL")
-	grpcServer, err := grpcUtils.RunGRPCServerOnAddr(rpcUrl, func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(a)
-		proto.RegisterBacktestsServiceServer(server, svc)
-	})
-	suite.NoError(err)
+	grpcController := grpc.New(a)
+	suite.NoError(grpcController.RunOnAddr(rpcUrl))
 
-	ok := tests.WaitForPort(rpcUrl)
+	ok := waitForPort(rpcUrl)
 	if !ok {
 		log.Println("Timed out waiting for trainer gRPC to come up")
 	}
@@ -58,7 +53,7 @@ func (suite *ServiceSuite) SetupSuite() {
 
 	suite.closeTest = func() error {
 		err := closeClient()
-		go grpcServer.Stop() // TODO: remove goroutine
+		go grpcController.Stop() // TODO: remove goroutine
 		closeApplication()
 		return err
 	}
@@ -301,4 +296,39 @@ func (suite *ServiceSuite) TestBacktestOrders() {
 	suite.Require().Equal("sell", ordersResp.Orders[1].Side)
 	suite.Require().Equal(float32(1), ordersResp.Orders[1].Quantity)
 	suite.Require().Equal(float32(2), ordersResp.Orders[1].Price)
+}
+
+func tmpEnvVar(key, value string) (reset func()) {
+	originalValue := os.Getenv(key)
+	os.Setenv(key, value)
+	return func() {
+		os.Setenv(key, originalValue)
+	}
+}
+
+func waitForPort(address string) bool {
+	waitChan := make(chan struct{})
+
+	go func() {
+		for {
+			conn, err := net.DialTimeout("tcp", address, time.Second)
+			if err != nil {
+				time.Sleep(10 * time.Millisecond)
+				continue
+			}
+
+			if conn != nil {
+				waitChan <- struct{}{}
+				return
+			}
+		}
+	}()
+
+	timeout := time.After(5 * time.Second)
+	select {
+	case <-waitChan:
+		return true
+	case <-timeout:
+		return false
+	}
 }

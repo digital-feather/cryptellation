@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"github.com/stretchr/testify/suite"
 )
@@ -25,7 +24,7 @@ type CockroachDatabaseSuite struct {
 }
 
 func (suite *CockroachDatabaseSuite) SetupTest() {
-	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "exchanges")()
+	defer tmpEnvVar("COCKROACHDB_DATABASE", "exchanges")()
 
 	db, err := New()
 	suite.Require().NoError(err)
@@ -35,7 +34,7 @@ func (suite *CockroachDatabaseSuite) SetupTest() {
 }
 
 func (suite *CockroachDatabaseSuite) TestNewWithURIError() {
-	defer tests.TempEnvVar("COCKROACHDB_HOST", "")()
+	defer tmpEnvVar("COCKROACHDB_HOST", "")()
 
 	var err error
 	_, err = New()
@@ -220,7 +219,7 @@ func (suite *CockroachDatabaseSuite) TestReset() {
 	as.NoError(suite.db.CreateExchanges(context.Background(), p))
 
 	// When we reset the DB
-	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "exchanges")()
+	defer tmpEnvVar("COCKROACHDB_DATABASE", "exchanges")()
 	as.NoError(suite.db.Reset())
 
 	// Then there is no exchange left
@@ -237,4 +236,12 @@ func (suite *CockroachDatabaseSuite) TestReset() {
 	periods := []Period{}
 	as.NoError(suite.db.client.WithContext(context.Background()).Find(&periods).Error)
 	as.Len(periods, 0)
+}
+
+func tmpEnvVar(key, value string) (reset func()) {
+	originalValue := os.Getenv(key)
+	os.Setenv(key, value)
+	return func() {
+		os.Setenv(key, originalValue)
+	}
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/digital-feather/cryptellation/internal/go/adapters/cockroachdb"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/adapters/db"
 	"github.com/digital-feather/cryptellation/services/exchanges/internal/domain/exchange"
 	"gorm.io/driver/postgres"
@@ -13,16 +12,16 @@ import (
 
 type DB struct {
 	client *gorm.DB
-	config cockroachdb.Config
+	config Config
 }
 
 func New() (*DB, error) {
-	var c cockroachdb.Config
+	var c Config
 	if err := c.Load().Validate(); err != nil {
 		return nil, fmt.Errorf("loading cockroachdb config: %w", err)
 	}
 
-	client, err := gorm.Open(postgres.Open(c.URL()), cockroachdb.DefaultGormConfig)
+	client, err := gorm.Open(postgres.Open(c.URL()), DefaultGormConfig)
 	if err != nil {
 		return nil, fmt.Errorf("opening cockroachdb connection: %w", err)
 	}

@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digital-feather/cryptellation/internal/go/tests"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/candlestick"
 	"github.com/digital-feather/cryptellation/services/candlesticks/pkg/models/period"
 	"github.com/stretchr/testify/suite"
@@ -26,7 +25,7 @@ type CockroachDatabaseSuite struct {
 }
 
 func (suite *CockroachDatabaseSuite) SetupTest() {
-	defer tests.TempEnvVar("COCKROACHDB_DATABASE", "candlesticks")()
+	defer tmpEnvVar("COCKROACHDB_DATABASE", "candlesticks")()
 
 	db, err := New()
 	suite.Require().NoError(err)
@@ -36,7 +35,7 @@ func (suite *CockroachDatabaseSuite) SetupTest() {
 }
 
 func (suite *CockroachDatabaseSuite) TestNewWithURIError() {
-	defer tests.TempEnvVar("COCKROACHDB_HOST", "")()
+	defer tmpEnvVar("COCKROACHDB_HOST", "")()
 
 	var err error
 	_, err = New()
@@ -442,4 +441,12 @@ func (suite *CockroachDatabaseSuite) TestDelete() {
 		suite.Require().Equal(origCS, cs)
 		return false, nil
 	}))
+}
+
+func tmpEnvVar(key, value string) (reset func()) {
+	originalValue := os.Getenv(key)
+	os.Setenv(key, value)
+	return func() {
+		os.Setenv(key, originalValue)
+	}
 }

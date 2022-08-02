@@ -7,12 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	grpcUtils "github.com/digital-feather/cryptellation/internal/go/controllers/grpc"
-	"github.com/digital-feather/cryptellation/internal/go/controllers/http/health"
-	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers"
+	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers/grpc"
+	"github.com/digital-feather/cryptellation/services/livetests/internal/controllers/http/health"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/service"
-	"github.com/digital-feather/cryptellation/services/livetests/pkg/client/proto"
-	"google.golang.org/grpc"
 )
 
 func run() int {
@@ -33,15 +30,12 @@ func run() int {
 	defer closeApp()
 
 	// Init grpc server
-	srv, err := grpcUtils.RunGRPCServer(func(server *grpc.Server) {
-		svc := controllers.NewGrpcController(app)
-		proto.RegisterLivetestsServiceServer(server, svc)
-	})
-	if err != nil {
+	grpcController := grpc.New(app)
+	if err := grpcController.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "An error occured when %+v\n", fmt.Errorf("running application: %w", err))
 		return 255
 	}
-	defer srv.GracefulStop()
+	defer grpcController.GracefulStop()
 
 	// Service marked as ready
 	log.Println("Service is ready")

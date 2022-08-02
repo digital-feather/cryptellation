@@ -1,4 +1,4 @@
-package cockroachdb
+package cockroach
 
 import (
 	"os"

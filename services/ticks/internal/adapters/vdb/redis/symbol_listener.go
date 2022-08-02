@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 
-	config "github.com/digital-feather/cryptellation/internal/go/adapters/redis"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
@@ -22,7 +21,7 @@ type DB struct {
 }
 
 func New() (*DB, error) {
-	var c config.Config
+	var c Config
 	if err := c.Load().Validate(); err != nil {
 		return nil, fmt.Errorf("loading redis config: %w", err)
 	}

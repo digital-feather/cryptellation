@@ -1,9 +1,12 @@
-package controllers
+package grpc
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net"
+	"os"
 	"time"
 
 	"github.com/digital-feather/cryptellation/services/backtests/pkg/models/account"
@@ -11,14 +14,65 @@ import (
 	app "github.com/digital-feather/cryptellation/services/livetests/internal/application"
 	"github.com/digital-feather/cryptellation/services/livetests/internal/domain/livetest"
 	"github.com/digital-feather/cryptellation/services/livetests/pkg/client/proto"
+	"golang.org/x/xerrors"
+	"google.golang.org/grpc"
 )
 
 type GrpcController struct {
 	application app.Application
+	server      *grpc.Server
 }
 
-func NewGrpcController(application app.Application) GrpcController {
+func New(application app.Application) GrpcController {
 	return GrpcController{application: application}
+}
+
+func (g *GrpcController) Run() error {
+	port := os.Getenv("SERVICE_PORT")
+	if port == "" {
+		return xerrors.New("no service port provided")
+	}
+	addr := fmt.Sprintf(":%s", port)
+	return g.RunOnAddr(addr)
+}
+
+func (g *GrpcController) RunOnAddr(addr string) error {
+	grpcServer := grpc.NewServer()
+	proto.RegisterLivetestsServiceServer(grpcServer, g)
+
+	listen, err := net.Listen("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("grpc listening error: %w", err)
+	}
+
+	log.Println("Starting: gRPC Listener")
+	go func() {
+		if err := grpcServer.Serve(listen); err != nil {
+			log.Println("error when serving grpc:", err)
+		}
+	}()
+
+	return nil
+}
+
+func (g *GrpcController) GracefulStop() {
+	if g.server == nil {
+		log.Println("WARNING: attempted to gracefully stop a non running grpc server")
+		return
+	}
+
+	g.server.GracefulStop()
+	g.server = nil
+}
+
+func (g *GrpcController) Stop() {
+	if g.server == nil {
+		log.Println("WARNING: attempted to stop a non running grpc server")
+		return
+	}
+
+	g.server.Stop()
+	g.server = nil
 }
 
 func (g GrpcController) CreateLivetest(ctx context.Context, req *proto.CreateLivetestRequest) (*proto.CreateLivetestResponse, error) {
